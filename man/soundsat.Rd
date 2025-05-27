@@ -16,7 +16,7 @@ soundsat(
   histbreaks = "FD",
   powthr = c(5.1, 20, 0.1),
   bgnthr = c(0.51, 0.99, 0.02),
-  normality = "ks.test",
+  normality = "ad.test",
   backup = NULL
 )
 }
@@ -39,13 +39,13 @@ soundsat(
 
 \item{histbreaks}{Which breaks to use to calculate background noise (default = "FD")}
 
-\item{powthr}{The values to evaluate the activity matrix for soundscape power (in dB)}
+\item{powthr}{The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step of each value.}
 
-\item{bgnthr}{The values to evaluate the activity matrix for background noise (in \%)}
+\item{bgnthr}{The values to evaluate the activity matrix for background noise (in \%). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step of each value.}
 
-\item{normality}{The normality test to determine which threshold has the most normal distribution of values}
+\item{normality}{The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins doesn't exceeds 5000 we reccomend using the shapiro.test function.}
 
-\item{backup}{A path in case you wish to backup your saturation values in case you need to turn of the computer or just to be safe.}
+\item{backup}{A path in case you wish to backup your saturation values in case you need to turn of the computer or in case you cannot be sure the computer will be on for the entire proccess.}
 }
 \value{
 A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values. The third (normality) contains the p values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that ocurred with specific files during the function.
@@ -66,6 +66,8 @@ For each combination of threshold a soundscape saturation measure will be taken 
 \deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
 
 After these equations are done, we check every threshold combination for normality and pick the combination that yields the most normal distribution of saturation values.
+
+If you set a path for the "path" argument, a single R object will be written in your path for each audiofile individually. These objects can be loaded again through the "sat_backup" function to continue the calculation of saturation in case the proccess is stopped.
 }
 \examples{
 ### Whatever in creation exists without my knowledge exists without my consent.
