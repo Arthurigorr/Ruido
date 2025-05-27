@@ -68,8 +68,8 @@ process_channel <- function(channel_data,
 
     colnames(BGN_POW_df) <- paste0(rep(c("BGN", "POW"), frame_bin), rep(1:frame_bin, each = 2))
 
-    BGN <- data.frame(BGN_POW_df[, grepl("BGN", colnames(BGN_POW_df))])
-    POW <- data.frame(BGN_POW_df[, grepl("POW", colnames(BGN_POW_df))])
+    BGN <- data.frame(BGN_POW_df[, grepl("BGN", colnames(BGN_POW_df)), drop = FALSE])
+    POW <- data.frame(BGN_POW_df[, grepl("POW", colnames(BGN_POW_df)), drop = FALSE])
 
     return(list(BGN = BGN, POW = POW))
 
