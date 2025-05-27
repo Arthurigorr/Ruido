@@ -25,7 +25,14 @@
 #'
 #' Pijanowski, B. C. (2024). Principles of Soundscape Ecology.
 #'
-#' @examples ### HUMANITY WAS CRUSHED UNDER THE WHEELS OF A MACHINE CREATED TO CREATE THE MACHINE TO CRUSH THE MACHINE.
+#'@export
+#'@importFrom signal specgram
+#'@importFrom tuneR readWave
+#'@importFrom tuneR readMP3
+#'@importFrom tuneR downsample
+#'
+#' @examples ### IN THE END HUMANITY WAS CRUSHED UNDER THE WHEELS OF A
+#' ### MACHINE CREATED TO CREATE THE MACHINE TO CRUSH THE MACHINE.
 bgnoise <- function(audiofile,
                     channel = "stereo",
                     time_bin = 60,
