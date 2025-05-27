@@ -11,10 +11,10 @@
 #' @param channel The desired channel of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
 #' @param db_threshold The minimum possible threshold for the dB values of the spectrogram (default = -90)
 #' @param histbreaks Which breaks to use to calculate background noise (default = "FD")
-#' @param powthr The values to evaluate the activity matrix for soundscape power (in dB)
-#' @param bgnthr The values to evaluate the activity matrix for background noise (in %)
-#' @param normality The normality test to determine which threshold has the most normal distribution of values
-#' @param backup A path in case you wish to backup your saturation values in case you need to turn of the computer or just to be safe.
+#' @param powthr The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step of each value.
+#' @param bgnthr The values to evaluate the activity matrix for background noise (in %). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step of each value.
+#' @param normality The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins doesn't exceeds 5000 we reccomend using the shapiro.test function.
+#' @param backup A path in case you wish to backup your saturation values in case you need to turn of the computer or in case you cannot be sure the computer will be on for the entire proccess.
 #'
 #' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values. The third (normality) contains the p values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that ocurred with specific files during the function.
 #'
@@ -31,7 +31,16 @@
 #'
 #'After these equations are done, we check every threshold combination for normality and pick the combination that yields the most normal distribution of saturation values.
 #'
+#'If you set a path for the "path" argument, a single R object will be written in your path for each audiofile individually. These objects can be loaded again through the "sat_backup" function to continue the calculation of saturation in case the proccess is stopped.
+#'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205–215. https://doi.org/10.1111/cobi.12968
+#'
+#'@export
+#'@importFrom methods is
+#'@importFrom stats quantile
+#'@importFrom stats setNames
+#'@importFrom stats shapiro.test
+#'@importFrom nortest ad.test
 #'
 #' @examples ### Whatever in creation exists without my knowledge exists without my consent.
 soundsat <- function(soundpath,
@@ -45,11 +54,8 @@ soundsat <- function(soundpath,
                      histbreaks = "FD",
                      powthr = c(5.1, 20, 0.1),
                      bgnthr = c(0.51, 0.99, 0.02),
-                     normality = "ks.test",
+                     normality = "ad.test",
                      backup = NULL) {
-  require(tuneR)
-  require(signal)
-
   if (all(!dir.exists(soundpath)))
     stop("all provided soundpaths must be valid.")
 
@@ -67,11 +73,11 @@ soundsat <- function(soundpath,
       "
       Using shapiro.test can be dangerous since you WILL lose all your progress if the
       number of total bins exceeds 5000.
-      Do you wish to use Kolmogorov-Smirnov test instead? (Y/N)."
+      Do you wish to use Anderson-Darling test instead? (Y/N)."
     )
 
     if (answernorm == "Y") {
-      normality <- "ks.test"
+      normality <- "ad.test"
     } else if (answernorm == "N") {
       print("You were warned.")
     } else {
@@ -204,7 +210,7 @@ soundsat <- function(soundpath,
         }))
 
 
-        singsat <- data.frame(
+        singsat <- as.data.frame(
           mapply(
             function(bgnthresh, powthresh) {
               sapply(1:length(BGN_POW$time_bins), function(i) {
@@ -222,8 +228,7 @@ soundsat <- function(soundpath,
         DURATION <- BGN_POW$time_bins
 
       } else {
-
-        real_channel <- c("left","right")[c("left", "right") %in% names(BGN_POW)]
+        real_channel <- c("left", "right")[c("left", "right") %in% names(BGN_POW)]
 
         BGN_Q <- apply(BGN_POW[[real_channel]][["BGN"]], 2, function(n)
           setNames(
@@ -242,7 +247,7 @@ soundsat <- function(soundpath,
         })), real_channel)
 
 
-        singsat <- data.frame(
+        singsat <- as.data.frame(
           mapply(
             function(bgnthresh, powthresh) {
               sapply(1:length(BGN_POW$time_bins), function(i) {
@@ -255,7 +260,11 @@ soundsat <- function(soundpath,
           )
         )
 
-        rownames(singsat) <- paste0(basename(soundfile), "_", real_channel, "_bin", seq(nrow(singsat)))
+        rownames(singsat) <- paste0(basename(soundfile),
+                                    "_",
+                                    real_channel,
+                                    "_bin",
+                                    seq(nrow(singsat)))
 
         DURATION <- BGN_POW$time_bins
 
@@ -273,11 +282,9 @@ soundsat <- function(soundpath,
       )
 
       if (!is.null(backup)) {
-
         save_l <- list(SAT = singsat, DUR = DURATION)
 
-        saveRDS(save_l,
-                file = paste0(backup, "/", basename(soundfile), ".RData"))
+        saveRDS(save_l, file = paste0(backup, "/", basename(soundfile), ".RData"))
 
         rm(save_l)
       }
@@ -295,17 +302,14 @@ soundsat <- function(soundpath,
   which.error <- sapply(SAT_df, function(x)
     is(x, "error") || is(x, "warning"))
   ERRORS <- SAT_df[which.error]
-  DURATIONS <- as.numeric(sapply(SAT_df[!which.error], function(x)
-    x[["DUR"]]))
+  DURATIONS <- unlist(sapply(SAT_df[!which.error], function(x)
+    x[["DUR"]]), use.names = FALSE)
   SAT_df <- do.call(rbind, lapply(SAT_df[!which.error], function(x)
     x[["SAT"]]))
 
   colnames(SAT_df) <- combinations
 
-  normal <- if (normality == "ks.test") {
-    apply(SAT_df, 2, function(Q)
-      ks.test(Q, pnorm)$p.value)
-  } else if (normality == "shapiro.test") {
+  normal <- if (normality == "shapiro.test") {
     apply(SAT_df, 2, function(x)
       ifelse(length(unique(x)) != 1, shapiro.test(x)$p.value, 0))
 
