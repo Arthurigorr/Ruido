@@ -185,10 +185,8 @@ soundsat <- function(soundpath,
 
         })))
 
-        rownames(singsat) <- paste0(basename(soundfile),
-                                    rep(c("_left", "_right"), each = nrow(singsat) / 2),
-                                    "_bin",
-                                    seq(nrow(singsat) / 2))
+        bins_unique <- paste(rep(c('left', 'right'), each = nrow(singsat) /
+                                   2), seq(nrow(singsat) / 2), sep = "_")
 
         DURATION <- rep(BGN_POW$time_bins, 2)
 
@@ -223,7 +221,7 @@ soundsat <- function(soundpath,
           )
         )
 
-        rownames(singsat) <- paste0(basename(soundfile), "_mono", "_bin", seq(nrow(singsat)))
+        bins_unique <- paste("mono", seq(nrow(singsat)), sep = "_")
 
         DURATION <- BGN_POW$time_bins
 
@@ -260,11 +258,7 @@ soundsat <- function(soundpath,
           )
         )
 
-        rownames(singsat) <- paste0(basename(soundfile),
-                                    "_",
-                                    real_channel,
-                                    "_bin",
-                                    seq(nrow(singsat)))
+        bins_unique <- paste(real_channel, seq(nrow(singsat)), sep = "_")
 
         DURATION <- BGN_POW$time_bins
 
@@ -291,7 +285,12 @@ soundsat <- function(soundpath,
 
       gc()
 
-      return(list(SAT = singsat, DUR = DURATION))
+      return(list(
+        SAT = singsat,
+        DUR = DURATION,
+        BIN = bins_unique,
+        NAME = soundfile
+      ))
     }
 
   })
@@ -304,6 +303,8 @@ soundsat <- function(soundpath,
   ERRORS <- SAT_df[which.error]
   DURATIONS <- unlist(sapply(SAT_df[!which.error], function(x)
     x[["DUR"]]), use.names = FALSE)
+  PATHS <- unlist(sapply(SAT_df[!which.error], function(x)
+    rep(x[["NAME"]], length(x[["BIN"]]))))
   SAT_df <- do.call(rbind, lapply(SAT_df[!which.error], function(x)
     x[["SAT"]]))
 
@@ -348,9 +349,12 @@ soundsat <- function(soundpath,
   export["powthresh"] <- as.numeric(thresholds[1])
   export["bgntresh"] <- as.numeric(thresholds[2]) * 100
   export["normality"] <- as.numeric(as.numeric(max(normal)))
-  export[["values"]] <- data.frame(AUDIO = rownames(SAT_df),
-                                   DURATION = DURATIONS,
-                                   SAT = SAT_df[, which.max(normal)])
+  export[["values"]] <- data.frame(
+    PATH = dirname(PATHS),
+    AUDIO = basename(PATHS),
+    DURATION = DURATIONS,
+    SAT = SAT_df[, which.max(normal)]
+  )
   export[["errors"]] <- data.frame(file = soundfiles[which.error], do.call(rbind, ERRORS))
 
   return(export)
