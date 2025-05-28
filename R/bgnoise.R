@@ -1,16 +1,16 @@
 #' @title Background Noise and Soundscape Power Index
 #'
-#' @description Compute the Background Noise and Soundscape Power values of an audio using Towsey, 2017 methodology
+#' @description Compute the Background Noise and Soundscape Power values of an audio using Towsey 2017 methodology
 #'
-#' @param audiofile A tuneR Wave object or the path to a valid audio
-#' @param channel The desired channel of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
-#' @param time_bin The size (in seconds) of your time bin
-#' @param db_threshold The minimum possible threshold for the dB values of the spectrogram (default = -90)
-#' @param target_samp_rate The sampling rate of the spectrogram (this argument is only used to down sample the sample rate)
+#' @param audiofile A tuneR Wave object or the path to a valid audio in your computer
+#' @param channel The channel you want to computer of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
+#' @param time_bin The size (in seconds) of the time bin (default = 60)
+#' @param db_threshold The minimum possible value of dB for the spectrograms (default = -90)
+#' @param target_samp_rate The sampling rate of your audio (this argument is only used to down sample your audio)
 #' @param wl The window length of your spectrogram (default = 512)
 #' @param window The window used to smooth the signal (default = hamming(wl))
-#' @param overlap Overlap between the spectrogram windows
-#' @param histbreaks Which breaks to use to calculate background noise (default = "FD")
+#' @param overlap Overlap between the spectrogram windows (the default is half your window length)
+#' @param histbreaks Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100
 #'
 #' @returns A list containing three objects: The first and second one contains a matrix with the values of background noise and soundscape power respectively to each time bin and for each frequency window of your audiofile. The third object is the duration in second of your time bins.
 #' @details Background noise is an index that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It is calculated by taking the modal value of intensity values in temporal bin c in frequency window f:

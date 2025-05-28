@@ -7,13 +7,13 @@
 sat_backup(
   backup_path,
   od,
+  channel = "stereo",
   time_bin = 60,
+  db_threshold = -90,
   target_samp_rate = NULL,
   wl = 512,
   window = signal::hamming(wl),
   overlap = ceiling(length(window)/2),
-  channel = "stereo",
-  db_threshold = -90,
   histbreaks = "FD",
   powthr = c(5.1, 20, 0.1),
   bgnthr = c(0.51, 0.99, 0.02),
@@ -25,7 +25,9 @@ sat_backup(
 
 \item{od}{The path or paths containing your original audiofiles.}
 
-\item{time_bin}{The size (in seconds) of your time bin.}
+\item{time_bin}{The size (in seconds) of your time bin.
+#' @param channel The desired channel of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
+#' @param db_threshold The minimum possible threshold for the dB values of the spectrogram (default = -90)}
 
 \item{target_samp_rate}{The sampling rate of the spectrogram (this argument is only used to down sample the sample rate)}
 
@@ -35,17 +37,13 @@ sat_backup(
 
 \item{overlap}{Overlap between the spectrogram windows}
 
-\item{channel}{The desired channel of your audiofile. Available channels are: "stereo", "mono", "left" or "right"}
+\item{histbreaks}{Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100}
 
-\item{db_threshold}{The minimum possible threshold for the dB values of the spectrogram (default = -90)}
+\item{powthr}{The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step}
 
-\item{histbreaks}{Which breaks to use to calculate background noise (default = "FD")}
+\item{bgnthr}{The values to evaluate the activity matrix for background noise (in \%). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step}
 
-\item{powthr}{The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step of each value.}
-
-\item{bgnthr}{The values to evaluate the activity matrix for background noise (in \%). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step of each value.}
-
-\item{normality}{The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins doesn't exceeds 5000 we reccomend using the shapiro.test function.}
+\item{normality}{The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins won't exceeds 5000 we recommend using the shapiro.test function.}
 }
 \value{
 A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values. The third (normality) contains the p values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that ocurred with specific files during the function.

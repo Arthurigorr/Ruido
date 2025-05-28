@@ -3,16 +3,16 @@
 #' @param backup_path The same path you set in your "backup" in the soundsat function. Audiofiles already finished will be drawn from this path.
 #' @param od The path or paths containing your original audiofiles.
 #' @param time_bin The size (in seconds) of your time bin.
+#' #' @param channel The desired channel of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
+#' #' @param db_threshold The minimum possible threshold for the dB values of the spectrogram (default = -90)
 #' @param target_samp_rate The sampling rate of the spectrogram (this argument is only used to down sample the sample rate)
 #' @param wl The window length of your spectrogram (default = 512)
 #' @param window The window used to smooth the signal (default = hamming(wl))
 #' @param overlap Overlap between the spectrogram windows
-#' @param channel The desired channel of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
-#' @param db_threshold The minimum possible threshold for the dB values of the spectrogram (default = -90)
-#' @param histbreaks Which breaks to use to calculate background noise (default = "FD")
-#' @param powthr The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step of each value.
-#' @param bgnthr The values to evaluate the activity matrix for background noise (in %). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step of each value.
-#' @param normality The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins doesn't exceeds 5000 we reccomend using the shapiro.test function.
+#' @param histbreaks Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100
+#' @param powthr The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step
+#' @param bgnthr The values to evaluate the activity matrix for background noise (in %). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step
+#' @param normality The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins won't exceeds 5000 we recommend using the shapiro.test function.
 #'
 #' @description
 #' This function is a way to backup an unfinished proccess of the soundsat function.
@@ -26,13 +26,13 @@
 #' ### But when have angels ever helped me yet?
 sat_backup <- function(backup_path,
                        od,
+                       channel = "stereo",
                        time_bin = 60,
+                       db_threshold = -90,
                        target_samp_rate = NULL,
                        wl = 512,
                        window = signal::hamming(wl),
                        overlap = ceiling(length(window) / 2),
-                       channel = "stereo",
-                       db_threshold = -90,
                        histbreaks = "FD",
                        powthr = c(5.1, 20, 0.1),
                        bgnthr = c(0.51, 0.99, 0.02),
@@ -160,10 +160,8 @@ sat_backup <- function(backup_path,
 
           })))
 
-          rownames(singsat) <- paste0(basename(soundfile),
-                                      rep(c("_left", "_right"), each = nrow(singsat) / 2),
-                                      "_bin",
-                                      seq(nrow(singsat) / 2))
+          bins_unique <- paste(rep(c('left', 'right'), each = nrow(singsat) /
+                                     2), seq(nrow(singsat) / 2), sep = "_")
 
           DURATION <- rep(BGN_POW$time_bins, 2)
 
@@ -198,7 +196,7 @@ sat_backup <- function(backup_path,
             )
           )
 
-          rownames(singsat) <- paste0(basename(soundfile), "_mono", "_bin", seq(nrow(singsat)))
+          bins_unique <- paste("mono", seq(nrow(singsat)), sep = "_")
 
           DURATION <- BGN_POW$time_bins
 
@@ -235,11 +233,7 @@ sat_backup <- function(backup_path,
             )
           )
 
-          rownames(singsat) <- paste0(basename(soundfile),
-                                      "_",
-                                      real_channel,
-                                      "_bin",
-                                      seq(nrow(singsat)))
+          bins_unique <- paste(real_channel, seq(nrow(singsat)), sep = "_")
 
           DURATION <- BGN_POW$time_bins
 
@@ -266,7 +260,12 @@ sat_backup <- function(backup_path,
 
         gc()
 
-        return(list(SAT = singsat, DUR = DURATION))
+        return(list(
+          SAT = singsat,
+          DUR = DURATION,
+          BIN = bins_unique,
+          NAME = soundfile
+        ))
       }
 
     })
@@ -278,8 +277,12 @@ sat_backup <- function(backup_path,
   which.error <- sapply(SAT_df, function(x)
     is(x, "error") || is(x, "warning"))
   ERRORS <- SAT_df[which.error]
-  DURATIONS <- as.numeric(unlist(sapply(SAT_df[!which.error], function(x)
-    x[["DUR"]])))
+  DURATIONS <- unlist(sapply(SAT_df[!which.error], function(x)
+    x[["DUR"]]), use.names = FALSE)
+  PATHS <- unlist(sapply(SAT_df[!which.error], function(x)
+    rep(x[["NAME"]], length(x[["BIN"]]))))
+  BINS <- unlist(sapply(SAT_df[!which.error], function(x)
+    x[["BIN"]]), use.names = FALSE)
   SAT_df <- do.call(rbind, lapply(SAT_df[!which.error], function(x)
     x[["SAT"]]))
 
@@ -325,10 +328,14 @@ sat_backup <- function(backup_path,
   export["powthresh"] <- as.numeric(thresholds[1])
   export["bgntresh"] <- as.numeric(thresholds[2]) * 100
   export["normality"] <- as.numeric(as.numeric(max(normal)))
-  export[["values"]] <- data.frame(AUDIO = rownames(SAT_df),
-                                   DURATION = DURATIONS,
-                                   SAT = SAT_df[, which.max(normal)])
-  export[["errors"]] <- data.frame(file = originalfiles[which.error], do.call(rbind, ERRORS))
+  export[["values"]] <- data.frame(
+    PATH = dirname(PATHS),
+    AUDIO = basename(PATHS),
+    BIN = BINS,
+    DURATION = DURATIONS,
+    SAT = SAT_df[, which.max(normal)]
+  )
+  export[["errors"]] <- data.frame(file = soundfiles[which.error], do.call(rbind, ERRORS))
 
   return(export)
 

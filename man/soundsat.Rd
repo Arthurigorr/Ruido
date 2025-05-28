@@ -6,13 +6,13 @@
 \usage{
 soundsat(
   soundpath,
+  channel = "stereo",
   time_bin = 60,
+  db_threshold = -90,
   target_samp_rate = NULL,
   wl = 512,
   window = signal::hamming(wl),
   overlap = ceiling(length(window)/2),
-  channel = "stereo",
-  db_threshold = -90,
   histbreaks = "FD",
   powthr = c(5.1, 20, 0.1),
   bgnthr = c(0.51, 0.99, 0.02),
@@ -21,37 +21,35 @@ soundsat(
 )
 }
 \arguments{
-\item{soundpath}{A path of multiple paths to your recordings. This path must direct to a folder or combination of folders.}
+\item{soundpath}{A path of multiple paths to your recordings. This path must direct to a folder or combination of folders.
+#' @param channel The channel you want to computer of your audiofile. Available channels are: "stereo", "mono", "left" or "right"}
 
-\item{time_bin}{The size (in seconds) of your time bin.}
+\item{time_bin}{The size (in seconds) of the time bin (default = 60)
+#' @param db_threshold The minimum possible value of dB for the spectrograms (default = -90)}
 
-\item{target_samp_rate}{The sampling rate of the spectrogram (this argument is only used to down sample the sample rate)}
+\item{target_samp_rate}{The sampling rate of your audio (this argument is only used to down sample your audio)}
 
 \item{wl}{The window length of your spectrogram (default = 512)}
 
-\item{window}{The window used to smooth the signal (default = hamming(wl))}
+\item{window}{The window used to smooth the signal (default = signal::hamming(wl))}
 
-\item{overlap}{Overlap between the spectrogram windows}
+\item{overlap}{Overlap between the spectrogram windows (the default is half your window length)}
 
-\item{channel}{The desired channel of your audiofile. Available channels are: "stereo", "mono", "left" or "right"}
+\item{histbreaks}{Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100}
 
-\item{db_threshold}{The minimum possible threshold for the dB values of the spectrogram (default = -90)}
+\item{powthr}{The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step}
 
-\item{histbreaks}{Which breaks to use to calculate background noise (default = "FD")}
+\item{bgnthr}{The values to evaluate the activity matrix for background noise (in \%). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step}
 
-\item{powthr}{The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step of each value.}
+\item{normality}{The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins won't exceeds 5000 we recommend using the shapiro.test function.}
 
-\item{bgnthr}{The values to evaluate the activity matrix for background noise (in \%). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step of each value.}
-
-\item{normality}{The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins doesn't exceeds 5000 we reccomend using the shapiro.test function.}
-
-\item{backup}{A path in case you wish to backup your saturation values in case you need to turn of the computer or in case you cannot be sure the computer will be on for the entire proccess.}
+\item{backup}{A path in case you wish to backup your saturation values in case you need to turn of the computer or in case you cannot be sure the computer will be on for the entire process.}
 }
 \value{
 A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values. The third (normality) contains the p values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that ocurred with specific files during the function.
 }
 \description{
-Calculate Soundscape Saturation for a combination of recordings using Burivalova, 2018 methodology
+Calculate Soundscape Saturation for a combination of recordings using Burivalova 2018 methodology
 }
 \details{
 Soundscape Saturation is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Zuzana Burivalova as an index to test the acoustic niche hypothesis.

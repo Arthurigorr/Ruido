@@ -1,20 +1,20 @@
 #' @title Soundscape Saturation Index
 #'
-#' @description Calculate Soundscape Saturation for a combination of recordings using Burivalova, 2018 methodology
+#' @description Calculate Soundscape Saturation for a combination of recordings using Burivalova 2018 methodology
 #'
 #' @param soundpath A path of multiple paths to your recordings. This path must direct to a folder or combination of folders.
-#' @param time_bin The size (in seconds) of your time bin.
-#' @param target_samp_rate The sampling rate of the spectrogram (this argument is only used to down sample the sample rate)
+#' #' @param channel The channel you want to computer of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
+#' @param time_bin The size (in seconds) of the time bin (default = 60)
+#' #' @param db_threshold The minimum possible value of dB for the spectrograms (default = -90)
+#' @param target_samp_rate The sampling rate of your audio (this argument is only used to down sample your audio)
 #' @param wl The window length of your spectrogram (default = 512)
-#' @param window The window used to smooth the signal (default = hamming(wl))
-#' @param overlap Overlap between the spectrogram windows
-#' @param channel The desired channel of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
-#' @param db_threshold The minimum possible threshold for the dB values of the spectrogram (default = -90)
-#' @param histbreaks Which breaks to use to calculate background noise (default = "FD")
-#' @param powthr The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step of each value.
-#' @param bgnthr The values to evaluate the activity matrix for background noise (in %). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step of each value.
-#' @param normality The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins doesn't exceeds 5000 we reccomend using the shapiro.test function.
-#' @param backup A path in case you wish to backup your saturation values in case you need to turn of the computer or in case you cannot be sure the computer will be on for the entire proccess.
+#' @param window The window used to smooth the signal (default = signal::hamming(wl))
+#' @param overlap Overlap between the spectrogram windows (the default is half your window length)
+#' @param histbreaks Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100
+#' @param powthr The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step
+#' @param bgnthr The values to evaluate the activity matrix for background noise (in %). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step
+#' @param normality The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins won't exceeds 5000 we recommend using the shapiro.test function.
+#' @param backup A path in case you wish to backup your saturation values in case you need to turn of the computer or in case you cannot be sure the computer will be on for the entire process.
 #'
 #' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values. The third (normality) contains the p values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that ocurred with specific files during the function.
 #'
@@ -44,13 +44,13 @@
 #'
 #' @examples ### Whatever in creation exists without my knowledge exists without my consent.
 soundsat <- function(soundpath,
+                     channel = "stereo",
                      time_bin = 60,
+                     db_threshold = -90,
                      target_samp_rate = NULL,
                      wl = 512,
                      window = signal::hamming(wl),
                      overlap = ceiling(length(window) / 2),
-                     channel = "stereo",
-                     db_threshold = -90,
                      histbreaks = "FD",
                      powthr = c(5.1, 20, 0.1),
                      bgnthr = c(0.51, 0.99, 0.02),
@@ -305,6 +305,8 @@ soundsat <- function(soundpath,
     x[["DUR"]]), use.names = FALSE)
   PATHS <- unlist(sapply(SAT_df[!which.error], function(x)
     rep(x[["NAME"]], length(x[["BIN"]]))))
+  BINS <- unlist(sapply(SAT_df[!which.error], function(x)
+    x[["BIN"]]), use.names = FALSE)
   SAT_df <- do.call(rbind, lapply(SAT_df[!which.error], function(x)
     x[["SAT"]]))
 
@@ -324,7 +326,7 @@ soundsat <- function(soundpath,
 
   thresholds <- unlist(strsplit(names(which.max(normal)), split = "/"))
 
-  cat(
+   cat(
     "\n           Soundscape Saturation Results\n\n",
     "POW Threshold = ",
     as.numeric(thresholds[1]),
@@ -352,6 +354,7 @@ soundsat <- function(soundpath,
   export[["values"]] <- data.frame(
     PATH = dirname(PATHS),
     AUDIO = basename(PATHS),
+    BIN = BINS,
     DURATION = DURATIONS,
     SAT = SAT_df[, which.max(normal)]
   )
