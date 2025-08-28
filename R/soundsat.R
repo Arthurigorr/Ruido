@@ -107,7 +107,13 @@ soundsat <- function(soundpath,
 
   half_wl <- wl / 2
 
-  SAT_df <- lapply(soundfiles, function(soundfile) {
+  SAT_df <- list()
+  fiveSteps <- 1
+
+  for(soundfile in soundfiles) {
+
+    fiveSteps <- fiveSteps + 1
+
     BGN_POW <- tryCatch(
       bgnoise(
         soundfile,
@@ -126,14 +132,14 @@ soundsat <- function(soundpath,
         w
     )
 
-    if (is(BGN_POW, "error") || is(BGN_POW, "warning")) {
+    SAT_df[[soundfile]] <- if (is(BGN_POW, "error") || is(BGN_POW, "warning")) {
       cat("\n",
           basename(soundfile),
           "is not valid!\nError:",
           BGN_POW$message,
           "\n")
 
-      return(BGN_POW)
+      BGN_POW
 
     } else {
       if (all(c("left", "right") %in% names(BGN_POW))) {
@@ -275,38 +281,37 @@ soundsat <- function(soundpath,
         sep = ""
       )
 
-      if (!is.null(backup)) {
-        save_l <- list(SAT = singsat, DUR = DURATION)
-
-        saveRDS(save_l, file = paste0(backup, "/", basename(soundfile), ".RData"))
-
-        rm(save_l)
-      }
-
       gc()
 
-      return(list(
+      list(
         SAT = singsat,
         DUR = DURATION,
         BIN = bins_unique,
         NAME = soundfile
-      ))
+      )
+
     }
 
-  })
+    if (!is.null(backup) && fiveSteps %% 5 == 0) {
+
+      saveRDS(SAT_df, file = paste0(backup, "/SAT_BACKUP.RData"))
+
+    }
+
+  }
 
   if (!is.null(backup))
-    file.remove(paste0(backup, "/", basename(soundfiles), ".txt"))
+    file.remove(paste0(backup, "/SAT_BACKUP.RData"))
 
   which.error <- sapply(SAT_df, function(x)
     is(x, "error") || is(x, "warning"))
   ERRORS <- SAT_df[which.error]
-  DURATIONS <- unlist(sapply(SAT_df[!which.error], function(x)
-    x[["DUR"]]), use.names = FALSE)
-  PATHS <- unlist(sapply(SAT_df[!which.error], function(x)
+  DURATIONS <- c(sapply(SAT_df[!which.error], function(x)
+    x[["DUR"]]))
+  PATHS <- c(sapply(SAT_df[!which.error], function(x)
     rep(x[["NAME"]], length(x[["BIN"]]))))
-  BINS <- unlist(sapply(SAT_df[!which.error], function(x)
-    x[["BIN"]]), use.names = FALSE)
+  BINS <- c(sapply(SAT_df[!which.error], function(x)
+    x[["BIN"]]))
   SAT_df <- do.call(rbind, lapply(SAT_df[!which.error], function(x)
     x[["SAT"]]))
 
