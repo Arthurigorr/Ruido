@@ -2,17 +2,17 @@
 #'
 #' @description Compute the Background Noise and Soundscape Power values of an audio using Towsey 2017 methodology
 #'
-#' @param audiofile A tuneR Wave object or the path to a valid audio in your computer
-#' @param channel The channel you want to computer of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
-#' @param time_bin The size (in seconds) of the time bin (default = 60)
-#' @param db_threshold The minimum possible value of dB for the spectrograms (default = -90)
-#' @param target_samp_rate The sampling rate of your audio (this argument is only used to down sample your audio)
+#' @param soundfile A tuneR Wave object or the path to a valid audio in your computer
+#' @param channel The channel you want to computer of your soundfile. Available channels are: "stereo", "mono", "left" or "right"
+#' @param timeBin The size (in seconds) of the time bin (default = 60)
+#' @param dbThreshold The minimum possible value of dB for the spectrograms (default = -90)
+#' @param targetSampRate The sampling rate of your audio (this argument is only used to down sample your audio)
 #' @param wl The window length of your spectrogram (default = 512)
 #' @param window The window used to smooth the signal (default = hamming(wl))
 #' @param overlap Overlap between the spectrogram windows (the default is half your window length)
 #' @param histbreaks Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100
 #'
-#' @returns A list containing three objects: The first and second one contains a matrix with the values of background noise and soundscape power respectively to each time bin and for each frequency window of your audiofile. The third object is the duration in second of your time bins.
+#' @returns A list containing three objects: The first and second one contains a matrix with the values of background noise and soundscape power respectively to each time bin and for each frequency window of your soundfile. The third object is the duration in second of your time bins.
 #' @details Background noise is an index that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It is calculated by taking the modal value of intensity values in temporal bin c in frequency window f:
 #'
 #'\deqn{BGN_{f} = mode(dB_{cf})}
@@ -31,13 +31,34 @@
 #'@importFrom tuneR readMP3
 #'@importFrom tuneR downsample
 #'
-#' @examples ### IN THE END HUMANITY WAS CRUSHED UNDER THE WHEELS OF A
-#' ### MACHINE CREATED TO CREATE THE MACHINE TO CRUSH THE MACHINE.
-bgnoise <- function(audiofile,
+#' @examples
+#' # Getting audiofile from the online Zenodo library
+#' dir <- tempdir()
+#' rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0),".wav")
+#' recDir <- paste(dir,rec , sep = "\\")
+#' url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
+#'
+#' # Downloading the file, might take some time denpending on your internet
+#' download.file(url, destfile = recDir, mode = "wb")
+#'
+#' # Running the bgnoise function with all the default arguments
+#' bgn <- bgnoise(recDir)
+#'
+#' # Print the results
+#' print(bgn)
+#'
+#' # Plotting background noise and soundscape profile for the first minute of the recording
+#' par(mfrow = c(1,2))
+#' plot(x = bgn$left$BGN$BGN1, y = seq(1,24000, length.out = 256),
+#' xlab = "Background Noise (dB)", ylab = "Frequency (hz)")
+#' plot(x = bgn$left$POW$POW1, y = seq(1,24000, length.out = 256),
+#' xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)")
+#'
+bgnoise <- function(soundfile,
                     channel = "stereo",
-                    time_bin = 60,
-                    db_threshold = -90,
-                    target_samp_rate = NULL,
+                    timeBin = 60,
+                    dbThreshold = -90,
+                    targetSampRate = NULL,
                     wl = 512,
                     window = signal::hamming(wl),
                     overlap = ceiling(length(window) / 2),
@@ -46,18 +67,18 @@ bgnoise <- function(audiofile,
     stop("Please provide a valid channel: 'left', 'right', 'stereo', or 'mono'.")
   }
 
-  audio <- if (is.character(audiofile)) {
-    if (tools::file_ext(audiofile) %in% c("mp3", "wav")) {
-      if (tools::file_ext(audiofile) == "mp3") {
-        tuneR::readMP3(audiofile)
+  audio <- if (is.character(soundfile)) {
+    if (tools::file_ext(soundfile) %in% c("mp3", "wav")) {
+      if (tools::file_ext(soundfile) == "mp3") {
+        tuneR::readMP3(soundfile)
       } else {
-        tuneR::readWave(audiofile)
+        tuneR::readWave(soundfile)
       }
     } else {
       stop("The audio file must be in MP3 or WAV format.")
     }
   } else {
-    audiofile
+    soundfile
   }
 
   if (!audio@stereo && channel == "stereo") {
@@ -65,18 +86,18 @@ bgnoise <- function(audiofile,
     channel <- "left"
   }
 
-  if (!is.null(target_samp_rate)) {
-    audio <- tuneR::downsample(audio, target_samp_rate)
+  if (!is.null(targetSampRate)) {
+    audio <- tuneR::downsample(audio, targetSampRate)
   }
 
   return(
-    process_channel(
+    processChannel(
       audio,
       channel = channel,
-      time_bin = time_bin,
+      timeBin = timeBin,
       wl = wl,
       overlap = overlap,
-      db_threshold = db_threshold,
+      dbThreshold = dbThreshold,
       window = window,
       histbreaks = histbreaks
     )

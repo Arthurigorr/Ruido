@@ -5,11 +5,11 @@
 \title{Background Noise and Soundscape Power Index}
 \usage{
 bgnoise(
-  audiofile,
+  soundfile,
   channel = "stereo",
-  time_bin = 60,
-  db_threshold = -90,
-  target_samp_rate = NULL,
+  timeBin = 60,
+  dbThreshold = -90,
+  targetSampRate = NULL,
   wl = 512,
   window = signal::hamming(wl),
   overlap = ceiling(length(window)/2),
@@ -17,15 +17,15 @@ bgnoise(
 )
 }
 \arguments{
-\item{audiofile}{A tuneR Wave object or the path to a valid audio in your computer}
+\item{soundfile}{A tuneR Wave object or the path to a valid audio in your computer}
 
-\item{channel}{The channel you want to computer of your audiofile. Available channels are: "stereo", "mono", "left" or "right"}
+\item{channel}{The channel you want to computer of your soundfile. Available channels are: "stereo", "mono", "left" or "right"}
 
-\item{time_bin}{The size (in seconds) of the time bin (default = 60)}
+\item{timeBin}{The size (in seconds) of the time bin (default = 60)}
 
-\item{db_threshold}{The minimum possible value of dB for the spectrograms (default = -90)}
+\item{dbThreshold}{The minimum possible value of dB for the spectrograms (default = -90)}
 
-\item{target_samp_rate}{The sampling rate of your audio (this argument is only used to down sample your audio)}
+\item{targetSampRate}{The sampling rate of your audio (this argument is only used to down sample your audio)}
 
 \item{wl}{The window length of your spectrogram (default = 512)}
 
@@ -36,7 +36,7 @@ bgnoise(
 \item{histbreaks}{Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100}
 }
 \value{
-A list containing three objects: The first and second one contains a matrix with the values of background noise and soundscape power respectively to each time bin and for each frequency window of your audiofile. The third object is the duration in second of your time bins.
+A list containing three objects: The first and second one contains a matrix with the values of background noise and soundscape power respectively to each time bin and for each frequency window of your soundfile. The third object is the duration in second of your time bins.
 }
 \description{
 Compute the Background Noise and Soundscape Power values of an audio using Towsey 2017 methodology
@@ -51,8 +51,28 @@ Soundscape power represents a measure of signal-to-noise ratio. It measures the 
 \deqn{POW_{f} = max(dB_{cf}) - BGN_{cf}}
 }
 \examples{
-### IN THE END HUMANITY WAS CRUSHED UNDER THE WHEELS OF A
-### MACHINE CREATED TO CREATE THE MACHINE TO CRUSH THE MACHINE.
+# Getting audiofile from the online Zenodo library
+dir <- tempdir()
+rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
+recDir <- paste(dir,rec , sep = "\\\\")
+url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
+
+# Downloading the file, might take some time denpending on your internet
+download.file(url, destfile = recDir, mode = "wb")
+
+# Running the bgnoise function with all the default arguments
+bgn <- bgnoise(recDir)
+
+# Print the results
+print(bgn)
+
+# Plotting background noise and soundscape profile for the first minute of the recording
+par(mfrow = c(1,2))
+plot(x = bgn$left$BGN$BGN1, y = seq(1,24000, length.out = 256),
+xlab = "Background Noise (dB)", ylab = "Frequency (hz)")
+plot(x = bgn$left$POW$POW1, y = seq(1,24000, length.out = 256),
+xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)")
+
 }
 \references{
 Towsey, Michael W. (2017) The calculation of acoustic indices derived from long-duration recordings of the natural environment.

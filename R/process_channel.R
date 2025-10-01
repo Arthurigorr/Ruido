@@ -1,30 +1,30 @@
-process_channel <- function(channel_data,
+processChannel <- function(channelData,
                             channel,
-                            time_bin,
+                            timeBin,
                             wl,
                             overlap,
-                            db_threshold,
+                            dbThreshold,
                             window,
                             histbreaks) {
 
-  samp.rate <- channel_data@samp.rate
+  samp.rate <- channelData@samp.rate
 
-  all_samples <- get_sample_bins(length(channel_data), samp.rate, time_bin)
+  allSamples <- getSampleBins(length(channelData), samp.rate, timeBin)
 
-  frame_bin <- nrow(all_samples)
+  frameBin <- nrow(allSamples)
 
-  channel_data <- switch(
+  channelData <- switch(
     channel,
-    "stereo" = list("left" = channel_data@left, "right" = channel_data@right),
-    "mono" = list(mono = tuneR::mono(channel_data, "both")@left),
-    setNames(list(slot(channel_data, channel)), channel)
+    "stereo" = list("left" = channelData@left, "right" = channelData@right),
+    "mono" = list(mono = tuneR::mono(channelData, "both")@left),
+    setNames(list(slot(channelData, channel)), channel)
   )
 
-  BGN_exp <- lapply(channel_data, function(x) {
+  BGNexp <- lapply(channelData, function(x) {
 
     offset <- x - mean(x)
 
-    temp_holder <- apply(all_samples, 1, function(y) {
+    tempHolder <- apply(allSamples, 1, function(y) {
       list(
         signal::specgram(
           x = offset[y[1]:y[2]],
@@ -36,48 +36,46 @@ process_channel <- function(channel_data,
       )
     })
 
-    BGN_POW_df <- data.frame(do.call(cbind, lapply(lapply(temp_holder, function(single_bin) {
-      spect_S <- abs(single_bin[[1]])
+    BGNPOWdf <- data.frame(do.call(cbind, lapply(lapply(tempHolder, function(singleBin) {
+      spectS <- abs(singleBin[[1]])
 
-      spect_S <- 10 * log10(spect_S / max(spect_S))
+      spectS <- 10 * log10(spectS / max(spectS))
 
-      spect_S[spect_S < db_threshold] <- db_threshold
+      spectS[spectS < dbThreshold] <- dbThreshold
 
-      apply(spect_S, 1, function(x) {
-        db_max <- max(x)
-        db_min <- min(x)
-
-        bin_width <- 2 * IQR(x) / length(x)^(1 / 3)
+      apply(spectS, 1, function(x) {
+        dbMax <- max(x)
+        dbMin <- min(x)
 
         num_bins <- ifelse(is.numeric(histbreaks), histbreaks, eval(parse(
           text = paste0("nclass.", histbreaks, "(x)")
         )))
 
-        modal_intensity <- db_min + ((which.max(tabulate(
+        modal_intensity <- dbMin + ((which.max(tabulate(
           findInterval(
             x = x,
-            vec = seq(db_min, db_max, length.out = num_bins)
+            vec = seq(dbMin, dbMax, length.out = num_bins)
           )
-        ))) * bin_width)
+        ))) * 2 * IQR(x) / length(x)^(1 / 3))
 
-        c(BGN = modal_intensity, POW = db_max - modal_intensity)
+        c(BGN = modal_intensity, POW = dbMax - modal_intensity)
       })
 
     }), function(x)
       data.frame(t(x)))))
 
-    colnames(BGN_POW_df) <- paste0(rep(c("BGN", "POW"), frame_bin), rep(1:frame_bin, each = 2))
+    colnames(BGNPOWdf) <- paste0(rep(c("BGN", "POW"), frameBin), rep(1:frameBin, each = 2))
 
-    BGN <- data.frame(BGN_POW_df[, grepl("BGN", colnames(BGN_POW_df)), drop = FALSE])
-    POW <- data.frame(BGN_POW_df[, grepl("POW", colnames(BGN_POW_df)), drop = FALSE])
+    BGN <- data.frame(BGNPOWdf[, grepl("BGN", colnames(BGNPOWdf)), drop = FALSE])
+    POW <- data.frame(BGNPOWdf[, grepl("POW", colnames(BGNPOWdf)), drop = FALSE])
 
     return(list(BGN = BGN, POW = POW))
 
   })
 
-  BGN_exp[["time_bins"]] <- setNames(round((all_samples$e - all_samples$b) / samp.rate),
-                                     paste0("BIN", seq(frame_bin)))
+  BGNexp[["timeBins"]] <- setNames(round((allSamples$e - allSamples$b) / samp.rate),
+                                     paste0("BIN", seq(frameBin)))
 
-  return(BGN_exp)
+  return(BGNexp)
 
 }
