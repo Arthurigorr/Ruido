@@ -44,7 +44,36 @@
 #'@importFrom stats shapiro.test
 #'@importFrom nortest ad.test
 #'
-#' @examples ### Whatever in creation exists without my knowledge exists without my consent.
+#' @examples
+#' ### Downloading audiofiles from public Zenodo library
+#' dir <- tempdir()
+#' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 230000, by = 10000)),".wav")
+#' for(rec in recName) {
+#'  print(rec)
+#'  url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
+#'  download.file(url, destfile = paste(dir, rec, sep = "\\"), mode = "wb")
+#' }
+#'
+#' ### Running the function
+#' sat <- soundSat(dir)
+#'
+#' ### Preparing the plot
+#' timeSplit <- strsplit(sat$values$AUDIO, "_")
+#' sides <- ifelse(grepl("left", sat$values$BIN), "left", "right")
+#' time <- sapply(timeSplit, function(x)
+#'   substr(x[3],1,6))
+#' timePos <- paste(substr(time,1,2), substr(time,3,4), substr(time,5,6), sep = ":")
+#' leftEar <- data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = timePos[sides == "left"])
+#' rightEar <- data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = timePos[sides == "right"])
+#'
+#' ### Plotting results
+#' par(mfrow = c(2,1))
+#' boxplot(leftEar$SAT~leftEar$HOUR, las = 2,
+#'         ylab = "Soundscape Saturation (%)", xlab = "",
+#'         main = paste("Soundscape Saturation distribution through the day (left ear)"))
+#' boxplot(rightEar$SAT~rightEar$HOUR, las = 2,
+#'         ylab = "Soundscape Saturation (%)", xlab = "",
+#'         main = paste("Soundscape Saturation distribution through the day (right ear)"))
 soundSat <- function(soundpath,
                      channel = "stereo",
                      timeBin = 60,

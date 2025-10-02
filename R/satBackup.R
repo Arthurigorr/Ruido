@@ -1,10 +1,11 @@
 #' Backup for Soundscape Saturation Index
 #'
-#' @param backupPath The same path you set in your "backup" in the soundsat function. Audiofiles already finished will be drawn from this path.
+#' @param backupPath The same path you set in your "backup" in the soundSat function. Audiofiles already finished will be drawn from this path.
 #' @param od The path or paths containing your original audiofiles.
 #'
 #' @description
-#' This function is a way to backup an unfinished process of the soundsat function.
+#' This function is a way to continue an unfinished process of the soundSat function through a backup file.
+#' Arguments can't be inputted nor changed since the function will automatically load them from the original soundSat run.
 #'
 #' @returns
 #' A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values. The third (normality) contains the p values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
@@ -22,7 +23,7 @@ satBackup <- function(backupPath, od) {
 
   remainingfiles <- originalfiles[!(basename(originalfiles) %in% basename(names(SATdf)))]
 
-  list2env(SATdf$ogARGS)
+  list2env(SATdf$ogARGS, envir = environment())
 
   powthreshold <- seq(powthr[1], powthr[2], powthr[3])
   names(powthreshold) <- powthreshold
@@ -293,7 +294,7 @@ satBackup <- function(backupPath, od) {
     DURATION = DURATIONS,
     SAT = SATdf[, which.max(normal)]
   )
-  export[["errors"]] <- data.frame(file = soundfiles[which.error], do.call(rbind, ERRORS))
+  export[["errors"]] <- data.frame(file = remainingfiles[which.error], do.call(rbind, ERRORS))
 
   return(export)
 
