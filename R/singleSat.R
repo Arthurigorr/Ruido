@@ -67,7 +67,7 @@ singleSat <- function(soundfile,
 
   halfWl <- round(wl / 2)
 
-  BGNPOW <- bgnoise(
+  BGNPOW <- bgNoise(
     soundfile,
     timeBin = timeBin,
     targetSampRate = targetSampRate,
