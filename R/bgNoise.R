@@ -41,8 +41,8 @@
 #' # Downloading the file, might take some time denpending on your internet
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
-#' # Running the bgnoise function with all the default arguments
-#' bgn <- bgnoise(recDir)
+#' # Running the bgNoise function with all the default arguments
+#' bgn <- bgNoise(recDir)
 #'
 #' # Print the results
 #' print(bgn)
@@ -54,7 +54,7 @@
 #' plot(x = bgn$left$POW$POW1, y = seq(1,24000, length.out = 256),
 #' xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)")
 #'
-bgnoise <- function(soundfile,
+bgNoise <- function(soundfile,
                     channel = "stereo",
                     timeBin = 60,
                     dbThreshold = -90,
