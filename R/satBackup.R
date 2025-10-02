@@ -47,7 +47,7 @@ satBackup <- function(backupPath, od) {
       fiveSteps <- fiveSteps + 1
 
       BGNPOW <- tryCatch(
-        bgnoise(
+        bgNoise(
           soundfile,
           timeBin = timeBin,
           targetSampRate = targetSampRate,
