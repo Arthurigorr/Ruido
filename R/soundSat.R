@@ -47,7 +47,9 @@
 #' @examples
 #' ### Downloading audiofiles from public Zenodo library
 #' dir <- tempdir()
-#' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 230000, by = 10000)),".wav")
+#' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
+#' recDir <- paste(dir, recName, sep = "\\")
+#'
 #' for(rec in recName) {
 #'  print(rec)
 #'  url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
@@ -74,6 +76,9 @@
 #' boxplot(rightEar$SAT~rightEar$HOUR, las = 2,
 #'         ylab = "Soundscape Saturation (%)", xlab = "",
 #'         main = paste("Soundscape Saturation distribution through the day (right ear)"))
+#'
+#'         unlink(recDir)
+#'
 soundSat <- function(soundpath,
                      channel = "stereo",
                      timeBin = 60,
