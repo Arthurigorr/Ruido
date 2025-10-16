@@ -1,6 +1,6 @@
 Package: Ruido
 Title: A Streamline Package To Calculate Soundscape Saturation
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: c(
     person("Arthur Igor da", "Fonseca-Freire", , "arthur.igorr@gmail.com", role = c("aut", "cre", "cph")),
     person("Weslley Geremias dos", "Santos", , "weslleygeremias@gmail.com", role = "ctb")
@@ -12,5 +12,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: ggplot2
-BugReports: https://github.com/r-lib/devtools/issues
+Maintainer: Arthur Igor da Fonseca-Freire <arthur.igorr@gmail.com>
+BugReports: https://github.com/Arthurigorr/Ruido/issues
 Config/testthat/edition: 3
+URL: https://github.com/Arthurigorr/Ruido

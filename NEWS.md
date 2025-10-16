@@ -1,3 +1,3 @@
-# Ruido (development version)
+# Ruido 1.0.0
 
 * Initial CRAN submission.
