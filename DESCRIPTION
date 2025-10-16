@@ -1,6 +1,6 @@
 Package: Ruido
 Title: A Streamline Package To Calculate Soundscape Saturation
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: c(
     person("Arthur Igor da", "Fonseca-Freire", , "arthur.igorr@gmail.com", role = c("aut", "cre", "cph")),
     person("Weslley Geremias dos", "Santos", , "weslleygeremias@gmail.com", role = "ctb")
