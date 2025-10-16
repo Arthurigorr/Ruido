@@ -72,7 +72,9 @@ If you set a path for the "path" argument, a single R object will be written in 
 \examples{
 ### Downloading audiofiles from public Zenodo library
 dir <- tempdir()
-recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 230000, by = 10000)),".wav")
+recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 200000, by = 50000)),".wav")
+recDir <- paste(dir, recName, sep = "\\\\")
+
 for(rec in recName) {
  print(rec)
  url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
@@ -99,6 +101,9 @@ boxplot(leftEar$SAT~leftEar$HOUR, las = 2,
 boxplot(rightEar$SAT~rightEar$HOUR, las = 2,
         ylab = "Soundscape Saturation (\%)", xlab = "",
         main = paste("Soundscape Saturation distribution through the day (right ear)"))
+
+        unlink(recDir)
+
 }
 \references{
 Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205–215. https://doi.org/10.1111/cobi.12968

@@ -18,8 +18,3 @@ A list containing five objects. The first and second objects (powthresh and bgnt
 This function is a way to continue an unfinished process of the soundSat function through a backup file.
 Arguments can't be inputted nor changed since the function will automatically load them from the original soundSat run.
 }
-\examples{
-### I played a game with eleven fools who told me not to break the rules,
-### but when have angels ever helped me yet?
-### (I still can't figure out a good example for this function...)
-}

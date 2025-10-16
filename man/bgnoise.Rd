@@ -73,6 +73,8 @@ xlab = "Background Noise (dB)", ylab = "Frequency (hz)")
 plot(x = bgn$left$POW$POW1, y = seq(1,24000, length.out = 256),
 xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)")
 
+unlink(recDir)
+
 }
 \references{
 Towsey, Michael W. (2017) The calculation of acoustic indices derived from long-duration recordings of the natural environment.
