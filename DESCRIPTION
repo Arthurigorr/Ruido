@@ -1,11 +1,16 @@
 Package: Ruido
-Title: An easy way to calculate soundscape saturation
+Title: A Streamline Package To Calculate Soundscape Saturation
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: Easy to use functions to calculate for three acoustic indices: background noise, soundscape power and soundscape saturation.
+Authors@R: c(
+    person("Arthur Igor da", "Fonseca-Freire", , "arthur.igorr@gmail.com", role = c("aut", "cre", "cph")),
+    person("Weslley Geremias dos", "Santos", , "weslleygeremias@gmail.com", role = "ctb")
+    )
+Description: A tool that provide functions to calculate for three acoustic indices: Background Noise (BGN), Soundscape Power (POW) and Soundscape Saturation (SAT).
 Depends: R(>= 4.3.0), methods, tuneR, signal, nortest
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Suggests: ggplot2
+BugReports: https://github.com/r-lib/devtools/issues
+Config/testthat/edition: 3
