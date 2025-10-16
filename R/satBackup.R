@@ -12,9 +12,6 @@
 #'
 #' @export
 #'
-#' @examples ### I played a game with eleven fools who told me not to break the rules,
-#' ### but when have angels ever helped me yet?
-#' ### (I still can't figure out a good example for this function...)
 satBackup <- function(backupPath, od) {
   backfile <- paste0(backupPath, "\\SATBACKUP.RData")
   SATdf <- readRDS(backfile)
