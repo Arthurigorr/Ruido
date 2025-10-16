@@ -54,6 +54,8 @@
 #' plot(x = bgn$left$POW$POW1, y = seq(1,24000, length.out = 256),
 #' xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)")
 #'
+#'unlink(recDir)
+#'
 bgNoise <- function(soundfile,
                     channel = "stereo",
                     timeBin = 60,
