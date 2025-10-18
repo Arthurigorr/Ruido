@@ -15,7 +15,7 @@ authors:
 - name: Weslley Geremias dos Santos
   orcid: 0000-0002-0749-9081
   affiliation: 2
-- name': Lucas Rodriguez Forti
+- name: Lucas Rodriguez Forti
   orcid: 0000-0003-3057-2141
   affiliation: 1, 2
 affiliations:
