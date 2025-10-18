@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2025 Ruido authors
+Copyright (c) 2025 Arthur Igor da Fonseca-Freire, Weslley Geremias dos Santos, Lucas Rodriguez Forti
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
