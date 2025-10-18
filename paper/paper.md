@@ -21,8 +21,7 @@ authors:
 affiliations:
 - name: Observatório Ambiental do Semiárido (OAS), Centro de Ciências Biológicas e da Saúde (CCBS), Universidade Federal Rural do Semi-Árido (UFERSA)
   index: 1
-- name: Faculdade de Engenharia Elétrica e de Computação (FEEC), Universidade Estadual
-    de Campinas (UNICAMP)
+- name: Faculdade de Engenharia Elétrica e de Computação (FEEC), Universidade Estadual de Campinas (UNICAMP)
   index: 2
 date: 18 October 2025
 bibliography: paper.bib
@@ -103,7 +102,7 @@ BIN1 BIN2 BIN3
   60   60   60
 ```
 
- Notably, BGN levels tended to be less intense and more evenly distributed across frequencies during daytime hours, while at night they became more intense and concentrated particularly between 5 and 12 kHz. Soundscape power also increased during nighttime, especially at frequencies above 8 kHz. These patterns reflect distinct acoustic dynamics between day and night periods. The results of BGN and POW for the left channel can be seen in figures 2a and 2b. 
+Notably, BGN levels tended to be less intense and more evenly distributed across frequencies during daytime hours, while at night they became more intense and concentrated particularly between 5 and 12 kHz. Soundscape power also increased during nighttime, especially at frequencies above 8 kHz. These patterns reflect distinct acoustic dynamics between day and night periods. The results of BGN and POW for the left channel can be seen in figures 2a and 2b. 
 
 ![**Figure 2.** (B) Heatmap of Background Noise (dB); and (C) Heatmap of Soundscape Power (dB), both plotted across the diurnal cycle.](https://github.com/Arthurigorr/Ruido/blob/testing_branch/man/figures/BGNPOW.png?raw=true)
 
@@ -142,7 +141,7 @@ sat <- soundSat(dir)
 [1] 0.000740162
 ```
 
- We subsequently calculated mean values for each hour of the day, along with corresponding confidence intervals, to visualize the results in a time series graph (Figure 3). This approach provides a practical example of how users can process and explore their own data to identify temporal patterns and assess acoustic variability. 
+We subsequently calculated mean values for each hour of the day, along with corresponding confidence intervals, to visualize the results in a time series graph (Figure 3). This approach provides a practical example of how users can process and explore their own data to identify temporal patterns and assess acoustic variability. 
 
 ![**Figure 3.** SAT variation throughout the day. The line and dots represent the mean values of each hour of the day and the colored ribbon represents confidence intervals for each side.](https://github.com/Arthurigorr/Ruido/blob/testing_branch/man/figures/SAT.png?raw=true)
 
