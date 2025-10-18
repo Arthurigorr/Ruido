@@ -1,4 +1,4 @@
-# Ruido: A Streamline Package To Calculate Soundscape Saturation
+# Ruido: An R package for profiling background noise and calculating soundscape saturation
 
 <img src="man/figures/ruidoIcon.png" alt="Icon of Ruido" align="right" height="300"/>
 
