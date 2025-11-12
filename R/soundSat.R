@@ -52,7 +52,7 @@
 #'
 #' for(rec in recName) {
 #'  print(rec)
-#'  url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
+#'  url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
 #'  download.file(url, destfile = paste(dir, rec, sep = "\\"), mode = "wb")
 #' }
 #'

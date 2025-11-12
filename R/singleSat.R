@@ -32,7 +32,7 @@
 #' dir <- tempdir()
 #' rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0),".wav")
 #' recDir <- paste(dir,rec , sep = "\\")
-#' url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
+#' url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
 #'
 #' # Downloading the file, might take some time denpending on your internet
 #' download.file(url, destfile = recDir, mode = "wb")
