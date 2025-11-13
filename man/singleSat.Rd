@@ -63,14 +63,14 @@ For the selected threshold a soundscape saturation measure will be taken with th
 # Getting audiofile from the online Zenodo library
 dir <- tempdir()
 rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
-recDir <- paste(dir,rec , sep = "\\\\")
+recDir <- paste(dir,rec , sep = "/")
 url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
 
 # Downloading the file, might take some time denpending on your internet
 download.file(url, destfile = recDir, mode = "wb")
 
 # Now we calculate soundscape saturation for both sides of the recording
-sat <- singleSat(recDir)
+sat <- singleSat(recDir, wl = 256)
 
 # Printing the results
 print(sat)

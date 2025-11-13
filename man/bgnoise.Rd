@@ -54,7 +54,7 @@ Soundscape power represents a measure of signal-to-noise ratio. It measures the 
 # Getting audiofile from the online Zenodo library
 dir <- tempdir()
 rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
-recDir <- paste(dir,rec , sep = "\\\\")
+recDir <- paste(dir,rec , sep = "/")
 url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
 
 # Downloading the file, might take some time denpending on your internet

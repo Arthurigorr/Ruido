@@ -26,20 +26,20 @@ Arguments can't be inputted nor changed since the function will automatically lo
 ### Downloading audiofiles from public Zenodo library
 dir <- tempdir()
 recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 230000, by = 10000)),".wav")
-recDir <- paste(dir, recName, sep = "\\\\")
+recDir <- paste(dir, recName, sep = "/")
 
 for(rec in recName) {
   print(rec)
   url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
-  download.file(url, destfile = paste(dir, rec, sep = "\\\\"), mode = "wb")
+  download.file(url, destfile = paste(dir, rec, sep = "/"), mode = "wb")
 }
 
-sat <- soundSat(dir, backup = "C:\\\\Users\\\\OAS\\\\Desktop\\\\Arthur\\\\17243660\\\\BACK")
+sat <- soundSat(dir, backup = "C:/Users/OAS/Desktop/Arthur/17243660/BACK", wl = 256)
 
 # Now pretend the process was interrupted (manually/your R crashed/your computer turned off)
 # To recall the backup you simply:
 
-satB <- satBackup("C:\\\\Users\\\\OAS\\\\Desktop\\\\Arthur\\\\17243660\\\\BACK", dir)
+satB <- satBackup("C:/Users/OAS/Desktop/Arthur/17243660/BACK", dir)
 
 unlink(recDir)
 }
