@@ -1,10 +1,9 @@
 ## R CMD check results
 
-Duration: 1m 20.2s
+Duration: 3m 40.1s
 
-❯ checking top-level files ... NOTE
-  Non-standard file/directory found at top level:
-    'paper.md'
+❯ checking DESCRIPTION meta-information ... NOTE
+  License stub is invalid DCF.
 
 ❯ checking R code for possible problems ... NOTE
   satBackup: no visible binding for global variable 'powthr'
@@ -12,7 +11,6 @@ Duration: 1m 20.2s
   satBackup: no visible binding for global variable 'wl'
   satBackup: no visible binding for global variable 'timeBin'
   satBackup: no visible binding for global variable 'targetSampRate'
-  satBackup: no visible binding for global variable 'window'
   satBackup: no visible binding for global variable 'overlap'
   satBackup: no visible binding for global variable 'channel'
   satBackup: no visible binding for global variable 'dbThreshold'
@@ -24,18 +22,21 @@ Duration: 1m 20.2s
     'normality'
   Undefined global functions or variables:
     bgnthr channel dbThreshold histbreaks normality overlap powthr
-    targetSampRate timeBin window wl
-  Consider adding
-    importFrom("stats", "window")
-  to your NAMESPACE file.
+    targetSampRate timeBin wl
 
-0 errors | 0 warnings | 2 notes
+0 errors ✔ | 0 warnings ✔ | 2 notes ✖
 
 ## Resubmission
 This is a resubmission! In this new version I have:
 
-* Converted the DESCRIPTION title to title case.
+* Changed the package sub-title in the DESCRIPTION and switched it to title case.
 
 * Updated the examples to use less heavy files, making them take less time to process and reduce error chance.
 
+* Updated the examples so they can work normally on Linux distros.
+
 * Added sample rate to the output of bgNoise and soundSat.
+
+* Added more detailed to the output of soundSat.
+
+* Switched how the threshold combination picks the most normal distribution.
