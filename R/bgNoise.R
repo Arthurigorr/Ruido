@@ -57,9 +57,9 @@
 #'      xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)", main = "POW by Frequency",
 #'      type = "l")
 #' plot(bgn$left$BGN$BGN1~bgn$left$POW$POW1, pch = 16,
-#'      xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)", main = "POW~BGN in left ear")
+#'      xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)", main = "BGN~POW in left ear")
 #' plot(bgn$right$BGN$BGN1~bgn$right$POW$POW1, pch = 16,
-#'      xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)", main = "POW~bgn in right ear")
+#'      xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)", main = "BGN~POW in right ear")
 #'
 #' unlink(recDir)
 bgNoise <- function(soundfile,
