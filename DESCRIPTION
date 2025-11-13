@@ -3,9 +3,10 @@ Title: A Streamline Package To Calculate Soundscape Saturation
 Version: 1.0.0
 Authors@R: c(
     person("Arthur Igor da", "Fonseca-Freire", , "arthur.igorr@gmail.com", role = c("aut", "cre", "cph")),
-    person("Weslley Geremias dos", "Santos", , "weslleygeremias@gmail.com", role = "ctb")
+    person("Weslley Geremias dos", "Santos", , "weslleygeremias@gmail.com", role = "ctb"),
+    person("Lucas Rodriguez Forti", , "lucas.forti@ufersa.edu.br", role = "ctb")
     )
-Description: A tool that provide functions to calculate for three acoustic indices: Background Noise (BGN), Soundscape Power (POW) and Soundscape Saturation (SAT).
+Description: A tool that provides functions to calculate three acoustic indices: Background Noise (BGN), Soundscape Power (POW) and Soundscape Saturation (SAT).
 Depends: R(>= 4.3.0), methods, tuneR, signal, nortest
 License: MIT + file LICENSE
 Encoding: UTF-8
