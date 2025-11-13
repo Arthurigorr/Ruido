@@ -7,7 +7,7 @@ Ruido is an R package that aims to provide a simple and accessible framework for
 Install the package directly from CRAN using:
 
 ``` r
-## You can't install it yet
+## The package is not in CRAN yet
 # Install the package
 install.packages("Ruido")
 
