@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Ruido: An R Package for Profiling Background Noise and Calculating Soundscape Saturation
-=======
-# Ruido: An R package for profiling background noise and calculating soundscape saturation
->>>>>>> 7440ea8b2debff80f7cc4c7c08162e4647723b31
 
 <img src="man/figures/ruidoIcon.png" alt="Icon of Ruido" align="right" height="300"/>
 
