@@ -17,6 +17,7 @@
 #' \dontrun{
 #' # It's impossible to create a functioning example since you would have to manually stop the process
 #' # However, here is how this function is used:
+#' ## This example will load an entire day of audios to your computer, so beware.
 #'
 #' ### Downloading audiofiles from public Zenodo library
 #' dir <- tempdir()
@@ -277,19 +278,37 @@ satBackup <- function(backupPath, od) {
 
   colnames(SATdf) <- combinations
 
-  normal <- if (normality == "shapiro.test") {
-    apply(SATdf, 2, function(x)
-      ifelse(length(unique(x)) != 1, shapiro.test(x)$p.value, 0))
+  normal <- apply(SATdf, 2, function(Q) {
+    if (length(unique(Q)) != 1) {
+      do.call(normality, list(Q))$statistic
+    } else {
+      NA
+    }
 
+  })
+
+  if (normality %in% c("sf.test", "shapiro.test")) {
+    thresholds <- unlist(strsplit(names(which.max(normal)), split = "/"))
+    normOUT <- max(normal, na.rm = TRUE)
   } else {
-    apply(SATdf, 2, function(Q)
-      eval(parse(text = paste0(
-        normality, "(c(", paste((Q), collapse = ","), "))"
-      )))$p.value)
-
+    thresholds <- unlist(strsplit(names(which.min(normal)), split = "/"))
+    normOUT <- min(normal, na.rm = TRUE)
   }
 
-  thresholds <- unlist(strsplit(names(which.max(normal)), split = "/"))
+  normname <- switch(normality,
+                     "shapiro.test" = "Shapiro-Wilk",
+                     "sf.test" = "Shapiro-Francia",
+                     "ad.test" = "Anderson-Darling",
+                     "cvm.test" = "Cram\u00e9r-von Mises",
+                     "lillie.test" = "Lilliefors",
+                     "pearson.test" = "Pearson chi-square")
+  normstat <-switch(normality,
+                    "shapiro.test" = "W",
+                    "sf.test" = "W'",
+                    "ad.test" = "A",
+                    "cvm.test" = "W\u00b2",
+                    "lillie.test" = "D",
+                    "pearson.test" = "X\u00b2")
 
   cat(
     "\n           Soundscape Saturation Results\n\n",
@@ -299,8 +318,8 @@ satBackup <- function(backupPath, od) {
     "BGN Threshold = ",
     as.numeric(thresholds[2]) * 100,
     "%\n",
-    "            Normality test result = ",
-    as.numeric(max(normal)),
+    normname, " Test Statistic (", normstat , ") = ",
+    normOUT,
     "\n ",
     sep = ""
   )
@@ -315,14 +334,14 @@ satBackup <- function(backupPath, od) {
 
   export["powthresh"] <- as.numeric(thresholds[1])
   export["bgntresh"] <- as.numeric(thresholds[2]) * 100
-  export["normality"] <- as.numeric(as.numeric(max(normal)))
+  export["normality"] <- normOUT
   export[["values"]] <- data.frame(
     PATH = dirname(PATHS),
     AUDIO = basename(PATHS),
     BIN = BINS,
     DURATION = DURATIONS,
     SAMPRATE = SAMPRATES,
-    SAT = SATdf[, which.max(normal)]
+    SAT = SATdf[, which(normOUT == normal)]
   )
   export[["errors"]] <- data.frame(file = remainingfiles[which.error], do.call(rbind, ERRORS))
 
