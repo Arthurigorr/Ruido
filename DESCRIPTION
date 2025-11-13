@@ -1,5 +1,5 @@
 Package: Ruido
-Title: A Streamline Package To Calculate Soundscape Saturation
+Title: An R Package for Profiling Background Noise and Calculating Soundscape Saturation
 Version: 1.0.0
 Authors@R: c(
     person("Arthur Igor da", "Fonseca-Freire", , "arthur.igorr@gmail.com", role = c("aut", "cre", "cph")),
