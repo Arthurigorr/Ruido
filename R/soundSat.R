@@ -33,7 +33,7 @@
 #'
 #'If you set a path for the "path" argument, a single R object will be written in your path for each audiofile individually. These objects can be loaded again through the "sat_backup" function to continue the calculation of saturation in case the proccess is stopped.
 #'
-#'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205–215. https://doi.org/10.1111/cobi.12968
+#'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
 #'@export
 #'@importFrom methods is
@@ -48,16 +48,16 @@
 #' ### Downloading audiofiles from public Zenodo library
 #' dir <- tempdir()
 #' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
-#' recDir <- paste(dir, recName, sep = "\\")
+#' recDir <- paste(dir, recName, sep = "/")
 #'
 #' for(rec in recName) {
 #'  print(rec)
 #'  url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
-#'  download.file(url, destfile = paste(dir, rec, sep = "\\"), mode = "wb")
+#'  download.file(url, destfile = paste(dir, rec, sep = "/"), mode = "wb")
 #' }
 #'
 #' ### Running the function
-#' sat <- soundSat(dir)
+#' sat <- soundSat(dir, wl = 256)
 #'
 #' ### Preparing the plot
 #' timeSplit <- strsplit(sat$values$AUDIO, "_")
@@ -111,9 +111,9 @@ soundSat <- function(soundpath,
   if (normality == "shapiro.test") {
     answernorm <- readline(
       "
-      Using shapiro.test can be dangerous since you WILL lose all your progress if the
-      number of total bins exceeds 5000.
-      Do you wish to use Anderson-Darling test instead? (Y/N)."
+      If you are working with a large dataset, then shapiro.test will result in an error.
+      Do you wish to use Anderson-Darling test instead? (Y/N).
+      "
     )
 
     if (answernorm == "Y") {
@@ -122,6 +122,35 @@ soundSat <- function(soundpath,
       print("Using shapiro.test to test normality.")
     } else {
       stop("Please answer with Y or N next time.")
+    }
+
+  } else if (normality == "ks.test") {
+    answernorm <- readline(
+      "ks.test is not supported since many combinations may have identifical values.
+      Type N to ignore this warning.
+      However, we recommend choosing one of these tests:
+      a ad.test
+      b cvm.test
+      c lillie.test
+      d pearson.test
+      e sf.test
+      (Type the letter to choose)
+      "
+    )
+
+    normality <- switch(
+      answernorm,
+      "a" = "ad.test",
+      "b" = "cvm.test",
+      "c" = "lillie.test",
+      "d" = "pearson.test",
+      "e" = "sf.test",
+      "N" = "ks.test",
+      "STOP"
+    )
+
+    if (normality == "STOP") {
+      stop("Please pick a letter next time.")
     }
 
   }
@@ -381,19 +410,37 @@ soundSat <- function(soundpath,
 
   colnames(SATdf) <- combinations
 
-  normal <- if (normality == "shapiro.test") {
-    apply(SATdf, 2, function(x)
-      ifelse(length(unique(x)) != 1, shapiro.test(x)$p.value, 0))
+  normal <- apply(SATdf, 2, function(Q) {
+    if (length(unique(Q)) != 1) {
+      do.call(normality, list(Q))$statistic
+    } else {
+      NA
+    }
 
+  })
+
+  if (normality %in% c("sf.test", "shapiro.test")) {
+    thresholds <- unlist(strsplit(names(which.max(normal)), split = "/"))
+    normOUT <- max(normal, na.rm = TRUE)
   } else {
-    apply(SATdf, 2, function(Q)
-      eval(parse(text = paste0(
-        normality, "(c(", paste((Q), collapse = ","), "))"
-      )))$p.value)
-
+    thresholds <- unlist(strsplit(names(which.min(normal)), split = "/"))
+    normOUT <- min(normal, na.rm = TRUE)
   }
 
-  thresholds <- unlist(strsplit(names(which.max(normal)), split = "/"))
+  normname <- switch(normality,
+                     "shapiro.test" = "Shapiro-Wilk",
+                     "sf.test" = "Shapiro-Francia",
+                     "ad.test" = "Anderson-Darling",
+                     "cvm.test" = "Cram\u00e9r-von Mises",
+                     "lillie.test" = "Lilliefors",
+                     "pearson.test" = "Pearson chi-square")
+  normstat <-switch(normality,
+                    "shapiro.test" = "W",
+                    "sf.test" = "W'",
+                    "ad.test" = "A",
+                    "cvm.test" = "W\u00b2",
+                    "lillie.test" = "D",
+                    "pearson.test" = "X\u00b2")
 
   cat(
     "\n           Soundscape Saturation Results\n\n",
@@ -403,8 +450,8 @@ soundSat <- function(soundpath,
     "BGN Threshold = ",
     as.numeric(thresholds[2]) * 100,
     "%\n",
-    "            Normality test result = ",
-    as.numeric(max(normal)),
+    normname, " Test Statistic (", normstat , ") = ",
+    normOUT,
     "\n ",
     sep = ""
   )
@@ -419,14 +466,14 @@ soundSat <- function(soundpath,
 
   export["powthresh"] <- as.numeric(thresholds[1])
   export["bgntresh"] <- as.numeric(thresholds[2]) * 100
-  export["normality"] <- as.numeric(as.numeric(max(normal)))
+  export["normality"] <- normOUT
   export[["values"]] <- data.frame(
     PATH = dirname(PATHS),
     AUDIO = basename(PATHS),
     BIN = BINS,
     DURATION = DURATIONS,
     SAMPRATE = SAMPRATES,
-    SAT = SATdf[, which.max(normal)]
+    SAT = SATdf[, which(normOUT == normal)]
   )
   export[["errors"]] <- data.frame(file = soundfiles[which.error], do.call(rbind, ERRORS))
 
