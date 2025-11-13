@@ -18,3 +18,29 @@ A list containing five objects. The first and second objects (powthresh and bgnt
 This function is a way to continue an unfinished process of the soundSat function through a backup file.
 Arguments can't be inputted nor changed since the function will automatically load them from the original soundSat run.
 }
+\examples{
+\dontrun{
+# It's impossible to create a functioning example since you would have to manually stop the process
+# However, here is how this function is used:
+
+### Downloading audiofiles from public Zenodo library
+dir <- tempdir()
+recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 230000, by = 10000)),".wav")
+recDir <- paste(dir, recName, sep = "\\\\")
+
+for(rec in recName) {
+  print(rec)
+  url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
+  download.file(url, destfile = paste(dir, rec, sep = "\\\\"), mode = "wb")
+}
+
+sat <- soundSat(dir, backup = "C:\\\\Users\\\\OAS\\\\Desktop\\\\Arthur\\\\17243660\\\\BACK")
+
+# Now pretend the process was interrupted (manually/your R crashed/your computer turned off)
+# To recall the backup you simply:
+
+satB <- satBackup("C:\\\\Users\\\\OAS\\\\Desktop\\\\Arthur\\\\17243660\\\\BACK", dir)
+
+unlink(recDir)
+}
+}

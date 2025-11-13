@@ -12,6 +12,31 @@
 #'
 #' @export
 #'
+#' @examples
+#' \dontrun{
+#' # It's impossible to create a functioning example since you would have to manually stop the process
+#' # However, here is how this function is used:
+#'
+#' ### Downloading audiofiles from public Zenodo library
+#' dir <- tempdir()
+#' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 230000, by = 10000)),".wav")
+#' recDir <- paste(dir, recName, sep = "\\")
+#'
+#' for(rec in recName) {
+#'   print(rec)
+#'   url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
+#'   download.file(url, destfile = paste(dir, rec, sep = "\\"), mode = "wb")
+#' }
+#'
+#' sat <- soundSat(dir, backup = "C:\\Users\\OAS\\Desktop\\Arthur\\17243660\\BACK")
+#'
+#' # Now pretend the process was interrupted (manually/your R crashed/your computer turned off)
+#' # To recall the backup you simply:
+#'
+#' satB <- satBackup("C:\\Users\\OAS\\Desktop\\Arthur\\17243660\\BACK", dir)
+#'
+#' unlink(recDir)
+#' }
 satBackup <- function(backupPath, od) {
   backfile <- paste0(backupPath, "\\SATBACKUP.RData")
   SATdf <- readRDS(backfile)
@@ -126,6 +151,7 @@ satBackup <- function(backupPath, od) {
                                     2), seq(nrow(singsat) / 2), sep = "_")
 
           DURATION <- rep(BGNPOW$timeBins, 2)
+          SAMPRATE <- rep(BGNPOW$sampRate, 2)
 
         } else if ("mono" %in% names(BGNPOW)) {
           BGNQ <- apply(BGNPOW$mono$BGN, 2, function(n)
@@ -161,6 +187,7 @@ satBackup <- function(backupPath, od) {
           binsUnique <- paste("mono", seq(nrow(singsat)), sep = "_")
 
           DURATION <- BGNPOW$timeBins
+          SAMPRATE <- BGNPOW$sampRate
 
         } else {
           realChannel <- c("left", "right")[c("left", "right") %in% names(BGNPOW)]
@@ -198,6 +225,7 @@ satBackup <- function(backupPath, od) {
           binsUnique <- paste(realChannel, seq(nrow(singsat)), sep = "_")
 
           DURATION <- BGNPOW$timeBins
+          SAMPRATE <- BGNPOW$sampRate
 
         }
 
@@ -217,6 +245,7 @@ satBackup <- function(backupPath, od) {
         list(
           SAT = singsat,
           DUR = DURATION,
+          SMP = SAMPRATE,
           BIN = binsUnique,
           NAME = soundfile
         )
@@ -236,6 +265,8 @@ satBackup <- function(backupPath, od) {
   ERRORS <- SATdf[which.error]
   DURATIONS <- c(sapply(SATdf[!which.error], function(x)
     x[["DUR"]]))
+  SAMPRATES <- c(sapply(SATdf[!which.error], function(x)
+    x[["SMP"]]))
   PATHS <- c(sapply(SATdf[!which.error], function(x)
     rep(x[["NAME"]], length(x[["BIN"]]))))
   BINS <- c(sapply(SATdf[!which.error], function(x)
@@ -289,6 +320,7 @@ satBackup <- function(backupPath, od) {
     AUDIO = basename(PATHS),
     BIN = BINS,
     DURATION = DURATIONS,
+    SAMPRATE = SAMPRATES,
     SAT = SATdf[, which.max(normal)]
   )
   export[["errors"]] <- data.frame(file = remainingfiles[which.error], do.call(rbind, ERRORS))

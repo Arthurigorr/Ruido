@@ -64,7 +64,7 @@ For the selected threshold a soundscape saturation measure will be taken with th
 dir <- tempdir()
 rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
 recDir <- paste(dir,rec , sep = "\\\\")
-url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
+url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
 
 # Downloading the file, might take some time denpending on your internet
 download.file(url, destfile = recDir, mode = "wb")
@@ -75,15 +75,10 @@ sat <- singleSat(recDir)
 # Printing the results
 print(sat)
 
-plot(x = 1:3, y = seq(min(sat), max(sat),
-length.out = 3), type = "n", xlab = "Time",
-ylab = "Soundscape Saturation (\%)")
-points(x = 1:3, y = sat$left, pch = 16, col = "lightgreen")
-lines(x = 1:3, y = sat$left, col = "lightgreen")
-points(x = 1:3, y = sat$right, pch = 16, col = "darkgreen")
-lines(x = 1:3, y = sat$right, col = "darkgreen")
-legend(1,0.74,legend = c("Left", "Right"),
-col = c("lightgreen", "darkgreen"), pch = c(16,16), cex = 1.5)
+barplot(c(sat$left, sat$right), col = c("darkgreen", "red"),
+       names.arg = c("Left", "Right"), ylab = "Soundscape Saturation (\%)")
+
+unlink(recDir)
 }
 \references{
 Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205–215. https://doi.org/10.1111/cobi.12968

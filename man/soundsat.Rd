@@ -14,8 +14,8 @@ soundSat(
   window = signal::hamming(wl),
   overlap = ceiling(length(window)/2),
   histbreaks = "FD",
-  powthr = c(5.1, 20, 0.1),
-  bgnthr = c(0.51, 0.99, 0.02),
+  powthr = c(5, 20, 1),
+  bgnthr = c(0.5, 0.9, 0.05),
   normality = "ad.test",
   backup = NULL
 )
@@ -77,7 +77,7 @@ recDir <- paste(dir, recName, sep = "\\\\")
 
 for(rec in recName) {
  print(rec)
- url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
+ url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
  download.file(url, destfile = paste(dir, rec, sep = "\\\\"), mode = "wb")
 }
 
@@ -87,23 +87,27 @@ sat <- soundSat(dir)
 ### Preparing the plot
 timeSplit <- strsplit(sat$values$AUDIO, "_")
 sides <- ifelse(grepl("left", sat$values$BIN), "left", "right")
+date <- sapply(timeSplit, function(x)
+  x[2])
 time <- sapply(timeSplit, function(x)
   substr(x[3],1,6))
+datePos <- paste(substr(date,1,4), substr(date,5,6), substr(date,7,8), sep = "-")
 timePos <- paste(substr(time,1,2), substr(time,3,4), substr(time,5,6), sep = ":")
-leftEar <- data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = timePos[sides == "left"])
-rightEar <- data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = timePos[sides == "right"])
+dateTime <- as.POSIXct(paste(datePos, timePos), format = "\%Y-\%m-\%d \%H:\%M:\%OS")
+leftEar <- data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = dateTime[sides == "left"])
+rightEar <- data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = dateTime[sides == "right"])
 
 ### Plotting results
-par(mfrow = c(2,1))
-boxplot(leftEar$SAT~leftEar$HOUR, las = 2,
-        ylab = "Soundscape Saturation (\%)", xlab = "",
-        main = paste("Soundscape Saturation distribution through the day (left ear)"))
-boxplot(rightEar$SAT~rightEar$HOUR, las = 2,
-        ylab = "Soundscape Saturation (\%)", xlab = "",
-        main = paste("Soundscape Saturation distribution through the day (right ear)"))
 
-        unlink(recDir)
+plot(SAT~HOUR, data = leftEar, ylim = c(range(sat$values$SAT)),
+col = "darkgreen", pch = 16,
+     ylab = "Soundscape Saturation (\%)", xlab = "Time of Day", type = "b")
+points(SAT~HOUR, data = rightEar, ylim = c(range(sat$values$SAT)),
+col = "red", pch = 16, type = "b")
+legend("topright", legend = c("Left Ear", "Right Ear"),
+       col = c("darkgreen", "red"), lty = 1)
 
+unlink(recDir)
 }
 \references{
 Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205–215. https://doi.org/10.1111/cobi.12968

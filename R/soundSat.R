@@ -52,7 +52,7 @@
 #'
 #' for(rec in recName) {
 #'  print(rec)
-#'  url <- paste0("https://zenodo.org/records/17243660/files/", rec, "?download=1")
+#'  url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
 #'  download.file(url, destfile = paste(dir, rec, sep = "\\"), mode = "wb")
 #' }
 #'
@@ -62,23 +62,27 @@
 #' ### Preparing the plot
 #' timeSplit <- strsplit(sat$values$AUDIO, "_")
 #' sides <- ifelse(grepl("left", sat$values$BIN), "left", "right")
+#' date <- sapply(timeSplit, function(x)
+#'   x[2])
 #' time <- sapply(timeSplit, function(x)
 #'   substr(x[3],1,6))
+#' datePos <- paste(substr(date,1,4), substr(date,5,6), substr(date,7,8), sep = "-")
 #' timePos <- paste(substr(time,1,2), substr(time,3,4), substr(time,5,6), sep = ":")
-#' leftEar <- data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = timePos[sides == "left"])
-#' rightEar <- data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = timePos[sides == "right"])
+#' dateTime <- as.POSIXct(paste(datePos, timePos), format = "%Y-%m-%d %H:%M:%OS")
+#' leftEar <- data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = dateTime[sides == "left"])
+#' rightEar <- data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = dateTime[sides == "right"])
 #'
 #' ### Plotting results
-#' par(mfrow = c(2,1))
-#' boxplot(leftEar$SAT~leftEar$HOUR, las = 2,
-#'         ylab = "Soundscape Saturation (%)", xlab = "",
-#'         main = paste("Soundscape Saturation distribution through the day (left ear)"))
-#' boxplot(rightEar$SAT~rightEar$HOUR, las = 2,
-#'         ylab = "Soundscape Saturation (%)", xlab = "",
-#'         main = paste("Soundscape Saturation distribution through the day (right ear)"))
 #'
-#'         unlink(recDir)
+#' plot(SAT~HOUR, data = leftEar, ylim = c(range(sat$values$SAT)),
+#' col = "darkgreen", pch = 16,
+#'      ylab = "Soundscape Saturation (%)", xlab = "Time of Day", type = "b")
+#' points(SAT~HOUR, data = rightEar, ylim = c(range(sat$values$SAT)),
+#' col = "red", pch = 16, type = "b")
+#' legend("topright", legend = c("Left Ear", "Right Ear"),
+#'        col = c("darkgreen", "red"), lty = 1)
 #'
+#' unlink(recDir)
 soundSat <- function(soundpath,
                      channel = "stereo",
                      timeBin = 60,
@@ -88,8 +92,8 @@ soundSat <- function(soundpath,
                      window = signal::hamming(wl),
                      overlap = ceiling(length(window) / 2),
                      histbreaks = "FD",
-                     powthr = c(5.1, 20, 0.1),
-                     bgnthr = c(0.51, 0.99, 0.02),
+                     powthr = c(5, 20, 1),
+                     bgnthr = c(0.5, 0.9, 0.05),
                      normality = "ad.test",
                      backup = NULL) {
   if (all(!dir.exists(soundpath)))
@@ -147,17 +151,17 @@ soundSat <- function(soundpath,
 
   if (!is.null(backup)) {
     SATdf[["ogARGS"]] <- list(
-      channel = "stereo",
-      timeBin = 60,
-      dbThreshold = -90,
-      targetSampRate = NULL,
-      wl = 512,
-      window = signal::hamming(wl),
-      overlap = ceiling(length(window) / 2),
-      histbreaks = "FD",
-      powthr = c(5.1, 20, 0.1),
-      bgnthr = c(0.51, 0.99, 0.02),
-      normality = "ad.test"
+      channel = channel,
+      timeBin = timeBin,
+      dbThreshold = dbThreshold,
+      targetSampRate = targetSampRate,
+      wl = wl,
+      window = window,
+      overlap = overlap,
+      histbreaks = histbreaks,
+      powthr = powthr,
+      bgnthr = bgnthr,
+      normality = normality
     )
   }
 
@@ -248,6 +252,7 @@ soundSat <- function(soundpath,
                                   2), seq(nrow(singsat) / 2), sep = "_")
 
         DURATION <- rep(BGNPOW$timeBins, 2)
+        SAMPRATE <- rep(BGNPOW$sampRate, 2)
 
       } else if ("mono" %in% names(BGNPOW)) {
         BGNQ <- apply(BGNPOW$mono$BGN, 2, function(n)
@@ -283,6 +288,7 @@ soundSat <- function(soundpath,
         binsUnique <- paste("mono", seq(nrow(singsat)), sep = "_")
 
         DURATION <- BGNPOW$timeBins
+        SAMPRATE <- BGNPOW$sampRate
 
       } else {
         realChannel <- c("left", "right")[c("left", "right") %in% names(BGNPOW)]
@@ -320,6 +326,7 @@ soundSat <- function(soundpath,
         binsUnique <- paste(realChannel, seq(nrow(singsat)), sep = "_")
 
         DURATION <- BGNPOW$timeBins
+        SAMPRATE <- BGNPOW$sampRate
 
       }
 
@@ -339,6 +346,7 @@ soundSat <- function(soundpath,
       list(
         SAT = singsat,
         DUR = DURATION,
+        SMP = SAMPRATE,
         BIN = binsUnique,
         NAME = soundfile
       )
@@ -362,6 +370,8 @@ soundSat <- function(soundpath,
   ERRORS <- SATdf[which.error]
   DURATIONS <- c(sapply(SATdf[!which.error], function(x)
     x[["DUR"]]))
+  SAMPRATES <- c(sapply(SATdf[!which.error], function(x)
+    x[["SMP"]]))
   PATHS <- c(sapply(SATdf[!which.error], function(x)
     rep(x[["NAME"]], length(x[["BIN"]]))))
   BINS <- c(sapply(SATdf[!which.error], function(x)
@@ -415,6 +425,7 @@ soundSat <- function(soundpath,
     AUDIO = basename(PATHS),
     BIN = BINS,
     DURATION = DURATIONS,
+    SAMPRATE = SAMPRATES,
     SAT = SATdf[, which.max(normal)]
   )
   export[["errors"]] <- data.frame(file = soundfiles[which.error], do.call(rbind, ERRORS))
