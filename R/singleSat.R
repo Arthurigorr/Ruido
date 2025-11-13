@@ -43,15 +43,10 @@
 #' # Printing the results
 #' print(sat)
 #'
-#' plot(x = 1:3, y = seq(min(sat), max(sat),
-#' length.out = 3), type = "n", xlab = "Time",
-#' ylab = "Soundscape Saturation (%)")
-#' points(x = 1:3, y = sat$left, pch = 16, col = "lightgreen")
-#' lines(x = 1:3, y = sat$left, col = "lightgreen")
-#' points(x = 1:3, y = sat$right, pch = 16, col = "darkgreen")
-#' lines(x = 1:3, y = sat$right, col = "darkgreen")
-#' legend(1,0.74,legend = c("Left", "Right"),
-#' col = c("lightgreen", "darkgreen"), pch = c(16,16), cex = 1.5)
+#' barplot(c(sat$left, sat$right), col = c("darkgreen", "red"),
+#'        names.arg = c("Left", "Right"), ylab = "Soundscape Saturation (%)")
+#'
+#' unlink(recDir)
 
 singleSat <- function(soundfile,
                       channel = "stereo",

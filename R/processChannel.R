@@ -75,6 +75,7 @@ processChannel <- function(channelData,
 
   BGNexp[["timeBins"]] <- setNames(round((allSamples$e - allSamples$b) / samp.rate),
                                      paste0("BIN", seq(frameBin)))
+  BGNexp[["sampRate"]] <- samp.rate
 
   return(BGNexp)
 
