@@ -9,5 +9,5 @@ utils::globalVariables(c(
   'channel',
   'dbThreshold',
   'histbreaks',
-  'normality',
+  'normality'
 ))
