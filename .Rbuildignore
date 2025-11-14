@@ -10,4 +10,4 @@
 ^paper$
 ^man/figures$
 ^CRAN-SUBMISSION$
-$cran-comments.md^
+^cran-comments.md$
