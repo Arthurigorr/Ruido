@@ -18,3 +18,5 @@ This is a resubmission! In this new version I have:
 * Fixed the author citations.
 
 * Updated .Rbuildignore to exclude non-related files.
+
+* Added soundSat arguments to globalVariables() to tell the check that the arguments used in satBack are loaded from an external file
