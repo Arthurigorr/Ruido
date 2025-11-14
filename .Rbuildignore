@@ -1,10 +1,11 @@
 ^Ruido\.Rproj$
-^.github
+^.github$
 ^\.Rproj\.user$
-^LICENSE\.md$
+^LICENSE\.md$$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^revdep$
-^paper
-^man\figures
-^.git
+^paper$
+^man\figures$
+^.git$
+^.Rhistory$
