@@ -7,7 +7,8 @@ Authors@R: c(
     person("Lucas Rodriguez Forti", , "lucas.forti@ufersa.edu.br", role = "ctb")
     )
 Description: A tool that provides functions to calculate three acoustic indices: Background Noise (BGN), Soundscape Power (POW) and Soundscape Saturation (SAT).
-Depends: R(>= 4.3.0), methods, tuneR, signal, nortest
+Depends: R(>= 4.3.0)
+Imports: methods, tuneR, signal, nortest
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
