@@ -70,6 +70,7 @@ After these equations are done, we check every threshold combination for normali
 If you set a path for the "path" argument, a single R object will be written in your path for each audiofile individually. These objects can be loaded again through the "sat_backup" function to continue the calculation of saturation in case the proccess is stopped.
 }
 \examples{
+\dontrun{
 ### Downloading audiofiles from public Zenodo library
 dir <- tempdir()
 recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 200000, by = 50000)),".wav")
@@ -108,6 +109,7 @@ legend("topright", legend = c("Left Ear", "Right Ear"),
        col = c("darkgreen", "red"), lty = 1)
 
 unlink(recDir)
+}
 }
 \references{
 Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968

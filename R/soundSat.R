@@ -45,6 +45,7 @@
 #'@importFrom nortest ad.test
 #'
 #' @examples
+#' \dontrun{
 #' ### Downloading audiofiles from public Zenodo library
 #' dir <- tempdir()
 #' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
@@ -83,6 +84,7 @@
 #'        col = c("darkgreen", "red"), lty = 1)
 #'
 #' unlink(recDir)
+#' }
 soundSat <- function(soundpath,
                      channel = "stereo",
                      timeBin = 60,

@@ -32,17 +32,37 @@
 #'@importFrom tuneR downsample
 #'
 #' @examples
-#' # Getting audiofile from the online Zenodo library
-#' dir <- tempdir()
-#' rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0),".wav")
-#' recDir <- paste(dir,rec , sep = "/")
-#' url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
+#' ### For our main example we'll create an artificial audio with
+#' ### white noise to test its Background Noise
+#' # We'll use the package tuneR
+#' library(tuneR)
 #'
-#' # Downloading the file, might take some time denpending on your internet
-#' download.file(url, destfile = recDir, mode = "wb")
+#' # Define the audio sample rate, duration and number of samples
+#' sampRate <- 12050
+#' dur <- 59
+#' sampN <- sampRate * dur
+#'
+#' # Then we Ggenerate the white noise for our audio and apply FFT
+#' set.seed(413)
+#' ruido <- rnorm(sampN)
+#' spec <- fft(ruido)
+#'
+#' # Now we create a random spectral envelope for the audio and apply the spectral envelope
+#' nPoints <- 50
+#' env <- runif(nPoints)
+#' env <- approx(env, n=nPoints)$y
+#' specMod <- spec * env
+#'
+#' # Now we invert the FFT back to into a time waveform and normalize and convert to Wave
+#' out <- Re(fft(specMod, inverse=TRUE)) / sampN
+#' wave <- Wave(left = out, samp.rate = sampRate, bit = 16)
+#' wave <- normalize(wave, unit = "16")
+#'
+#' # Here's our artificial audio
+#' wave
 #'
 #' # Running the bgNoise function with all the default arguments
-#' bgn <- bgNoise(recDir)
+#' bgn <- bgNoise(wave)
 #'
 #' # Print the results
 #' head(bgn$left$BGN)
@@ -51,17 +71,57 @@
 #' # Plotting background noise and soundscape profile for the first minute of the recording
 #' par(mfrow = c(2,2))
 #' plot(x = bgn$left$BGN$BGN1, y = seq(1,bgn$sampRate, length.out = 256),
-#'      xlab = "Background Noise (dB)", ylab = "Frequency (hz)", main = "BGN by Frequency",
+#'      xlab = "Background Noise (dB)", ylab = "Frequency (hz)",
+#'      main = "BGN by Frequency",
 #'      type = "l")
 #' plot(x = bgn$left$POW$POW1, y = seq(1,bgn$sampRate, length.out = 256),
-#'      xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)", main = "POW by Frequency",
+#'      xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)",
+#'      main = "POW by Frequency",
 #'      type = "l")
 #' plot(bgn$left$BGN$BGN1~bgn$left$POW$POW1, pch = 16,
-#'      xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)", main = "BGN~POW in left ear")
-#' plot(bgn$right$BGN$BGN1~bgn$right$POW$POW1, pch = 16,
-#'      xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)", main = "BGN~POW in right ear")
+#'      xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)",
+#'      main = "BGN~POW in left ear")
+#' hist(bgn$left$BGN$BGN1, main = "Histogram of BGN distribution",
+#'       xlab = "Background Noise (BGN)")
 #'
-#' unlink(recDir)
+#'\dontrun{
+#'   ### This is a secondary example using audio from a real soundscape
+#'   ### These audios are originated from the Escutadô Project
+#'   # Getting audiofile from the online Zenodo library
+#'   dir <- tempdir()
+#'   rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0),".wav")
+#'   recDir <- paste(dir,rec , sep = "/")
+#'   url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
+#'
+#'   # Downloading the file, might take some time denpending on your internet
+#'   download.file(url, destfile = recDir, mode = "wb")
+#'
+#'   # Running the bgNoise function with all the default arguments
+#'   bgn <- bgNoise(recDir)
+#'
+#'   # Print the results
+#'   head(bgn$left$BGN)
+#'   head(bgn$left$POW)
+#'
+#'   # Plotting background noise and soundscape profile for the first minute of the recording
+#'   par(mfrow = c(2,2))
+#'   plot(x = bgn$left$BGN$BGN1, y = seq(1,bgn$sampRate, length.out = 256),
+#'        xlab = "Background Noise (dB)", ylab = "Frequency (hz)",
+#'        main = "BGN by Frequency",
+#'        type = "l")
+#'   plot(x = bgn$left$POW$POW1, y = seq(1,bgn$sampRate, length.out = 256),
+#'        xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)",
+#'        main = "POW by Frequency",
+#'        type = "l")
+#'   plot(bgn$left$BGN$BGN1~bgn$left$POW$POW1, pch = 16,
+#'        xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)",
+#'        main = "BGN~POW in left ear")
+#'   plot(bgn$right$BGN$BGN1~bgn$right$POW$POW1, pch = 16,
+#'        xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)",
+#'        main = "BGN~POW in right ear")
+#'
+#'   unlink(recDir)
+#'}
 bgNoise <- function(soundfile,
                     channel = "stereo",
                     timeBin = 60,

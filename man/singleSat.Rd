@@ -60,7 +60,56 @@ For the selected threshold a soundscape saturation measure will be taken with th
 \deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
 }
 \examples{
-# Getting audiofile from the online Zenodo library
+
+### Generating an artificial audio for the example
+## For this example we'll generate a sweep in a noisy soundscape
+library(tuneR)
+
+# Define the audio sample rate, duration and number of samples
+samprate <- 12050
+dur <- 59
+
+# Create a time vector
+t <- seq(0, dur, by = 1/samprate)
+
+# It starts at the frequency 50hz and goes all the way up to 4000hz
+# The sweep is exponnential
+freqT <- 50 * (4000/50)^(t/dur)
+
+# Generate the signal
+signal1 <- sin(10 * pi * cumsum(freqT) / samprate)
+# We create an envelope to give the sweep a fade away
+envelope <- exp(-4 * t / dur)
+# Generating low noise for the audio
+set.seed(413)
+noise <- rnorm(length(t), sd = 0.3)
+# Adding everything together in our signal
+signal <- signal1 * envelope + noise
+
+# Normalize to 16-bit WAV range to create our Wave object
+signalNorm <- signal / max(abs(signal))
+wave_obj <- Wave(left = signalNorm, samp.rate = samprate, bit = 16)
+
+# Now we calculate soundscape saturation for our audio
+# Here we are using timeBin = 10 so we get Soundscape Saturation values
+# every 10 seconds on the audio
+SAT <- singleSat(wave_obj, timeBin = 10)
+
+# Now we can plot the results
+# In the left we have a periodogram and in the right saturaion values
+# along one minute
+par(mfrow = c(1,2))
+image(periodogram(wave_obj, width = 64), xlab = "Time (s)",
+ylab = "Frequency (hz)", log = "y", axes = FALSE)
+axis(1, labels = seq(0,60, 10), at = seq(0,7e5,length.out = 7))
+axis(2)
+plot(SAT$left, xlab = "Time (s)", ylab = "Soundscape Saturation (\%)",
+type = "b", pch = 16, axes = FALSE)
+axis(1, labels = paste0(c("0-10","10-20","20-30","30-40","40-50","50-59"),
+"s"), at = 1:6)
+axis(2)
+
+\dontrun{# Getting audiofile from the online Zenodo library
 dir <- tempdir()
 rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
 recDir <- paste(dir,rec , sep = "/")
@@ -79,6 +128,7 @@ barplot(c(sat$left, sat$right), col = c("darkgreen", "red"),
        names.arg = c("Left", "Right"), ylab = "Soundscape Saturation (\%)")
 
 unlink(recDir)
+}
 }
 \references{
 Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205–215. https://doi.org/10.1111/cobi.12968
