@@ -2,28 +2,29 @@
 #'
 #' @description Compute the Background Noise and Soundscape Power values of an audio using Towsey 2017 methodology
 #'
-#' @param soundfile A tuneR Wave object or the path to a valid audio in your computer
-#' @param channel The channel you want to computer of your soundfile. Available channels are: "stereo", "mono", "left" or "right"
-#' @param timeBin The size (in seconds) of the time bin (default = 60)
-#' @param dbThreshold The minimum possible value of dB for the spectrograms (default = -90)
-#' @param targetSampRate The sampling rate of your audio (this argument is only used to down sample your audio)
-#' @param wl The window length of your spectrogram (default = 512)
-#' @param window The window used to smooth the signal (default = hamming(wl))
-#' @param overlap Overlap between the spectrogram windows (the default is half your window length)
-#' @param histbreaks Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100
+#' @param soundfile tuneR Wave object or path to a valid audio
+#' @param channel channel where the background noise values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
+#' @param timeBin size (in seconds) of the time bin. Defaults to `60`.
+#' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey 2017.
+#' @param targetSampRate sample rate of the audios. Defaults to `NULL` to not change the sample rate. This argument is only used to down sample the audio.
+#' @param wl window length of the spectrogram. Defaults to `512`.
+#' @param window window used to smooth the spectrogram. Defaults to `signal::hammning(wl)`. Switch to `signal::hanning(wl)` if to use hanning instead.
+#' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
+#' <br>Can also be set to any number to limit or increase the amount of breaks.
 #'
-#' @returns A list containing three objects: The first and second one contains a matrix with the values of background noise and soundscape power respectively to each time bin and for each frequency window of your soundfile. The third object is the duration in second of your time bins.
-#' @details Background noise is an index that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It is calculated by taking the modal value of intensity values in temporal bin c in frequency window f:
+#' @returns A list containing three objects: The first and second one contains a matrix with the values of Background Noise and Soundscape Power respectively to each time bin and for each frequency window of your soundfile. The third object is the duration in second of your time bins.
+#' @details Background Noise (`BGN`) is an index that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It was developed by Towsey 2017 using the Lamel et al 1981 algorithm. is calculated by taking the modal value of intensity values in temporal bin c in frequency window f:
 #'
 #'\deqn{BGN_{f} = mode(dB_{cf})}
 #'
-#'Soundscape power represents a measure of signal-to-noise ratio. It measures the relation of background noise to the loudest intensities in temporal bin c in frequency window f:
+#'Soundscape Power represents a measure of signal-to-noise ratio. It measures the relation of BGN to the loudest intensities in temporal bin c in frequency window f:
 #'
 #'\deqn{POW_{f} = max(dB_{cf}) - BGN_{cf}}
 #'
-#' @references Towsey, Michael W. (2017) The calculation of acoustic indices derived from long-duration recordings of the natural environment.
-#'
-#' Pijanowski, B. C. (2024). Principles of Soundscape Ecology.
+#' @references
+#' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. <https://eprints.qut.edu.au/110634/>
+#' <br>Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. IEEE Transactions on Acoustics, Speech, and Signal Processing, 29(4), 777-785 <https://doi.org/10.1109/TASSP.1981.1163642>
 #'
 #'@export
 #'@importFrom signal specgram
@@ -86,7 +87,7 @@
 #'
 #'\dontrun{
 #'   ### This is a secondary example using audio from a real soundscape
-#'   ### These audios are originated from the Escutadô Project
+#'   ### These audios are originated from the Escutad\^o Project
 #'   # Getting audiofile from the online Zenodo library
 #'   dir <- tempdir()
 #'   rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0),".wav")

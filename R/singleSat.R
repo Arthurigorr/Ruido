@@ -1,21 +1,22 @@
 #' @title Single Soundscape Saturation Index
 #'
-#' @param soundfile A tuneR Wave object or the path to a valid audio in your computer
-#' @param channel The channel you want to computer of your soundfile. Available channels are: "stereo", "mono", "left" or "right"
-#' @param timeBin The size (in seconds) of the time bin (default = 60)
-#' @param dbThreshold The minimum possible value of dB for the spectrograms (default = -90)
-#' @param targetSampRate The sampling rate of your audio (this argument is only used to down sample your audio)
-#' @param wl The window length of your spectrogram (default = 512)
-#' @param window The window used to smooth the signal (default = hamming(wl))
-#' @param overlap Overlap between the spectrogram windows (the default is half your window length)
-#' @param histbreaks Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100
-#' @param powthr The value to evaluate the activity matrix for soundscape power (in dB)
-#' @param bgnthr The value to evaluate the activity matrix for background noise (in dB)
+#' @param soundfile tuneR Wave object or path to a valid audio
+#' @param channel channel where the background noise values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
+#' @param timeBin size (in seconds) of the time bin. Defaults to `60`.
+#' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey 2017.
+#' @param targetSampRate sample rate of the audios. Defaults to `NULL` to not change the sample rate. This argument is only used to down sample the audio.
+#' @param wl window length of the spectrogram. Defaults to `512`.
+#' @param window window used to smooth the spectrogram. Defaults to `signal::hammning(wl)`. Switch to `signal::hanning(wl)` if to use hanning instead.
+#' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
+#' <br>Can also be set to any number to limit or increase the amount of breaks.
+#' @param powthr a single value to evaluate the activity matrix for Soundscape Power (in %dB). Defaults to `10`.
+#' @param bgnthr a single value to evaluate the activity matrix for Background Noise (in %). Defaults to `0.8`
 #'
 #' @export
 #' @returns A data frame containing the saturation values for all time bins of the inputed file
-#' @details Soundscape Saturation is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Zuzana Burivalova as an index to test the acoustic niche hypothesis.
-#' To calculate this function, first you need to generate an activity matrix for each time bin of your recording with the following formula:
+#' @details  Soundscape Saturation (`SAT`) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2017 as an index to test the acoustic niche hypothesis.
+#' To calculate this function, first we need to generate an activity matrix for each time bin of your recording with the following formula:
 #'
 #'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 #'
@@ -25,7 +26,9 @@
 #'
 #'\deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
 #'
-#'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205–215. https://doi.org/10.1111/cobi.12968
+#'Since this is analyzing the soundscape saturaion of a single file, no normality tests will be done.
+#'
+#'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. <https://doi.org/10.1111/cobi.12968>
 #'
 #' @examples
 #'
@@ -109,7 +112,6 @@ singleSat <- function(soundfile,
                       histbreaks = "FD",
                       powthr = 10,
                       bgnthr = 0.8) {
-
   halfWl <- round(wl / 2)
 
   BGNPOW <- bgNoise(

@@ -17,36 +17,37 @@ bgNoise(
 )
 }
 \arguments{
-\item{soundfile}{A tuneR Wave object or the path to a valid audio in your computer}
+\item{soundfile}{tuneR Wave object or path to a valid audio}
 
-\item{channel}{The channel you want to computer of your soundfile. Available channels are: "stereo", "mono", "left" or "right"}
+\item{channel}{channel where the background noise values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
-\item{timeBin}{The size (in seconds) of the time bin (default = 60)}
+\item{timeBin}{size (in seconds) of the time bin. Defaults to \code{60}.}
 
-\item{dbThreshold}{The minimum possible value of dB for the spectrograms (default = -90)}
+\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017.}
 
-\item{targetSampRate}{The sampling rate of your audio (this argument is only used to down sample your audio)}
+\item{targetSampRate}{sample rate of the audios. Defaults to \code{NULL} to not change the sample rate. This argument is only used to down sample the audio.}
 
-\item{wl}{The window length of your spectrogram (default = 512)}
+\item{wl}{window length of the spectrogram. Defaults to \code{512}.}
 
-\item{window}{The window used to smooth the signal (default = hamming(wl))}
+\item{window}{window used to smooth the spectrogram. Defaults to \code{signal::hammning(wl)}. Switch to \code{signal::hanning(wl)} if to use hanning instead.}
 
-\item{overlap}{Overlap between the spectrogram windows (the default is half your window length)}
+\item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 
-\item{histbreaks}{Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100}
+\item{histbreaks}{breaks used to calculate Background Noise. Available breaks are: \code{"FD"}, \verb{"Sturges}", \code{"scott"} and \code{100}. Defaults to \code{"FD"}.
+\if{html}{\out{<br>}}Can also be set to any number to limit or increase the amount of breaks.}
 }
 \value{
-A list containing three objects: The first and second one contains a matrix with the values of background noise and soundscape power respectively to each time bin and for each frequency window of your soundfile. The third object is the duration in second of your time bins.
+A list containing three objects: The first and second one contains a matrix with the values of Background Noise and Soundscape Power respectively to each time bin and for each frequency window of your soundfile. The third object is the duration in second of your time bins.
 }
 \description{
 Compute the Background Noise and Soundscape Power values of an audio using Towsey 2017 methodology
 }
 \details{
-Background noise is an index that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It is calculated by taking the modal value of intensity values in temporal bin c in frequency window f:
+Background Noise (\code{BGN}) is an index that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It was developed by Towsey 2017 using the Lamel et al 1981 algorithm. is calculated by taking the modal value of intensity values in temporal bin c in frequency window f:
 
 \deqn{BGN_{f} = mode(dB_{cf})}
 
-Soundscape power represents a measure of signal-to-noise ratio. It measures the relation of background noise to the loudest intensities in temporal bin c in frequency window f:
+Soundscape Power represents a measure of signal-to-noise ratio. It measures the relation of BGN to the loudest intensities in temporal bin c in frequency window f:
 
 \deqn{POW_{f} = max(dB_{cf}) - BGN_{cf}}
 }
@@ -105,7 +106,7 @@ hist(bgn$left$BGN$BGN1, main = "Histogram of BGN distribution",
 
 \dontrun{
   ### This is a secondary example using audio from a real soundscape
-  ### These audios are originated from the Escutadô Project
+  ### These audios are originated from the Escutad\^o Project
   # Getting audiofile from the online Zenodo library
   dir <- tempdir()
   rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
@@ -143,7 +144,6 @@ hist(bgn$left$BGN$BGN1, main = "Histogram of BGN distribution",
 }
 }
 \references{
-Towsey, Michael W. (2017) The calculation of acoustic indices derived from long-duration recordings of the natural environment.
-
-Pijanowski, B. C. (2024). Principles of Soundscape Ecology.
+Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. \url{https://eprints.qut.edu.au/110634/}
+\if{html}{\out{<br>}}Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. IEEE Transactions on Acoustics, Speech, and Signal Processing, 29(4), 777-785 \url{https://doi.org/10.1109/TASSP.1981.1163642}
 }

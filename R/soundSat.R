@@ -2,38 +2,43 @@
 #'
 #' @description Calculate Soundscape Saturation for a combination of recordings using Burivalova 2018 methodology
 #'
-#' @param soundpath A path of multiple paths to your recordings. This path must direct to a folder or combination of folders.
-#' @param channel The channel you want to computer of your audiofile. Available channels are: "stereo", "mono", "left" or "right"
-#' @param timeBin The size (in seconds) of the time bin (default = 60)
-#' @param dbThreshold The minimum possible value of dB for the spectrograms (default = -90)
-#' @param targetSampRate The sampling rate of your audio (this argument is only used to down sample your audio)
-#' @param wl The window length of your spectrogram (default = 512)
-#' @param window The window used to smooth the signal (default = signal::hamming(wl))
-#' @param overlap Overlap between the spectrogram windows (the default is half your window length)
-#' @param histbreaks Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100
-#' @param powthr The a vector of values to evaluate the activity matrix for soundscape power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step
-#' @param bgnthr The values to evaluate the activity matrix for background noise (in %). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step
-#' @param normality The normality test to determine which threshold has the most normal distribution of values. We recommend you pick any test from the "nortest" package, but if you have few recordings and your bins won't exceeds 5000 we recommend using the shapiro.test function.
-#' @param backup A path in case you wish to backup your saturation values in case you need to turn of the computer or in case you cannot be sure the computer will be on for the entire process.
+#' @param soundpath single directory or multiple directory to audio files. The directory must lead to a single folder or a combination of folders.
+#' @param channel channel where the saturation values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
+#' @param timeBin size (in seconds) of the time bin. Defaults to `60`.
+#' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey.
+#' @param targetSampRate sample rate of the audios. Defaults to `NULL` to not change the sample rate. This argument is only used to down sample the audio.
+#' @param wl window length of the spectrogram. Defaults to `512`.
+#' @param window window used to smooth the spectrogram. Defaults to `signal::hammning(wl)`. Switch to `signal::hanning(wl)` if to use hanning instead.
+#' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` and `100`. Defaults to `"FD"`.
+#' <br>Can also be set to any number to limit or increase the amount of breaks.
+#' @param powthr vector of values to evaluate the activity matrix for Soundscape Power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step.
+#' <br>Defaults to `c(5, 20, 1)`, which means the first thresholds starts at 5dB and jumps a whole number till 20dB.
+#' @param bgnthr vector of values to evaluate the activity matrix for Background Noise (in %). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step.
+#' <br>Defaults to `c(0.5, 0.9, 0.05)`, which means the first thresholds starts at 50% and jumps 5% till 90%.
+#' @param normality normality test to determine which threshold combination has the most normal distribution of values. We recommend to pick any test from the `nortest` package. Input the test as a character. Defaults to `"ad.test"`.
+#' <br>`"ks.test"` is not available. `"shapiro.test"` can be used, however we recommend using only when analyzing very few recordings.
+#' @param backup path to backup the saturation values in case the computer is turned off during processing or in case you cannot be sure the computer will be on for the entire process. Defaults to `NULL`.
+#' <br>The backup will be updated every 5 recordings processed.
 #'
-#' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values. The third (normality) contains the p values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that ocurred with specific files during the function.
+#' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
 #'
-#' @details Soundscape Saturation is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Zuzana Burivalova as an index to test the acoustic niche hypothesis.
-#' To calculate this function, first you need to generate an activity matrix for each time bin of your recording with the following formula:
+#' @details Soundscape Saturation (`SAT`) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2017 as an index to test the acoustic niche hypothesis.
+#' To calculate this function, first we need to generate an activity matrix for each time bin of your recording with the following formula:
 #'
 #'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 #'
 #'Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values.
 #'Since we define a interval for both the threshold, this means that an activity matrix will be generated for each bin of each recording.
-#'For each combination of threshold a soundscape saturation measure will be taken with the following formula:
+#'For each combination of threshold a SAT measure will be taken with the following formula:
 #'
 #'\deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
 #'
 #'After these equations are done, we check every threshold combination for normality and pick the combination that yields the most normal distribution of saturation values.
 #'
-#'If you set a path for the "path" argument, a single R object will be written in your path for each audiofile individually. These objects can be loaded again through the "sat_backup" function to continue the calculation of saturation in case the proccess is stopped.
+#'If you set a path for the "path" argument, a single rds file will be written in your path. This objects can be loaded again through the "satBack" function to continue the calculation of saturation in case the process is suddenly stopped.
 #'
-#'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
+#'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. <https://doi.org/10.1111/cobi.12968>
 #'
 #'@export
 #'@importFrom methods is
@@ -102,18 +107,18 @@ soundSat <- function(soundpath,
     stop("all provided soundpaths must be valid.")
 
   if (!is.null(backup) && !dir.exists(backup))
-    stop("you must provide a valid folder for backup.")
+    stop("please provide a valid folder for backup.")
 
   soundfiles <- list.files(soundpath, full.names = TRUE, recursive = TRUE)
   soundfiles <- soundfiles[tools::file_ext(soundfiles) %in% c("mp3", "wav")]
 
   if (length(soundfiles) < 3)
-    stop("you must provide at least 3 recordings!")
+    stop("please provide at least 3 recordings!")
 
   if (normality == "shapiro.test") {
     answernorm <- readline(
       "
-      If you are working with a large dataset, then shapiro.test will result in an error.
+      If you are working with a large dataset, then shapiro.test will most likely result in an error.
       Do you wish to use Anderson-Darling test instead? (Y/N).
       "
     )

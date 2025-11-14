@@ -19,27 +19,28 @@ singleSat(
 )
 }
 \arguments{
-\item{soundfile}{A tuneR Wave object or the path to a valid audio in your computer}
+\item{soundfile}{tuneR Wave object or path to a valid audio}
 
-\item{channel}{The channel you want to computer of your soundfile. Available channels are: "stereo", "mono", "left" or "right"}
+\item{channel}{channel where the background noise values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
-\item{timeBin}{The size (in seconds) of the time bin (default = 60)}
+\item{timeBin}{size (in seconds) of the time bin. Defaults to \code{60}.}
 
-\item{dbThreshold}{The minimum possible value of dB for the spectrograms (default = -90)}
+\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017.}
 
-\item{targetSampRate}{The sampling rate of your audio (this argument is only used to down sample your audio)}
+\item{targetSampRate}{sample rate of the audios. Defaults to \code{NULL} to not change the sample rate. This argument is only used to down sample the audio.}
 
-\item{wl}{The window length of your spectrogram (default = 512)}
+\item{wl}{window length of the spectrogram. Defaults to \code{512}.}
 
-\item{window}{The window used to smooth the signal (default = hamming(wl))}
+\item{window}{window used to smooth the spectrogram. Defaults to \code{signal::hammning(wl)}. Switch to \code{signal::hanning(wl)} if to use hanning instead.}
 
-\item{overlap}{Overlap between the spectrogram windows (the default is half your window length)}
+\item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 
-\item{histbreaks}{Which breaks to use to calculate background noise. Available breaks are: "FD", "Sturges", "scott" and 100}
+\item{histbreaks}{breaks used to calculate Background Noise. Available breaks are: \code{"FD"}, \verb{"Sturges}", \code{"scott"} and \code{100}. Defaults to \code{"FD"}.
+\if{html}{\out{<br>}}Can also be set to any number to limit or increase the amount of breaks.}
 
-\item{powthr}{The value to evaluate the activity matrix for soundscape power (in dB)}
+\item{powthr}{a single value to evaluate the activity matrix for Soundscape Power (in \%dB). Defaults to \code{10}.}
 
-\item{bgnthr}{The value to evaluate the activity matrix for background noise (in dB)}
+\item{bgnthr}{a single value to evaluate the activity matrix for Background Noise (in \%). Defaults to \code{0.8}}
 }
 \value{
 A data frame containing the saturation values for all time bins of the inputed file
@@ -48,8 +49,8 @@ A data frame containing the saturation values for all time bins of the inputed f
 Single Soundscape Saturation Index
 }
 \details{
-Soundscape Saturation is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Zuzana Burivalova as an index to test the acoustic niche hypothesis.
-To calculate this function, first you need to generate an activity matrix for each time bin of your recording with the following formula:
+Soundscape Saturation (\code{SAT}) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2017 as an index to test the acoustic niche hypothesis.
+To calculate this function, first we need to generate an activity matrix for each time bin of your recording with the following formula:
 
 \deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 
@@ -58,6 +59,8 @@ Since we define a single threshold for both in this function, we don't have to w
 For the selected threshold a soundscape saturation measure will be taken with the following formula:
 
 \deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
+
+Since this is analyzing the soundscape saturaion of a single file, no normality tests will be done.
 }
 \examples{
 
@@ -131,5 +134,5 @@ unlink(recDir)
 }
 }
 \references{
-Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205–215. https://doi.org/10.1111/cobi.12968
+Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. \url{https://doi.org/10.1111/cobi.12968}
 }
