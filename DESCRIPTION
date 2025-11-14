@@ -2,9 +2,9 @@ Package: Ruido
 Title: An R Package for Profiling Background Noise and Calculating Soundscape Saturation
 Version: 1.0.0
 Authors@R: c(
-    person("Arthur Igor da", "Fonseca-Freire", , "arthur.igorr@gmail.com", role = c("aut", "cre", "cph")),
-    person("Weslley Geremias dos", "Santos", , "weslleygeremias@gmail.com", role = "ctb"),
-    person("Lucas Rodriguez Forti", , "lucas.forti@ufersa.edu.br", role = "ctb")
+    person(given = "Arthur Igor da", family = "Fonseca-Freire", email = "arthur.igorr@gmail.com", role = c("aut", "cre", "cph")),
+    person(given = "Weslley Geremias dos", family = "Santos", email = "weslleygeremias@gmail.com", role = "ctb"),
+    person("Lucas Rodriguez", family =  "Forti", email = "lucas.forti@ufersa.edu.br", role = "ctb")
     )
 Description: A tool that provides functions to calculate three acoustic indices: Background Noise (BGN), Soundscape Power (POW) and Soundscape Saturation (SAT).
 Depends: R(>= 4.3.0)
