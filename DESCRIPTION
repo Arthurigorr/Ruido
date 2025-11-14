@@ -6,7 +6,7 @@ Authors@R: c(
     person(given = "Weslley Geremias dos", family = "Santos", email = "weslleygeremias@gmail.com", role = "ctb"),
     person("Lucas Rodriguez", family =  "Forti", email = "lucas.forti@ufersa.edu.br", role = "ctb")
     )
-Description: A tool that provides functions to calculate three acoustic metrics: Background Noise (BGN), Soundscape Power (POW) and Soundscape Saturation (SAT).
+Description: A tool that provides functions to calculate three acoustic metrics: Background Noise, Soundscape Power and Soundscape Saturation.
 Depends: R(>= 4.3.0)
 Imports: methods, tuneR, signal, nortest
 License: MIT + file LICENSE
