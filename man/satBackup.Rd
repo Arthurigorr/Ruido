@@ -22,6 +22,7 @@ Arguments can't be inputted nor changed since the function will automatically lo
 \dontrun{
 # It's impossible to create a functioning example since you would have to manually stop the process
 # However, here is how this function is used:
+## This example will load an entire day of audios to your computer, so beware.
 
 ### Downloading audiofiles from public Zenodo library
 dir <- tempdir()
