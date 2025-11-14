@@ -51,7 +51,8 @@ Soundscape power represents a measure of signal-to-noise ratio. It measures the 
 \deqn{POW_{f} = max(dB_{cf}) - BGN_{cf}}
 }
 \examples{
-### For our main example we'll create an artificial audio with white noise to test its Background Noise
+### For our main example we'll create an artificial audio with
+### white noise to test its Background Noise
 # We'll use the package tuneR
 library(tuneR)
 
