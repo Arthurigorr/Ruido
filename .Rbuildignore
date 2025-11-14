@@ -4,8 +4,6 @@
 ^\.github$
 ^\.gitignore$
 ^\.Rhistory$
-^CRAN-SUBMISSION$
-^cran-comments\.md$
 ^LICENSE\.md$
 ^NEWS\.md$
 ^revdep$
