@@ -9,3 +9,5 @@
 ^revdep$
 ^paper$
 ^man/figures$
+^CRAN-SUBMISSION$
+$cran-comments.md^
