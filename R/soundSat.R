@@ -50,7 +50,7 @@
 #'@importFrom nortest ad.test
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ### Downloading audiofiles from public Zenodo library
 #' dir <- tempdir()
 #' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
@@ -126,7 +126,7 @@ soundSat <- function(soundpath,
     if (answernorm == "Y") {
       normality <- "ad.test"
     } else if (answernorm == "N") {
-      print("Using shapiro.test to test normality.")
+      message("Using shapiro.test to test normality.")
     } else {
       stop("Please answer with Y or N next time.")
     }
@@ -171,7 +171,7 @@ soundSat <- function(soundpath,
 
   combinations <- paste(thresholdCombinations[, 1], thresholdCombinations[, 2], sep = "/")
 
-  print(
+  message(
     paste(
       "Calculating saturation values for",
       length(soundfiles),
