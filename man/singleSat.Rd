@@ -112,7 +112,11 @@ axis(1, labels = paste0(c("0-10","10-20","20-30","30-40","40-50","50-59"),
 "s"), at = 1:6)
 axis(2)
 
-\dontrun{# Getting audiofile from the online Zenodo library
+\donttest{
+
+oldpar <- par(no.readonly = TRUE)
+
+# Getting audiofile from the online Zenodo library
 dir <- tempdir()
 rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
 recDir <- paste(dir,rec , sep = "/")
@@ -131,6 +135,7 @@ barplot(c(sat$left, sat$right), col = c("darkgreen", "red"),
        names.arg = c("Left", "Right"), ylab = "Soundscape Saturation (\%)")
 
 unlink(recDir)
+par(oldpar)
 }
 }
 \references{

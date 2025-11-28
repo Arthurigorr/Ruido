@@ -104,7 +104,8 @@ plot(bgn$left$BGN$BGN1~bgn$left$POW$POW1, pch = 16,
 hist(bgn$left$BGN$BGN1, main = "Histogram of BGN distribution",
       xlab = "Background Noise (BGN)")
 
-\dontrun{
+\donttest{
+  oldpar <- par(no.readonly = TRUE)
   ### This is a secondary example using audio from a real soundscape
   ### These audios are originated from the Escutad\^o Project
   # Getting audiofile from the online Zenodo library
@@ -141,6 +142,7 @@ hist(bgn$left$BGN$BGN1, main = "Histogram of BGN distribution",
        main = "BGN~POW in right ear")
 
   unlink(recDir)
+  par(oldpar)
 }
 }
 \references{
