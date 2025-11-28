@@ -85,7 +85,8 @@
 #' hist(bgn$left$BGN$BGN1, main = "Histogram of BGN distribution",
 #'       xlab = "Background Noise (BGN)")
 #'
-#'\dontrun{
+#'\donttest{
+#'   oldpar <- par(no.readonly = TRUE)
 #'   ### This is a secondary example using audio from a real soundscape
 #'   ### These audios are originated from the Escutad\^o Project
 #'   # Getting audiofile from the online Zenodo library
@@ -122,6 +123,7 @@
 #'        main = "BGN~POW in right ear")
 #'
 #'   unlink(recDir)
+#'   par(oldpar)
 #'}
 bgNoise <- function(soundfile,
                     channel = "stereo",
@@ -151,7 +153,7 @@ bgNoise <- function(soundfile,
   }
 
   if (!audio@stereo && channel == "stereo") {
-    print("Audio is not stereo, defaulting to left channel.")
+    warning("Audio is not stereo, defaulting to left channel.")
     channel <- "left"
   }
 
