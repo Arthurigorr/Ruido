@@ -2,42 +2,24 @@
 This is a resubmission!
 
 ## R CMD check results
-Duration: 48.6s
+Duration: 2m 27.8s
 
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: 'Arthur Igor da Fonseca-Freire <arthur.igorr@gmail.com>'
-
-New submission
-
-Possibly misspelled words in DESCRIPTION:
-  BGN (10:100)
-
-Found the following URLs which should use \doi (with the DOI name only):
-  File 'bgNoise.Rd':
-    https://doi.org/10.1109/TASSP.1981.1163642
-  File 'singleSat.Rd':
-    https://doi.org/10.1111/cobi.12968
-  File 'soundSat.Rd':
-    https://doi.org/10.1111/cobi.12968
-
-0 errors ✔ | 0 warnings ✔ | 1 notes ✔
-
-* BGN is not misspelled
-
-* I prefer to leave the DOIs as links, so I'll ignore these notes
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 
 ## In this new version I have:
 
-* Changed the package sub-title in the DESCRIPTION and switched it to title case.
+* Added the function soundMat()
 
-* Updated the examples to use locally generated audios and moved the examples that download audios from Zenodo to \dontrun{} to reduce check time
+* Rewritten the package title and description in the DESCRIPTION to add more details about the package.
 
-* Updated the functions and examples so they can work normally on Linux distros.
+* Added references to package description, linking the original articles of the methods used
 
-* Updated bgNoise and soundSat outputs.
+* Switch \dontrun{} to \donttest{} in the examples, with the exception of satBackup(), which needs to manually be stopped to run
 
-* Fixed the author citations.
+* Changed all print() and cat() to warning() or message() depending on the context
 
-* Updated .Rbuildignore to exclude non-related files.
+* Updated .Rbuildignore to exclude non-related files
 
-* Added soundSat arguments to globalVariables() to tell the check that the arguments used in satBack are loaded from an external file
+* Updated WORDLIST
+
+* Made examples return the user's par() once they finish running
