@@ -7,3 +7,4 @@
   - `singleSat()`
   - `bgnNoise()`
   - `satBackup()`
+  - `soundMat()`
