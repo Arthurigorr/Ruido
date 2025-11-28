@@ -91,7 +91,7 @@ satBackup <- function(backupPath, od) {
 
       SATdf[[soundfile]] <- if (is(BGNPOW, "error") ||
                                 is(BGNPOW, "warning")) {
-        cat("\n",
+        message("\n",
             basename(soundfile),
             "is not valid!\nError:",
             BGNPOW$message,
@@ -231,7 +231,7 @@ satBackup <- function(backupPath, od) {
 
         }
 
-        cat(
+        message(
           "\r(",
           basename(soundfile),
           ") ",
@@ -310,7 +310,7 @@ satBackup <- function(backupPath, od) {
                     "lillie.test" = "D",
                     "pearson.test" = "X\u00b2")
 
-  cat(
+  message(
     "\n           Soundscape Saturation Results\n\n",
     "POW Threshold = ",
     as.numeric(thresholds[1]),
