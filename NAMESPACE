@@ -3,6 +3,7 @@
 export(bgNoise)
 export(satBackup)
 export(singleSat)
+export(soundMat)
 export(soundSat)
 importFrom(methods,is)
 importFrom(methods,slot)
