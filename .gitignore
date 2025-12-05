@@ -5,3 +5,5 @@
 .DS_Store
 .quarto
 .LICENSE
+.cran-comments.md
+.CRAN-SUBMISSION

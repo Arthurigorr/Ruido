@@ -226,7 +226,7 @@ soundSat <- function(soundpath,
 
     SATdf[[soundfile]] <- if (is(BGNPOW, "error") ||
                               is(BGNPOW, "warning")) {
-      cat("\n",
+      warning("\n",
           basename(soundfile),
           "is not valid!\nError:",
           BGNPOW$message,
@@ -366,7 +366,7 @@ soundSat <- function(soundpath,
 
       }
 
-      cat(
+      message(
         "\r(",
         basename(soundfile),
         ") ",
@@ -449,7 +449,7 @@ soundSat <- function(soundpath,
                     "lillie.test" = "D",
                     "pearson.test" = "X\u00b2")
 
-  cat(
+  message(
     "\n           Soundscape Saturation Results\n\n",
     "POW Threshold = ",
     as.numeric(thresholds[1]),
