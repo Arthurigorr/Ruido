@@ -1,5 +1,5 @@
 Package: Ruido
-Title: Profile Background Noise, Soundscape Power and Soundscape Saturation from Soundscape Recordings
+Title: Soundscape Background Noise, Power, and Saturation
 Version: 1.0.0
 Authors@R: c(
     person(given = "Arthur Igor da", family = "Fonseca-Freire", email = "arthur.igorr@gmail.com", role = c("aut", "cre", "cph")),
