@@ -8,13 +8,7 @@ Duration: 2m 27.8s
 
 ## In this new version I have:
 
-* Added the function soundMat()
-
-* Rewritten the package title and description in the DESCRIPTION to add more details about the package.
-
-* Added references to package description, linking the original articles of the methods used
-
-* Switch \dontrun{} to \donttest{} in the examples, with the exception of satBackup(), which needs to manually be stopped to run
+* Rewritten the package title to contain less words.
 
 * Changed all print() and cat() to warning() or message() depending on the context
 
@@ -22,4 +16,6 @@ Duration: 2m 27.8s
 
 * Updated WORDLIST
 
-* Made examples return the user's par() once they finish running
+* Removed quotes from unecessary places
+
+* The winbuilder returns that there are words with spelling errors, but they are not misspelled.
