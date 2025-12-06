@@ -1,6 +1,5 @@
 ---
-title: 'Ruido: An R package for profiling background noise and calculating soundscape
-  saturation'
+title: 'Ruido: A Streamline Package To Calculate Soundscape Saturation'
 tags:
   - R
   - Ecoacoustics
@@ -23,7 +22,7 @@ affiliations:
   index: 1
 - name: Faculdade de Engenharia Elétrica e de Computação (FEEC), Universidade Estadual de Campinas (UNICAMP)
   index: 2
-date: 18 October 2025
+date: 5 December 2025
 bibliography: paper.bib
 ---
 
@@ -55,7 +54,7 @@ Finally, by operationalizing these emerging metrics alongside established indice
 
 To illustrate the application of the available metrics in the `Ruido` package, we present a first example depicting the diurnal variation of BGN and POW using the bgnoise() function. These acoustic metrics were derived from 24 stereo recordings captured over a full day using a Song Meter SM4 (Wildlife Acoustics), programmed to record 3 minutes every 10 minutes at a 48 kHz sampling rate and 16 bit resolution. We selected only the first recording of each hour to analyse. Only the left channel, configured with 16 dB gain, was used for analysis. Data were gathered on April 1st during the rainy season in a jurema preta forest (monodominance of *Mimosa tenuiflora*) at the campus of the Universidade Federal Rural do Semi-Árido (UFERSA) in Mossoró-RN, Northeastern Brazil (Figure 1). All recordings used in this example are available at <https://zenodo.org/records/17243660>, ensuring full reproducibility and allowing users to replicate the analyses presented. 
 
-![**Figure 1.** Location of the SM4 autonomous recorder used for the acoustic data collection used in examples 1 and 2. (a) Geographic location of the study area in Mossoró, Potiguar region, Rio Grande do Norte, Brazil. (b) Satellite image of the landscape during the rainy season, showing the position of the SM4 recorder (red cross) and its approximate detection range (dashed red circle). (c) Photograph of the deployed SM4 recorder installed in a forest dominated by *Mimosa tenuiflora* during the dry season.](https://github.com/Arthurigorr/Ruido/blob/testing_branch/man/figures/mapPaper.png?raw=true)
+![**Figure 1.** Location of the SM4 autonomous recorder used for the acoustic data collection used in examples 1 and 2. (a) Geographic location of the study area in Mossoró, Potiguar region, Rio Grande do Norte, Brazil. (b) Satellite image of the landscape during the rainy season, showing the position of the SM4 recorder (red cross) and its approximate detection range (dashed red circle). (c) Photograph of the deployed SM4 recorder installed in a forest dominated by *Mimosa tenuiflora* during the dry season.](figures/mapPaper.png)
 
 After organizing the audio files into the appropriate directory structure, we proceeded with the analysis using the default settings for the function arguments, which are: channel = “stereo”, time_bin = 60, dbThreshold = -90, targetSampRate = NULL, wl = 512, window = signal::hamming(wl), overlap = ceiling(length(window) / 2), and histbreaks = “FD”. These parameters can be customized according to the users' specific needs and analytical goals, allowing for flexible adaptation to different research contexts and objectives. For instance, users may choose a different channel configuration (e.g., mono vs. stereo), adjust the time_bin to refine temporal resolution, modify the dbThreshold to control sensitivity to low-amplitude signals, or select alternative window types and overlap values to optimize spectral analysis. Such flexibility ensures that the function can be tailored to a wide range of analytical objectives. The script lines are as follows: 
 
@@ -104,9 +103,7 @@ BIN1 BIN2 BIN3
 
 Notably, BGN levels tended to be less intense and more evenly distributed across frequencies during daytime hours, while at night they became more intense and concentrated particularly between 5 and 12 kHz. Soundscape power also increased during nighttime, especially at frequencies above 8 kHz. These patterns reflect distinct acoustic dynamics between day and night periods. The results of BGN and POW for the left channel can be seen in figures 2a and 2b. 
 
-![**Figure 2.** (B) Heatmap of Background Noise (dB); and (C) Heatmap of Soundscape Power (dB), both plotted across the diurnal cycle.](https://github.com/Arthurigorr/Ruido/blob/testing_branch/man/figures/BGNPOW.png?raw=true)
-
-
+![**Figure 2.** (B) Heatmap of Background Noise (dB); and (C) Heatmap of Soundscape Power (dB), both plotted across the diurnal cycle.](figures/BGNPOW.png)
 
 # Example 2
 
@@ -143,7 +140,7 @@ sat <- soundSat(dir)
 
 We subsequently calculated mean values for each hour of the day, along with corresponding confidence intervals, to visualize the results in a time series graph (Figure 3). This approach provides a practical example of how users can process and explore their own data to identify temporal patterns and assess acoustic variability. 
 
-![**Figure 3.** SAT variation throughout the day. The line and dots represent the mean values of each hour of the day and the colored ribbon represents confidence intervals for each side.](https://github.com/Arthurigorr/Ruido/blob/testing_branch/man/figures/SAT.png?raw=true)
+![**Figure 3.** SAT variation throughout the day. The line and dots represent the mean values of each hour of the day and the colored ribbon represents confidence intervals for each side.](figures/SAT.png)
 
 The SAT showed substantial variation throughout the day, with pronounced peaks occurring both during the early nighttime hours and at dusk. The nocturnal acoustic richness, likely driven by vocalizing frogs and insects, reflects characteristic soundscape patterns of the rainy season in semiarid environments.
 
