@@ -138,9 +138,11 @@ bgNoise <- function(soundfile,
     stop("Please provide a valid channel: 'left', 'right', 'stereo', or 'mono'.")
   }
 
+  fileExt <- tolower(tools::file_ext(soundfile))
+
   audio <- if (is.character(soundfile)) {
-    if (tools::file_ext(soundfile) %in% c("mp3", "wav", "WAV", "MP3")) {
-      if (tools::file_ext(soundfile) == "mp3") {
+    if (fileExt %in% c("mp3", "wav", "WAV", "MP3")) {
+      if (fileExt == "mp3") {
         tuneR::readMP3(soundfile)
       } else {
         tuneR::readWave(soundfile)
