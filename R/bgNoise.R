@@ -139,7 +139,7 @@ bgNoise <- function(soundfile,
   }
 
   audio <- if (is.character(soundfile)) {
-    if (tools::file_ext(soundfile) %in% c("mp3", "wav")) {
+    if (tools::file_ext(soundfile) %in% c("mp3", "wav", "WAV", "MP3")) {
       if (tools::file_ext(soundfile) == "mp3") {
         tuneR::readMP3(soundfile)
       } else {

@@ -110,7 +110,7 @@ soundSat <- function(soundpath,
     stop("please provide a valid folder for backup.")
 
   soundfiles <- list.files(soundpath, full.names = TRUE, recursive = TRUE)
-  soundfiles <- soundfiles[tools::file_ext(soundfiles) %in% c("mp3", "wav")]
+  soundfiles <- soundfiles[tools::file_ext(soundfiles) %in% c("mp3", "wav", "WAV", "MP3")]
 
   if (length(soundfiles) < 3)
     stop("please provide at least 3 recordings!")
