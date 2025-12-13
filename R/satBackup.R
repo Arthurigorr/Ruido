@@ -4,7 +4,7 @@
 #' @param od path or paths containing your original audiofiles
 #'
 #' @description
-#' This function is a way to continue an unfinished process of the `soundSat()` function through a backup file.
+#' This function is a way to continue an unfinished process of the `soundSat()` or `soundMat()` functions through a backup file.
 #' Arguments can't be inputted nor changed since the function will automatically load them from the original `soundSat()` run.
 #'
 #' @returns
