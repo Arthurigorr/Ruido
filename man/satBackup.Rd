@@ -15,7 +15,7 @@ satBackup(backupPath, od)
 A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
 }
 \description{
-This function is a way to continue an unfinished process of the \code{soundSat()} function through a backup file.
+This function is a way to continue an unfinished process of the \code{soundSat()} or \code{soundMat()} functions through a backup file.
 Arguments can't be inputted nor changed since the function will automatically load them from the original \code{soundSat()} run.
 }
 \examples{
