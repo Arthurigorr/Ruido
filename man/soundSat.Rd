@@ -17,6 +17,7 @@ soundSat(
   powthr = c(5, 20, 1),
   bgnthr = c(0.5, 0.9, 0.05),
   normality = "ad.test",
+  beta = TRUE,
   backup = NULL
 )
 }
@@ -48,6 +49,8 @@ soundSat(
 
 \item{normality}{normality test to determine which threshold combination has the most normal distribution of values. We recommend to pick any test from the \code{nortest} package. Input the test as a character. Defaults to \code{"ad.test"}.
 \if{html}{\out{<br>}}\code{"ks.test"} is not available. \code{"shapiro.test"} can be used, however we recommend using only when analyzing very few recordings.}
+
+\item{beta}{how BGN thresholds are calculated. If TRUE, BGN thresholds are computed using all recordings combined.}
 
 \item{backup}{path to backup the saturation values in case the computer is turned off during processing or in case you cannot be sure the computer will be on for the entire process. Defaults to \code{NULL}.
 \if{html}{\out{<br>}}The backup will be updated every 5 recordings processed.}
@@ -88,11 +91,11 @@ for(rec in recName) {
 }
 
 ### Running the function
-sat <- soundSat(dir, wl = 256)
+sat <- soundSat(dir)
 
 ### Preparing the plot
 timeSplit <- strsplit(sat$values$AUDIO, "_")
-sides <- ifelse(grepl("left", sat$values$BIN), "left", "right")
+sides <- sat$values$CHANNEL
 date <- sapply(timeSplit, function(x)
   x[2])
 time <- sapply(timeSplit, function(x)
@@ -110,7 +113,7 @@ col = "darkgreen", pch = 16,
      ylab = "Soundscape Saturation (\%)", xlab = "Time of Day", type = "b")
 points(SAT~HOUR, data = rightEar, ylim = c(range(sat$values$SAT)),
 col = "red", pch = 16, type = "b")
-legend("topright", legend = c("Left Ear", "Right Ear"),
+legend("bottomright", legend = c("Left Ear", "Right Ear"),
        col = c("darkgreen", "red"), lty = 1)
 
 unlink(recDir)

@@ -4,15 +4,13 @@
 \alias{satBackup}
 \title{Backup for Soundscape Saturation Index}
 \usage{
-satBackup(backupPath, od)
+satBackup(backup)
 }
 \arguments{
-\item{backupPath}{path you set in your \code{backup} in the \code{soundSat()} function. Audiofiles already finished will be drawn from this path}
-
-\item{od}{path or paths containing your original audiofiles}
+\item{backup}{path to the .Rdata file create by the backup of soundSat or soundMat.}
 }
 \value{
-A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
+This functions returns the same output of \code{soundSat()} or \code{soundMat()}
 }
 \description{
 This function is a way to continue an unfinished process of the \code{soundSat()} or \code{soundMat()} functions through a backup file.

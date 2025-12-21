@@ -16,6 +16,7 @@ soundMat(
   histbreaks = "FD",
   powthr = c(5, 20, 1),
   bgnthr = c(0.5, 0.9, 0.05),
+  beta = TRUE,
   backup = NULL
 )
 }
@@ -45,11 +46,13 @@ soundMat(
 \item{bgnthr}{vector of values to evaluate the activity matrix for Background Noise (in \%). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step.
 \if{html}{\out{<br>}}Defaults to \code{c(0.5, 0.9, 0.05)}, which means the first thresholds starts at 50\% and jumps 5\% till 90\%.}
 
+\item{beta}{how BGN thresholds are calculated. If TRUE, BGN thresholds are computed using all recordings combined.}
+
 \item{backup}{path to backup the saturation values in case the computer is turned off during processing or in case you cannot be sure the computer will be on for the entire process. Defaults to \code{NULL}.
 \if{html}{\out{<br>}}The backup will be updated every 5 recordings processed.}
 }
 \value{
-A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
+A list containing three objects. The first ("info") contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE. The second ("values") contains saturation values from all possible threshold combinations. The third ("errors") contains the error messages and the paths to the files that returned an error during processing.
 }
 \description{
 Get the Soundscape Saturation matrix with all threshold combinations instead of the combination with the most normal distribution
@@ -90,12 +93,12 @@ for (rec in recName) {
 sat <- soundMat(dir)
 
 ### Plotting results
-sides <- ifelse(grepl("left", sat$info$BIN), "left", "right")
+sides <- sat$info$CHANNEL
 
-thresholds <- colnames(sat$matrix)
+thresholds <- colnames(sat$values)
 split <- strsplit(thresholds, "/")
 
-shapNorm <- apply(sat$matrix, 2, function(x)
+shapNorm <- apply(sat$values, 2, function(x)
 
   if (var(x) == 0) {
     0
@@ -108,31 +111,31 @@ shapPos <- which.max(shapNorm)
 par(mfrow = c(3, 2))
 
 plot(
-  sat$matrix[sides == "left", 1],
+  sat$values[sides == "left", 1],
   main = paste0("POW = ", split[[1]][1], "dB | BGN = ", split[[1]][2], "\%"),
   type = "b",
   ylim = c(0,1),
   xlab = "Time Index", ylab = "Soundsacpe Saturation (\%)", col = "goldenrod"
 )
-points(sat$matrix[sides == "right", 1], col = "maroon", type = "b")
+points(sat$values[sides == "right", 1], col = "maroon", type = "b")
 
-hist(sat$matrix[,1], main = paste("Histogram of POW = ", split[[1]][1],
+hist(sat$values[,1], main = paste("Histogram of POW = ", split[[1]][1],
 "dB | BGN = ", split[[1]][2], "\%"), xlab = "Soundscape Saturation (\%)")
 
 plot(
-sat$matrix[sides == "left", 144],
+sat$values[sides == "left", 144],
 main = paste0("POW = ", split[[144]][1], "dB | BGN = ", split[[144]][2], "\%"),
 type = "b",
 ylim = c(0,1),
 xlab = "Time Index", ylab = "Soundsacpe Saturation (\%)", col = "goldenrod"
 )
-points(sat$matrix[sides == "right", 144], col = "maroon", type = "b")
+points(sat$values[sides == "right", 144], col = "maroon", type = "b")
 
-hist(sat$matrix[,144], main = paste("Histogram of POW = ", split[[144]][1],
+hist(sat$values[,144], main = paste("Histogram of POW = ", split[[144]][1],
 "dB | BGN = ", split[[144]][2], "\%"), xlab = "Soundscape Saturation (\%)")
 
 plot(
-  sat$matrix[sides == "left", shapPos],
+  sat$values[sides == "left", shapPos],
   main = paste0(
     "POW = ",
     split[[shapPos]][1],
@@ -146,8 +149,8 @@ plot(
   ylim = c(0,1),
   xlab = "Time Index", ylab = "Soundsacpe Saturation (\%)", col = "goldenrod"
 )
-points(sat$matrix[sides == "right", shapPos], col = "maroon", type = "b")
-hist(sat$matrix[,shapPos], main = paste("Histogram of POW = ",
+points(sat$values[sides == "right", shapPos], col = "maroon", type = "b")
+hist(sat$values[,shapPos], main = paste("Histogram of POW = ",
 split[[shapPos]][1], "dB | BGN = ", split[[shapPos]][2], "\%"),
 xlab = "Soundscape Saturation (\%)")
 
