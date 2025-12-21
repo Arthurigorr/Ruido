@@ -43,20 +43,20 @@ processChannel <- function(channelData,
 
       spectS[spectS < dbThreshold] <- dbThreshold
 
-      apply(spectS, 1, function(x) {
-        dbMax <- max(x)
-        dbMin <- min(x)
+      apply(spectS, 1, function(z) {
+        dbMax <- max(z)
+        dbMin <- min(z)
 
         num_bins <- ifelse(is.numeric(histbreaks), histbreaks, eval(parse(
-          text = paste0("nclass.", histbreaks, "(x)")
+          text = paste0("nclass.", histbreaks, "(z)")
         )))
 
         modal_intensity <- dbMin + ((which.max(tabulate(
           findInterval(
-            x = x,
+            x = z,
             vec = seq(dbMin, dbMax, length.out = num_bins)
           )
-        ))) * 2 * IQR(x) / length(x)^(1 / 3))
+        ))) * 2 * IQR(z) / length(z)^(1 / 3))
 
         c(BGN = modal_intensity, POW = dbMax - modal_intensity)
       })
