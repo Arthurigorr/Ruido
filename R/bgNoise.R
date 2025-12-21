@@ -138,6 +138,12 @@ bgNoise <- function(soundfile,
     stop("Please provide a valid channel: 'left', 'right', 'stereo', or 'mono'.")
   }
 
+  if(!(histbreaks %in% c("FD", "Sturges", "scott"))) {
+    if(!is.numeric(histbreaks)) {
+      stop("histbreaks must be 'FD', 'Sturges', 'scott' or a numeric value")
+    }
+  }
+
   audio <- if (is.character(soundfile)) {
     fileExt <- tolower(tools::file_ext(soundfile))
     if (fileExt %in% c("mp3", "wav")) {
