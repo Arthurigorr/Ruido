@@ -7,7 +7,7 @@
 ### The package implements methods to estimate:
 
 - **Background Noise (BGN)** and **Soundscape Power (POW)**, following Towsey et al. (2014)
-- **Soundscape Saturation (SAT)**, following Burivalova et al. (2021)
+- **Soundscape Saturation (SAT)**, following Burivalova et al. (2017)
 
 These metrics can be used to explore acoustic complexity, biotic activity, and environmental disturbance, making `Ruido` useful for ecological monitoring, bioacoustic surveys, or experimental soundscape studies.
 
@@ -26,3 +26,4 @@ library(Ruido)
 devtools::install_github("Arthurigorr/Ruido")
 library(Ruido)
 ```
+
