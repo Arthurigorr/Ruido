@@ -1,6 +1,6 @@
 #' @title Soundscape Saturation Index
 #'
-#' @description Calculate Soundscape Saturation for a combination of recordings using Burivalova 2018 methodology
+#' @description Calculate Soundscape Saturation for a combination of recordings using Burivalova 2017 methodology
 #'
 #' @param soundpath single directory or multiple directory to audio files. The directory must lead to a single folder or a combination of folders.
 #' @param channel channel where the saturation values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.

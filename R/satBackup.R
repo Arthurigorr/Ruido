@@ -29,12 +29,17 @@
 #'   download.file(url, destfile = paste(dir, rec, sep = "/"), mode = "wb")
 #' }
 #'
-#' sat <- soundSat(dir, backup = dir, wl = 256)
+#' sat <- soundSat(dir, backup = dir)
 #'
 #' # Now pretend the process was interrupted (manually/your R crashed/your computer turned off)
+#' # We get the backup file
+#'
+#' list.files(dir)
+#' backupDir <- paste(dir, "SATBACKUP.RData", sep = "/")
+#'
 #' # To recall the backup you simply:
 #'
-#' satB <- satBackup(dir, dir)
+#' satB <- satBackup(backupDir)
 #'
 #' unlink(recDir)
 #' }
@@ -58,11 +63,9 @@ satBackup <- function(backup) {
   halfWl <- wl / 2
 
   if (concluded == nFiles) {
-
     message("All files have already been processed!")
 
   } else {
-
     for (soundfile in concluded:nFiles) {
       gc()
 
@@ -98,7 +101,6 @@ satBackup <- function(backup) {
       )
 
       if (!is.null(backup) && soundfile %% 5 == 1) {
-
         SATdf$ogARGS$concluded <- soundfile
 
         saveRDS(SATdf, file = backup)
@@ -205,8 +207,7 @@ satBackup <- function(backup) {
 
   colnames(SATmat) <- combinations
 
-  if(type == "soundSat") {
-
+  if (type == "soundSat") {
     normal <- apply(SATmat, 2, function(Q) {
       if (length(unique(Q)) != 1) {
         do.call(normality, list(Q))$statistic
@@ -277,13 +278,10 @@ satBackup <- function(backup) {
     export[["values"]] <- SATinfo
     export[["errors"]] <- ERRORS
 
-  } else if(type == "soundMat") {
-
-    export <- list(
-      info = data.frame(),
-      values = matrix(),
-      errors = list()
-    )
+  } else if (type == "soundMat") {
+    export <- list(info = data.frame(),
+                   values = matrix(),
+                   errors = list())
 
     export[["info"]] <- SATinfo
     export[["values"]] <- SATmat

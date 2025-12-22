@@ -33,12 +33,17 @@ for(rec in recName) {
   download.file(url, destfile = paste(dir, rec, sep = "/"), mode = "wb")
 }
 
-sat <- soundSat(dir, backup = dir, wl = 256)
+sat <- soundSat(dir, backup = dir)
 
 # Now pretend the process was interrupted (manually/your R crashed/your computer turned off)
+# We get the backup file
+
+list.files(dir)
+backupDir <- paste(dir, "SATBACKUP.RData", sep = "/")
+
 # To recall the backup you simply:
 
-satB <- satBackup(dir, dir)
+satB <- satBackup(backupDir)
 
 unlink(recDir)
 }

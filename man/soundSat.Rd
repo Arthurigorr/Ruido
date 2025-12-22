@@ -59,7 +59,7 @@ soundSat(
 A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
 }
 \description{
-Calculate Soundscape Saturation for a combination of recordings using Burivalova 2018 methodology
+Calculate Soundscape Saturation for a combination of recordings using Burivalova 2017 methodology
 }
 \details{
 Soundscape Saturation (\code{SAT}) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2017 as an index to test the acoustic niche hypothesis.
