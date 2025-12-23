@@ -21,7 +21,7 @@
 #' @param backup path to backup the saturation values in case the computer is turned off during processing or in case you cannot be sure the computer will be on for the entire process. Defaults to `NULL`.
 #' <br>The backup will be updated every 5 recordings processed.
 #'
-#' @returns A list containing three objects. The first ("info") contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE. The second ("values") contains saturation values from all possible threshold combinations. The third ("errors") contains the error messages and the paths to the files that returned an error during processing.
+#' @returns A list containing three objects. The first (info) contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE. The second (values) contains saturation values from all possible threshold combinations. The third (errors) contains the error messages and the paths to the files that returned an error during processing.
 #'
 #' @details Soundscape Saturation (`SAT`) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2017 as an index to test the acoustic niche hypothesis.
 #' To calculate this function, first we need to generate an activity matrix for each time bin of your recording with the following formula:
