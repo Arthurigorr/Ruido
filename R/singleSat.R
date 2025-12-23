@@ -147,18 +147,18 @@ singleSat <- function(soundfile,
 
   nBins <- length(BGNPOW$timeBins)
 
-  if (BGNPOW$channel == "mono") {
-    BGN <- BGNPOW$mono$BGN
-    names <- paste0(rep("mono", nBins), seq(nBins))
-  } else {
+  if (BGNPOW$channel == "stereo") {
     BGN <- cbind(BGNPOW$left$BGN, BGNPOW$right$BGN)
     names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
+  } else {
+    BGN <- BGNPOW[[BGNPOW$channel]]$BGN
+    names <- paste0(rep(BGNPOW$channel, nBins), seq(nBins))
   }
 
-  if (BGNPOW$channel == "mono") {
-    POW <- BGNPOW$mono$POW
-  } else {
+  if (BGNPOW$channel == "stereo") {
     POW <- cbind(BGNPOW$left$POW, BGNPOW$right$POW)
+  } else {
+    POW <- BGNPOW[[BGNPOW$channel]]$POW
   }
 
   if(beta) {

@@ -112,17 +112,17 @@ soundSat <- function(soundpath,
   if (!is.null(backup) && !dir.exists(backup))
     stop("please provide a valid folder for backup.")
 
-  if(!(channel %in% c("left", "right", "stereo", "mono")))
+  if (!(channel %in% c("left", "right", "stereo", "mono")))
     stop("channel must be 'stereo', 'mono', 'left', or 'right'")
 
-  if(!is.numeric(timeBin))
+  if (!is.numeric(timeBin))
     stop("timeBin must be numeric")
 
-  if(!is.numeric(dbThreshold))
+  if (!is.numeric(dbThreshold))
     stop("timeBin must be numeric")
 
-  if(!is.null(targetSampRate)) {
-    if(!is.numeric(targetSampRate))
+  if (!is.null(targetSampRate)) {
+    if (!is.numeric(targetSampRate))
       stop("targetSampRate must be either NULL or a numeric value")
   }
 
@@ -261,7 +261,6 @@ soundSat <- function(soundpath,
     )
 
     if (!is.null(backup) && soundfile %% 5 == 1) {
-
       SATdf$ogARGS$concluded <- soundfile
 
       saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.RData"))
@@ -277,38 +276,38 @@ soundSat <- function(soundpath,
   indexes <- SATdf$indexes[!whichError]
 
   BGN <- do.call(cbind, sapply(indexes, function(x) {
-    if (x$channel == "mono") {
-      x$mono$BGN
-    } else {
+    if (x$channel == "stereo") {
       cbind(x$left$BGN, x$right$BGN)
+    } else {
+      x[[x$channel]]$BGN
     }
   }))
 
   POW <- do.call(cbind, sapply(indexes, function(x) {
-    if (x$channel == "mono") {
-      x$mono$POW
-    } else {
+    if (x$channel == "stereo") {
       cbind(x$left$POW, x$right$POW)
+    } else {
+      x[[x$channel]]$POW
     }
   }))
 
   INFO <- lapply(indexes, function(x) {
-    nBins <- length(x[["timeBins"]])
-    if (x[["channel"]] == "mono") {
-      list(x[["timeBins"]], rep(x[["sampRate"]], length(x[["timeBins"]])), 1:length(x[["timeBins"]]), rep("mono", nBins))
-    } else {
-      list(rep(x[["timeBins"]], each = 2),
-           rep(x[["sampRate"]], length(x[["timeBins"]]) * 2),
-           rep(1:length(x[["timeBins"]]), 2),
+    nBins <- length(x$timeBins)
+    if (x$channel == "stereo") {
+      list(rep(x$timeBins, each = 2),
+           rep(x$sampRate, length(x$timeBins) * 2),
+           rep(1:length(x$timeBins), 2),
            rep(c("left", "right"), each = nBins))
+    } else {
+      list(x$timeBins, rep(x$sampRate, length(x$timeBins)), 1:length(x$timeBins), rep(x$channel, nBins))
     }
   })
 
   paths <- unlist(sapply(indexes, function(x) {
-    if (x[["channel"]] == "mono") {
-      rep(x[["path"]], length(x[["timeBins"]]))
+    if (x$channel == "stereo") {
+      rep(x$path, length(x$timeBins) * 2)
     } else {
-      rep(x[["path"]], length(x[["timeBins"]]) * 2)
+      rep(x$path, length(x$timeBins))
     }
   }))
 
