@@ -116,18 +116,17 @@ singleSat <- function(soundfile,
                       powthr = 10,
                       bgnthr = 0.8,
                       beta = TRUE) {
-
-  if(!(channel %in% c("left", "right", "stereo", "mono")))
+  if (!(channel %in% c("left", "right", "stereo", "mono")))
     stop("channel must be 'stereo', 'mono', 'left', or 'right'")
 
-  if(!is.numeric(timeBin))
+  if (!is.numeric(timeBin))
     stop("timeBin must be numeric")
 
-  if(!is.numeric(dbThreshold))
+  if (!is.numeric(dbThreshold))
     stop("timeBin must be numeric")
 
-  if(!is.null(targetSampRate)) {
-    if(!is.numeric(targetSampRate))
+  if (!is.null(targetSampRate)) {
+    if (!is.numeric(targetSampRate))
       stop("targetSampRate must be either NULL or a numeric value")
   }
 
@@ -161,17 +160,15 @@ singleSat <- function(soundfile,
     POW <- BGNPOW[[BGNPOW$channel]]$POW
   }
 
-  if(beta) {
-
+  if (beta) {
     BGNQ <- quantile(unlist(BGN), bgnthr)
 
     singSat <- colMeans(BGN > BGNQ | POW > powthr)
 
   } else {
-
     singSat <- sapply(1:ncol(BGN), function(t) {
-
-      sum(BGN[,t] > quantile(BGN[,t], bgnthr) | POW[,t] > powthr) / halfWl
+      sum(BGN[, t] > quantile(BGN[, t], bgnthr) |
+            POW[, t] > powthr) / halfWl
 
     })
 

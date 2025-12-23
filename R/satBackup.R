@@ -136,12 +136,19 @@ satBackup <- function(backup) {
   INFO <- lapply(indexes, function(x) {
     nBins <- length(x$timeBins)
     if (x$channel == "stereo") {
-      list(rep(x$timeBins, each = 2),
-           rep(x$sampRate, length(x$timeBins) * 2),
-           rep(1:length(x$timeBins), 2),
-           rep(c("left", "right"), each = nBins))
+      list(
+        rep(x$timeBins, each = 2),
+        rep(x$sampRate, length(x$timeBins) * 2),
+        rep(1:length(x$timeBins), 2),
+        rep(c("left", "right"), each = nBins)
+      )
     } else {
-      list(x$timeBins, rep(x$sampRate, length(x$timeBins)), 1:length(x$timeBins), rep(x$channel, nBins))
+      list(
+        x$timeBins,
+        rep(x$sampRate, length(x$timeBins)),
+        1:length(x$timeBins),
+        rep(x$channel, nBins)
+      )
     }
   })
 
