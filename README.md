@@ -154,12 +154,28 @@ ggplot(
 ``` r
 act <- multActivity(dir, powthr = sat$powthresh, bgnthr = sat$bgntresh / 100)
 
+time <- sapply(strsplit(recName, "_"), function(x)
+  paste(substr(x[3], 1, 2), substr(x[3], 3, 4), substr(x[3], 5, 6), sep = ":"))
+date <- sapply(strsplit(recName, "_"), function(x)
+  paste(substr(x[2], 1, 4), substr(x[2], 5, 6), substr(x[2], 7, 8), sep = "-"))
+
+dateTime <- as.POSIXct(paste(date, time))
+sampRate <- act$info$SAMPRATE[[1]]
+kHz <- cumsum(c(0, rep(sampRate / 6, 6))) / 1000
+breaks <- round(c(1, cumsum(rep(256 / 6, 6))))
+
+timeLabels <- time[c(1, 7, 13, 19, 24)]
+timeBreaks <- as.character(dateTime[c(1, 7, 13, 19, 24)])
+
+plotList <- list()
+plotN <- 1
+
 for (cha in c("left", "right")) {
   actCurrent <- act$values[, act$info$CHANNEL == cha]
   actCurrentDF <- data.frame(
     TIME = as.character(rep(dateTime, each = sDim[1] * 3) + rep(rep(c(0, 60, 120), each = sDim[1]), sDim[2] / 3)),
     SPEC = rep(seq(sDim[1]), sDim[2]),
-    VAL = factor(c(unlist(actLeft)), levels = c(0, 1))
+    VAL = factor(c(unlist(actCurrent)), levels = c(0, 1))
   )
   
   plotList[[plotN]] <- ggplot(actCurrentDF, aes(x = TIME, y = SPEC, fill = VAL)) +
@@ -169,7 +185,9 @@ for (cha in c("left", "right")) {
     scale_x_discrete(expand = c(0, 0), labels = timeLabels, breaks = timeBreaks) +
     scale_fill_manual(values = c("white", "black"), labels = c("Inactive", "Active")) +
     guides(fill = guide_legend(title = "Acoustic Activity")) +
-    labs(x = "Time of Day", y = "Frequency (kHz)",
+    labs(
+      x = "Time of Day",
+      y = "Frequency (kHz)",
       title = paste("Acoustic Activity in the", cha, "channel")
     )
   
@@ -177,7 +195,8 @@ for (cha in c("left", "right")) {
   
 }
 
-plotList[[5]] + plotList[[6]] + plot_layout(guides = "collect")
+plotList[[1]] + plotList[[2]] +
+  plot_layout(guides = "collect")
 ```
 
 <img src="man/figures/ACTIVITY.png" align="center"/>
