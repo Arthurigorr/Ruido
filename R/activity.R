@@ -1,6 +1,6 @@
-#' @title Activity Matrix
+#' @title Acoustic Activity Matrix
 #'
-#' @description Calculate the Soundscape Saturation activity matrix using Burivalova 2017 methodology
+#' @description Calculate the Acoustic Activity Matrix used in the the calculation of Soundscape Saturation using Burivalova 2017 methodology
 #'
 #' @param soundfile tuneR Wave object or path to a valid audio
 #' @param channel channel where the saturation values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
@@ -23,7 +23,7 @@
 #'
 #'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 #'
-#'Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values.
+#'Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values. 1 = active and 0 = inactive.
 #
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
