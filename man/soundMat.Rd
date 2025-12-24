@@ -52,7 +52,7 @@ soundMat(
 \if{html}{\out{<br>}}The backup will be updated every 5 recordings processed.}
 }
 \value{
-A list containing three objects. The first ("info") contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE. The second ("values") contains saturation values from all possible threshold combinations. The third ("errors") contains the error messages and the paths to the files that returned an error during processing.
+A list containing three objects. The first (info) contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE. The second (values) contains saturation values from all possible threshold combinations. The third (errors) contains the error messages and the paths to the files that returned an error during processing.
 }
 \description{
 Get the Soundscape Saturation matrix with all threshold combinations instead of the combination with the most normal distribution
@@ -77,7 +77,8 @@ If you set a path for the "path" argument, a single rds file will be written in 
 \donttest{
 oldpar <- par(no.readonly = TRUE)
 ### Downloading audiofiles from public Zenodo library
-dir <- tempdir()
+dir <- paste(tempdir(), "forExample", sep = "/")
+dir.create(dir)
 recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 200000, by = 50000)), ".wav")
 recDir <- paste(dir, recName, sep = "/")
 
@@ -154,7 +155,7 @@ hist(sat$values[,shapPos], main = paste("Histogram of POW = ",
 split[[shapPos]][1], "dB | BGN = ", split[[shapPos]][2], "\%"),
 xlab = "Soundscape Saturation (\%)")
 
-unlink(recDir)
+unlink(dir, recursive = TRUE)
 par(oldpar)
 }
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/activity.R
 \name{activity}
 \alias{activity}
-\title{Activity Matrix}
+\title{Acoustic Activity Matrix}
 \usage{
 activity(
   soundfile,
@@ -49,14 +49,14 @@ activity(
 This function returns a matrix containing the activity for all time bins of the inputted file
 }
 \description{
-Calculate the Soundscape Saturation activity matrix using Burivalova 2017 methodology
+Calculate the Acoustic Activity Matrix used in the the calculation of Soundscape Saturation using Burivalova 2017 methodology
 }
 \details{
 We generate an activity matrix using Burivalova 2017 methodology. For each time bin of the recording we apply the following formula:
 
 \deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 
-Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values.
+Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values. 1 = active and 0 = inactive.
 }
 \examples{
 if (require("ggplot2")) {

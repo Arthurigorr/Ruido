@@ -80,14 +80,15 @@ If you set a path for the "path" argument, a single rds file will be written in 
 \examples{
 \donttest{
 ### Downloading audiofiles from public Zenodo library
-dir <- tempdir()
+dir <- paste(tempdir(), "forExample", sep = "/")
+dir.create(dir)
 recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 200000, by = 50000)),".wav")
 recDir <- paste(dir, recName, sep = "/")
 
-for(rec in recName) {
+for(rec in recDir) {
  print(rec)
- url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
- download.file(url, destfile = paste(dir, rec, sep = "/"), mode = "wb")
+ url <- paste0("https://zenodo.org/records/17575795/files/", basename(rec), "?download=1")
+ download.file(url, destfile = rec, mode = "wb")
 }
 
 ### Running the function
@@ -116,7 +117,7 @@ col = "red", pch = 16, type = "b")
 legend("bottomright", legend = c("Left Ear", "Right Ear"),
        col = c("darkgreen", "red"), lty = 1)
 
-unlink(recDir)
+unlink(dir, recursive = TRUE)
 }
 }
 \references{

@@ -105,44 +105,63 @@ hist(bgn$mono$BGN$BGN1, main = "Histogram of BGN distribution",
       xlab = "Background Noise (BGN)")
 
 \donttest{
-  oldpar <- par(no.readonly = TRUE)
-  ### This is a secondary example using audio from a real soundscape
-  ### These audios are originated from the Escutadô Project
-  # Getting audiofile from the online Zenodo library
-  dir <- tempdir()
-  rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
-  recDir <- paste(dir,rec , sep = "/")
-  url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
+oldpar <- par(no.readonly = TRUE)
+### This is a secondary example using audio from a real soundscape
+### These audios are originated from the Escutadô Project
+# Getting audiofile from the online Zenodo library
+dir <- paste(tempdir(), "forExample", sep = "/")
+dir.create(dir)
+rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0), ".wav")
+recDir <- paste(dir, rec , sep = "/")
+url <- paste0("https://zenodo.org/records/17575795/files/",
+              rec,
+              "?download=1")
 
-  # Downloading the file, might take some time denpending on your internet
-  download.file(url, destfile = recDir, mode = "wb")
+# Downloading the file, might take some time denpending on your internet
+download.file(url, destfile = recDir, mode = "wb")
 
-  # Running the bgNoise function with all the default arguments
-  bgn <- bgNoise(recDir)
+# Running the bgNoise function with all the default arguments
+bgn <- bgNoise(recDir)
 
-  # Print the results
-  head(bgn$left$BGN)
-  head(bgn$left$POW)
+# Print the results
+head(bgn$left$BGN)
+head(bgn$left$POW)
 
-  # Plotting background noise and soundscape profile for the first minute of the recording
-  par(mfrow = c(2,2))
-  plot(x = bgn$left$BGN$BGN1, y = seq(1,bgn$sampRate, length.out = 256),
-       xlab = "Background Noise (dB)", ylab = "Frequency (hz)",
-       main = "BGN by Frequency",
-       type = "l")
-  plot(x = bgn$left$POW$POW1, y = seq(1,bgn$sampRate, length.out = 256),
-       xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)",
-       main = "POW by Frequency",
-       type = "l")
-  plot(bgn$left$BGN$BGN1~bgn$left$POW$POW1, pch = 16,
-       xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)",
-       main = "BGN~POW in left ear")
-  plot(bgn$right$BGN$BGN1~bgn$right$POW$POW1, pch = 16,
-       xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)",
-       main = "BGN~POW in right ear")
+# Plotting background noise and soundscape profile for the first minute of the recording
+par(mfrow = c(2, 2))
+plot(
+  x = bgn$left$BGN$BGN1,
+  y = seq(1, bgn$sampRate, length.out = 256),
+  xlab = "Background Noise (dB)",
+  ylab = "Frequency (hz)",
+  main = "BGN by Frequency",
+  type = "l"
+)
+plot(
+  x = bgn$left$POW$POW1,
+  y = seq(1, bgn$sampRate, length.out = 256),
+  xlab = "Soundscape Power (dB)",
+  ylab = "Frequency (hz)",
+  main = "POW by Frequency",
+  type = "l"
+)
+plot(
+  bgn$left$BGN$BGN1 ~ bgn$left$POW$POW1,
+  pch = 16,
+  xlab = "Soundscape Power (dB)",
+  ylab = "Background Noise (dB)",
+  main = "BGN~POW in left ear"
+)
+plot(
+  bgn$right$BGN$BGN1 ~ bgn$right$POW$POW1,
+  pch = 16,
+  xlab = "Soundscape Power (dB)",
+  ylab = "Background Noise (dB)",
+  main = "BGN~POW in right ear"
+)
 
-  unlink(recDir)
-  par(oldpar)
+unlink(dir, recursive = TRUE)
+par(oldpar)
 }
 }
 \references{

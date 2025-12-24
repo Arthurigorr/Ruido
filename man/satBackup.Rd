@@ -23,7 +23,8 @@ Arguments can't be inputted nor changed since the function will automatically lo
 ## This example will load an entire day of audios to your computer, so beware.
 
 ### Downloading audiofiles from public Zenodo library
-dir <- tempdir()
+dir <- paste(tempdir(), "forExample", sep = "/")
+dir.create(dir)
 recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 230000, by = 10000)),".wav")
 recDir <- paste(dir, recName, sep = "/")
 
@@ -45,6 +46,8 @@ backupDir <- paste(dir, "SATBACKUP.RData", sep = "/")
 
 satB <- satBackup(backupDir)
 
-unlink(recDir)
+head(satB$values)
+
+unlink(dir, recursive = TRUE)
 }
 }

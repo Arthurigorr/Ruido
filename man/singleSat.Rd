@@ -115,10 +115,9 @@ axis(2)
 par(oldpar)
 
 \donttest{
-oldpar <- par(no.readonly = TRUE)
-
 # Getting audiofile from the online Zenodo library
-dir <- tempdir()
+dir <- paste(tempdir(), "forExample", sep = "/")
+dir.create(dir)
 rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
 recDir <- paste(dir,rec , sep = "/")
 url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
@@ -135,8 +134,7 @@ print(sat)
 barplot(sat, col = c("darkgreen", "red"),
        names.arg = c("Left", "Right"), ylab = "Soundscape Saturation (\%)")
 
-unlink(recDir)
-par(oldpar)
+unlink(dir, recursive = TRUE)
 }
 }
 \references{
