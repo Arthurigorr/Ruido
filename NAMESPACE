@@ -2,6 +2,7 @@
 
 export(activity)
 export(bgNoise)
+export(multActivity)
 export(satBackup)
 export(singleSat)
 export(soundMat)
