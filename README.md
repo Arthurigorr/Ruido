@@ -9,9 +9,14 @@
 ### The package implements methods to estimate:
 
 -   **Background Noise (BGN)** and **Soundscape Power (POW)**, following Towsey et al. (2017)
--   **Soundscape Saturation (SAT)**, following Burivalova et al. (2017)
+-   **Soundscape Saturation (SAT)**, following Burivalova et al. (2018)
 
 These metrics can be used to explore acoustic complexity, biotic activity, and environmental disturbance, making `Ruido` useful for ecological monitoring, bioacoustic surveys, or experimental soundscape studies.
+
+### References
+
+-  Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. <https://doi.org/10.1111/cobi.12968>
+- Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. <https://eprints.qut.edu.au/110634/>
 
 ## Installation
 
