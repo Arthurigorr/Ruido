@@ -19,13 +19,13 @@
 #'
 #' @returns This function returns a matrix containing the activity for all time bins of the inputted file
 #'
-#' @details We generate an activity matrix using Burivalova 2017 methodology. For each time bin of the recording we apply the following formula:
+#' @details We generate an activity matrix using Burivalova 2018 methodology. For each time bin of the recording we apply the following formula:
 #'
 #'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 #'
 #'Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values. 1 = active and 0 = inactive.
 #
-#'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
+#'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
 #'@export
 #'@importFrom methods is
