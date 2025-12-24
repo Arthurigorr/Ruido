@@ -54,14 +54,15 @@
 #' @examples
 #' \donttest{
 #' ### Downloading audiofiles from public Zenodo library
-#' dir <- tempdir()
+#' dir <- paste(tempdir(), "forExample", sep = "/")
+#' dir.create(dir)
 #' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
 #' recDir <- paste(dir, recName, sep = "/")
 #'
-#' for(rec in recName) {
+#' for(rec in recDir) {
 #'  print(rec)
-#'  url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
-#'  download.file(url, destfile = paste(dir, rec, sep = "/"), mode = "wb")
+#'  url <- paste0("https://zenodo.org/records/17575795/files/", basename(rec), "?download=1")
+#'  download.file(url, destfile = rec, mode = "wb")
 #' }
 #'
 #' ### Running the function
@@ -90,7 +91,7 @@
 #' legend("bottomright", legend = c("Left Ear", "Right Ear"),
 #'        col = c("darkgreen", "red"), lty = 1)
 #'
-#' unlink(recDir)
+#' unlink(dir, recursive = TRUE)
 #' }
 soundSat <- function(soundpath,
                      channel = "stereo",
@@ -294,12 +295,19 @@ soundSat <- function(soundpath,
   INFO <- lapply(indexes, function(x) {
     nBins <- length(x$timeBins)
     if (x$channel == "stereo") {
-      list(rep(x$timeBins, each = 2),
-           rep(x$sampRate, length(x$timeBins) * 2),
-           rep(1:length(x$timeBins), 2),
-           rep(c("left", "right"), each = nBins))
+      list(
+        rep(x$timeBins, each = 2),
+        rep(x$sampRate, length(x$timeBins) * 2),
+        rep(1:length(x$timeBins), 2),
+        rep(c("left", "right"), each = nBins)
+      )
     } else {
-      list(x$timeBins, rep(x$sampRate, length(x$timeBins)), 1:length(x$timeBins), rep(x$channel, nBins))
+      list(
+        x$timeBins,
+        rep(x$sampRate, length(x$timeBins)),
+        1:length(x$timeBins),
+        rep(x$channel, nBins)
+      )
     }
   })
 

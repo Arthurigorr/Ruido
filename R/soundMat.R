@@ -53,7 +53,8 @@
 #' \donttest{
 #' oldpar <- par(no.readonly = TRUE)
 #' ### Downloading audiofiles from public Zenodo library
-#' dir <- tempdir()
+#' dir <- paste(tempdir(), "forExample", sep = "/")
+#' dir.create(dir)
 #' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)), ".wav")
 #' recDir <- paste(dir, recName, sep = "/")
 #'
@@ -130,7 +131,7 @@
 #' split[[shapPos]][1], "dB | BGN = ", split[[shapPos]][2], "%"),
 #' xlab = "Soundscape Saturation (%)")
 #'
-#' unlink(recDir)
+#' unlink(dir, recursive = TRUE)
 #' par(oldpar)
 #' }
 soundMat <- function(soundpath,
