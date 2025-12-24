@@ -54,14 +54,16 @@ satBackup <- function(backup) {
   soundfiles <- list.files(od, full.names = TRUE, recursive = TRUE)
   soundfiles <- soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
 
-  powthreshold <- seq(powthr[1], powthr[2], powthr[3])
-  names(powthreshold) <- powthreshold
-  bgnthreshold <- seq(bgnthr[1], bgnthr[2], bgnthr[3])
+  if (type != "multActivity") {
+    powthreshold <- seq(powthr[1], powthr[2], powthr[3])
+    names(powthreshold) <- powthreshold
+    bgnthreshold <- seq(bgnthr[1], bgnthr[2], bgnthr[3])
 
-  thresholdCombinations <- setNames(expand.grid(powthreshold, bgnthreshold),
-                                    c("powthreshold", "bgnthreshold"))
+    thresholdCombinations <- setNames(expand.grid(powthreshold, bgnthreshold),
+                                      c("powthreshold", "bgnthreshold"))
 
-  combinations <- paste(thresholdCombinations[, 1], thresholdCombinations[, 2], sep = "/")
+    combinations <- paste(thresholdCombinations[, 1], thresholdCombinations[, 2], sep = "/")
+  }
 
   halfWl <- wl / 2
 
@@ -183,39 +185,61 @@ satBackup <- function(backup) {
   dimBGN <- dim(BGN)
 
   if (beta) {
-    BGNQ <- quantile(unlist(BGN), probs = seq(bgnthr[1], bgnthr[2], bgnthr[3])) |>
-      setNames(bgnthreshold)
+    if (type != "multActivity") {
+      BGNQ <- quantile(unlist(BGN), probs = seq(bgnthr[1], bgnthr[2], bgnthr[3])) |>
+        setNames(bgnthreshold)
 
-    SATmat <- mapply(
-      function(bgnthresh, powthresh) {
-        sapply(1:ncol(BGN), function(t) {
-          sum(BGN[, t] > BGNQ[names(BGNQ) == bgnthresh] |
-                POW[, t] > powthresh) / halfWl
+      SATmat <- mapply(
+        function(bgnthresh, powthresh) {
+          sapply(1:ncol(BGN), function(t) {
+            sum(BGN[, t] > BGNQ[names(BGNQ) == bgnthresh] |
+                  POW[, t] > powthresh) / halfWl
 
-        })
+          })
 
-      },
-      thresholdCombinations$bgnthreshold,
-      thresholdCombinations$powthreshold
-    )
+        },
+        thresholdCombinations$bgnthreshold,
+        thresholdCombinations$powthreshold
+      )
+
+    } else {
+      BGNQ <- quantile(unlist(BGN), probs = bgnthr) |>
+        setNames(bgnthr)
+
+      SATmat <- BGN > BGNQ |
+        POW > powthr
+
+    }
 
   } else {
-    SATmat <- mapply(
-      function(bgnthresh, powthresh) {
-        sapply(1:ncol(BGN), function(t) {
-          sum(BGN[, t] > quantile(BGN[, t], bgnthresh) |
-                POW[, t] > powthresh) / halfWl
+    if (type != "multActivity") {
+      SATmat <- mapply(
+        function(bgnthresh, powthresh) {
+          sapply(1:ncol(BGN), function(t) {
+            sum(BGN[, t] > quantile(BGN[, t], bgnthresh) |
+                  POW[, t] > powthresh) / halfWl
 
-        })
+          })
 
-      },
-      thresholdCombinations$bgnthreshold,
-      thresholdCombinations$powthreshold
-    )
+        },
+        thresholdCombinations$bgnthreshold,
+        thresholdCombinations$powthreshold
+      )
+
+    } else {
+      SATmat <- sapply(1:ncol(BGN), function(t) {
+        BGN[, t] > quantile(BGN[, t], bgnthr) |
+          POW[, t] > powthr
+      })
+
+    }
 
   }
 
-  colnames(SATmat) <- combinations
+  if (type != "multActivity") {
+    colnames(SATmat) <- combinations
+
+  }
 
   if (type == "soundSat") {
     normal <- apply(SATmat, 2, function(Q) {
@@ -298,6 +322,22 @@ satBackup <- function(backup) {
     export[["errors"]] <- ERRORS
 
     return(export)
+
+  } else if (type == "multActivity") {
+
+    export <- list(
+      powthresh = numeric(0),
+      bgntresh = numeric(0),
+      info = data.frame(),
+      values = matrix(),
+      errors = list()
+    )
+
+    export["powthresh"] <- powthr
+    export["bgntresh"] <- bgnthr * 100
+    export[["info"]] <- SATinfo
+    export[["values"]] <- SATmat * 1
+    export[["errors"]] <- ERRORS
 
   }
 
