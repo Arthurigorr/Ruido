@@ -2,7 +2,7 @@
 #'
 #' @param soundfile tuneR Wave object or path to a valid audio
 #' @param channel channel where the background noise values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
-#' @param timeBin size (in seconds) of the time bin. Defaults to `60`.
+#' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey 2017.
 #' @param targetSampRate sample rate of the audios. Defaults to `NULL` to not change the sample rate. This argument is only used to down sample the audio.
 #' @param wl window length of the spectrogram. Defaults to `512`.
@@ -145,17 +145,17 @@ singleSat <- function(soundfile,
   nBins <- length(BGNPOW$timeBins)
 
   if (BGNPOW$channel == "stereo") {
-    BGN <- cbind(BGNPOW$left$BGN, BGNPOW$right$BGN)
+    BGN <- cbind(BGNPOW$values$left$BGN, BGNPOW$values$right$BGN)
     names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
   } else {
-    BGN <- BGNPOW[[BGNPOW$channel]]$BGN
+    BGN <- BGNPOW$values[[BGNPOW$channel]]$BGN
     names <- paste0(rep(BGNPOW$channel, nBins), seq(nBins))
   }
 
   if (BGNPOW$channel == "stereo") {
-    POW <- cbind(BGNPOW$left$POW, BGNPOW$right$POW)
+    POW <- cbind(BGNPOW$values$left$POW, BGNPOW$values$right$POW)
   } else {
-    POW <- BGNPOW[[BGNPOW$channel]]$POW
+    POW <- BGNPOW$values[[BGNPOW$channel]]$POW
   }
 
   if (beta) {

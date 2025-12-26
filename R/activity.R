@@ -1,30 +1,28 @@
 #' @title Acoustic Activity Matrix
 #'
-#' @description Calculate the Acoustic Activity Matrix used in the the calculation of Soundscape Saturation using Burivalova 2017 methodology
+#' @description Calculate the Acoustic Activity Matrix using the methodology proposed in Burivalova 2018
 #'
 #' @param soundfile tuneR Wave object or path to a valid audio
 #' @param channel channel where the saturation values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
-#' @param timeBin size (in seconds) of the time bin. Defaults to `60`.
-#' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey.
-#' @param targetSampRate sample rate of the audios. Defaults to `NULL` to not change the sample rate. This argument is only used to down sample the audio.
-#' @param wl window length of the spectrogram. Defaults to `512`.
-#' @param window window used to smooth the spectrogram. Defaults to `signal::hammning(wl)`. Switch to `signal::hanning(wl)` if to use hanning instead.
+#' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
+#' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey 2017
+#' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
+#' @param wl window length of the spectrogram. Defaults to `512`
+#' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hammning(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
-#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` and `100`. Defaults to `"FD"`.
-#' <br>Can also be set to any number to limit or increase the amount of breaks.
-#' @param powthr a single value to evaluate the activity matrix for Soundscape Power (in %dB). Defaults to `10`.
-#' @param bgnthr a single value to evaluate the activity matrix for Background Noise (in %). Defaults to `0.8`
-#' @param beta how BGN thresholds are calculated. If TRUE, BGN thresholds are computed using all recordings combined.
-# <br< If FALSE, BGN thresholds are computed separately for each recording.
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` or any numeric value (foe example = `100`). Defaults to `"FD"`
+#' @param powthr single numeric value to calculate the activity matrix for soundscape power (in dB). Detauls to `10`
+#' @param bgnthr single numeric value to calculate the activity matrix for background noise (in %). Detauls to `0.8`
+#' @param beta how BGN thresholds are calculated. If `TRUE`, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to `TRUE`
 #'
-#' @returns This function returns a matrix containing the activity for all time bins of the inputted file
+#' @returns This function returns a 0 and 1 matrix containing the activity for all time bins of the inputted file. The matrix's number of rows will equal to half the set window lenght (`wl`) and number of columns will equal the number of bins. Cells with the value of 1 represent the acoustically active frequency of a bin.
 #'
-#' @details We generate an activity matrix using Burivalova 2018 methodology. For each time bin of the recording we apply the following formula:
+#' @details To calculate the activity matrix, we use the methodology proposed by Burivalova 2018. We begin by applying the following formula to each time bin of the recording:
 #'
 #'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 #'
-#'Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values. 1 = active and 0 = inactive.
-#
+#'Where \eqn{\theta_{1}} equals the threshold of BGN values and \eqn{\theta_{2}} equals the threshold of dB values. We set 1 to active and 0 to inactive frequency windows.
+#'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
 #'@export
@@ -131,17 +129,17 @@ activity <- function(soundfile,
   nBins <- length(BGNPOW$timeBins)
 
   if (BGNPOW$channel == "stereo") {
-    BGN <- cbind(BGNPOW$left$BGN, BGNPOW$right$BGN)
+    BGN <- cbind(BGNPOW$values$left$BGN, BGNPOW$values$right$BGN)
     names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
   } else {
-    BGN <- BGNPOW[[BGNPOW$channel]]$BGN
+    BGN <- BGNPOW$values[[BGNPOW$channel]]$BGN
     names <- paste0(rep(BGNPOW$channel, nBins), seq(nBins))
   }
 
   if (BGNPOW$channel == "stereo") {
-    POW <- cbind(BGNPOW$left$POW, BGNPOW$right$POW)
+    POW <- cbind(BGNPOW$values$left$POW, BGNPOW$values$right$POW)
   } else {
-    POW <- BGNPOW[[BGNPOW$channel]]$POW
+    POW <- BGNPOW$values[[BGNPOW$channel]]$POW
   }
 
   if (beta) {

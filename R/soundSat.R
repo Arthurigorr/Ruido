@@ -1,27 +1,24 @@
 #' @title Soundscape Saturation Index
 #'
-#' @description Calculate Soundscape Saturation for a combination of recordings using Burivalova 2017 methodology
+#' @description Calculate Soundscape Saturation for a combination of recordings using the methodology proposed in Burivalova 2018
 #'
-#' @param soundpath single directory or multiple directory to audio files. The directory must lead to a single folder or a combination of folders.
+#' @param soundpath single or multiple directories to your audio files
 #' @param channel channel where the saturation values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
-#' @param timeBin size (in seconds) of the time bin. Defaults to `60`.
-#' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey.
-#' @param targetSampRate sample rate of the audios. Defaults to `NULL` to not change the sample rate. This argument is only used to down sample the audio.
-#' @param wl window length of the spectrogram. Defaults to `512`.
-#' @param window window used to smooth the spectrogram. Defaults to `signal::hammning(wl)`. Switch to `signal::hanning(wl)` if to use hanning instead.
+#' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
+#' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey 2017
+#' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
+#' @param wl window length of the spectrogram. Defaults to `512`
+#' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hammning(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
-#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` and `100`. Defaults to `"FD"`.
-#' <br>Can also be set to any number to limit or increase the amount of breaks.
-#' @param powthr vector of values to evaluate the activity matrix for Soundscape Power (in dB). The first value corresponds to the lowest dB value and the second corresponds to the highest, the third value is the step.
-#' <br>Defaults to `c(5, 20, 1)`, which means the first thresholds starts at 5dB and jumps a whole number till 20dB.
-#' @param bgnthr vector of values to evaluate the activity matrix for Background Noise (in %). The first value corresponds to the lowest quantile value and the second corresponds to the highest, the third value is the step.
-#' <br>Defaults to `c(0.5, 0.9, 0.05)`, which means the first thresholds starts at 50% and jumps 5% till 90%.
-#' @param normality normality test to determine which threshold combination has the most normal distribution of values. We recommend to pick any test from the `nortest` package. Input the test as a character. Defaults to `"ad.test"`.
-#' <br>`"ks.test"` is not available. `"shapiro.test"` can be used, however we recommend using only when analyzing very few recordings.
-#' @param beta how BGN thresholds are calculated. If TRUE, BGN thresholds are computed using all recordings combined.
-# <br< If FALSE, BGN thresholds are computed separately for each recording.
-#' @param backup path to backup the saturation values in case the computer is turned off during processing or in case you cannot be sure the computer will be on for the entire process. Defaults to `NULL`.
-#' <br>The backup will be updated every 5 recordings processed.
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` or any numeric value (foe example = `100`). Defaults to `"FD"`
+#' @param powthr numeric vector of length three containing the the range of thresholds used to evaluate the Soundscape Power of the  Activity Matrix (in dB). The values correspond to the minimum threshold, maximum threshold and step size respectively.
+#' <br> Defaults to `c(5, 20, 1)`, which evaluates thresholds from 5 dB to 20 dB in increments of 1 dB
+#' @param bgnthr numeric vector of length three containing the the range of thresholds used to evaluate the Background Noise of the  Activity Matrix (in %). The values correspond to the minimum threshold, maximum threshold and step size respectively.
+#' <br> Defaults to `c(0.5, 0.9, 0.05)`, which evaluates thresholds from 50% to 90% in increments of 5%
+#' @param normality character string containing the normality test used to determine which threshold combination has the most normal distribution of values. We recommend to pick any test from the `nortest` package. Defaults to `"ad.test"`.
+#' <br>`"ks.test"` is not available. `"shapiro.test"` can be used, however we recommend using only when analyzing very few recordings
+#' @param beta how BGN thresholds are calculated. If `TRUE`, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to `TRUE`
+#' @param backup path to save the backup. Defaults to `NULL`
 #'
 #' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
 #'
@@ -38,7 +35,7 @@
 #'
 #'After these equations are done, we check every threshold combination for normality and pick the combination that yields the most normal distribution of saturation values.
 #'
-#'If you set a path for the "path" argument, a single rds file will be written in your path. This objects can be loaded again through the "satBack" function to continue the calculation of saturation in case the process is suddenly stopped.
+#' If `backup` is set to a valid directory, a file named `"SATBACKUP.RData"` is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to `satBackup()` (e.g., `~path/SATBACKUP.RData`) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the `.RData` object.
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
@@ -116,7 +113,7 @@ soundSat <- function(soundpath,
   if (!(channel %in% c("left", "right", "stereo", "mono")))
     stop("channel must be 'stereo', 'mono', 'left', or 'right'")
 
-  if (!is.numeric(timeBin))
+  if (!is.numeric(timeBin) & !is.null(timeBin))
     stop("timeBin must be numeric")
 
   if (!is.numeric(dbThreshold))
@@ -278,17 +275,17 @@ soundSat <- function(soundpath,
 
   BGN <- do.call(cbind, sapply(indexes, function(x) {
     if (x$channel == "stereo") {
-      cbind(x$left$BGN, x$right$BGN)
+      cbind(x$values$left$BGN, x$values$right$BGN)
     } else {
-      x[[x$channel]]$BGN
+      x$values[[x$channel]]$BGN
     }
   }))
 
   POW <- do.call(cbind, sapply(indexes, function(x) {
     if (x$channel == "stereo") {
-      cbind(x$left$POW, x$right$POW)
+      cbind(x$values$left$POW, x$values$right$POW)
     } else {
-      x[[x$channel]]$POW
+      x$values[[x$channel]]$POW
     }
   }))
 

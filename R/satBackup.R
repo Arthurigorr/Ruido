@@ -1,13 +1,13 @@
-#' Backup for Soundscape Saturation Index
+#' @title Backup for Ruido's functions
 #'
-#' @param backup path to the .Rdata file create by the backup of soundSat or soundMat.
+#' @param backup path to the .RData file create by the backup of soundSat or soundMat
 #'
 #' @description
-#' This function is a way to continue an unfinished process of the `soundSat()` or `soundMat()` functions through a backup file.
-#' Arguments can't be inputted nor changed since the function will automatically load them from the original `soundSat()` run.
+#' This function is a way to continue an unfinished process of the `soundSat()`, `soundMat()` or `multActivity()` functions through a backup file.
+#' Arguments can't be inputted nor changed since the function will automatically load them from the `.RData` files. However you may manually change them (not recomended)
 #'
 #' @returns
-#' This functions returns the same output of `soundSat()` or `soundMat()`
+#' This functions returns the same output of `soundSat()`, `soundMat()` or `multActivity()`
 #'
 #' @export
 #' @importFrom stats window
@@ -124,17 +124,17 @@ satBackup <- function(backup) {
 
   BGN <- do.call(cbind, sapply(indexes, function(x) {
     if (x$channel == "stereo") {
-      cbind(x$left$BGN, x$right$BGN)
+      cbind(x$values$left$BGN, x$values$right$BGN)
     } else {
-      x[[x$channel]]$BGN
+      x$values[[x$channel]]$BGN
     }
   }))
 
   POW <- do.call(cbind, sapply(indexes, function(x) {
     if (x$channel == "stereo") {
-      cbind(x$left$POW, x$right$POW)
+      cbind(x$values$left$POW, x$values$right$POW)
     } else {
-      x[[x$channel]]$POW
+      x$values[[x$channel]]$POW
     }
   }))
 
