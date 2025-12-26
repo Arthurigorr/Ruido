@@ -36,8 +36,8 @@ library(Ruido)
 
 ## Examples:
 
-To illustrate the package's use, we are going to use the recordings available at: <https://zenodo.org/records/17243660>
-Use <https://zenodo.org/records/17575795> to use lighter recordings.
+To illustrate the package's use, we are going to use the recordings available at: <https://zenodo.org/records/17243660>.
+<br>Use <https://zenodo.org/records/17575795> to use lighter recordings.
 
 If you wish to temporary download the files using R to follow the examples, run:
 
