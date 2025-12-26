@@ -36,9 +36,10 @@ library(Ruido)
 
 ## Examples:
 
-To illustrate the package's use, we are going to use the recordings available at: <https://zenodo.org/records/17243660>.
+To illustrate the package's use, we are going to use the recordings available at: <https://zenodo.org/records/17243660>
+Use <https://zenodo.org/records/17575795> to use lighter recordings.
 
-If you wish to download the files to follow the examples run:
+If you wish to temporary download the files using R to follow the examples, run:
 
 ``` r
 options(timeout = 500)
