@@ -2,19 +2,19 @@
 % Please edit documentation in R/satBackup.R
 \name{satBackup}
 \alias{satBackup}
-\title{Backup for Soundscape Saturation Index}
+\title{Backup for Ruido's functions}
 \usage{
 satBackup(backup)
 }
 \arguments{
-\item{backup}{path to the .Rdata file create by the backup of soundSat or soundMat.}
+\item{backup}{path to the .RData file create by the backup of soundSat or soundMat}
 }
 \value{
-This functions returns the same output of \code{soundSat()} or \code{soundMat()}
+This functions returns the same output of \code{soundSat()}, \code{soundMat()} or \code{multActivity()}
 }
 \description{
-This function is a way to continue an unfinished process of the \code{soundSat()} or \code{soundMat()} functions through a backup file.
-Arguments can't be inputted nor changed since the function will automatically load them from the original \code{soundSat()} run.
+This function is a way to continue an unfinished process of the \code{soundSat()}, \code{soundMat()} or \code{multActivity()} functions through a backup file.
+Arguments can't be inputted nor changed since the function will automatically load them from the \code{.RData} files. However you may manually change them (not recomended)
 }
 \examples{
 \dontrun{

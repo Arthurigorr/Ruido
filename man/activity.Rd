@@ -24,39 +24,38 @@ activity(
 
 \item{channel}{channel where the saturation values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
-\item{timeBin}{size (in seconds) of the time bin. Defaults to \code{60}.}
+\item{timeBin}{size (in seconds) of the time bin. Defaults to \code{60}}
 
-\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey.}
+\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017}
 
-\item{targetSampRate}{sample rate of the audios. Defaults to \code{NULL} to not change the sample rate. This argument is only used to down sample the audio.}
+\item{targetSampRate}{desired sample rate of the audios.  This argument is only used to down sample the audio. If \code{NULL}, then audio's sample rate remains the same. Defaults to \code{NULL}}
 
-\item{wl}{window length of the spectrogram. Defaults to \code{512}.}
+\item{wl}{window length of the spectrogram. Defaults to \code{512}}
 
-\item{window}{window used to smooth the spectrogram. Defaults to \code{signal::hammning(wl)}. Switch to \code{signal::hanning(wl)} if to use hanning instead.}
+\item{window}{window used to smooth the spectrogram. Switch to \code{signal::hanning(wl)} to use hanning instead. Defaults to \code{signal::hammning(wl)}}
 
 \item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 
-\item{histbreaks}{breaks used to calculate Background Noise. Available breaks are: \code{"FD"}, \code{"Sturges"}, \code{"scott"} and \code{100}. Defaults to \code{"FD"}.
-\if{html}{\out{<br>}}Can also be set to any number to limit or increase the amount of breaks.}
+\item{histbreaks}{breaks used to calculate Background Noise. Available breaks are: \code{"FD"}, \code{"Sturges"}, \code{"scott"} or any numeric value (foe example = \code{100}). Defaults to \code{"FD"}}
 
-\item{powthr}{a single value to evaluate the activity matrix for Soundscape Power (in \%dB). Defaults to \code{10}.}
+\item{powthr}{single numeric value to calculate the activity matrix for soundscape power (in dB). Detauls to \code{10}}
 
-\item{bgnthr}{a single value to evaluate the activity matrix for Background Noise (in \%). Defaults to \code{0.8}}
+\item{bgnthr}{single numeric value to calculate the activity matrix for background noise (in \%). Detauls to \code{0.8}}
 
-\item{beta}{how BGN thresholds are calculated. If TRUE, BGN thresholds are computed using all recordings combined.}
+\item{beta}{how BGN thresholds are calculated. If \code{TRUE}, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to \code{TRUE}}
 }
 \value{
-This function returns a matrix containing the activity for all time bins of the inputted file
+This function returns a 0 and 1 matrix containing the activity for all time bins of the inputted file. The matrix's number of rows will equal to half the set window lenght (\code{wl}) and number of columns will equal the number of bins. Cells with the value of 1 represent the acoustically active frequency of a bin.
 }
 \description{
-Calculate the Acoustic Activity Matrix used in the the calculation of Soundscape Saturation using Burivalova 2017 methodology
+Calculate the Acoustic Activity Matrix using the methodology proposed in Burivalova 2018
 }
 \details{
-We generate an activity matrix using Burivalova 2017 methodology. For each time bin of the recording we apply the following formula:
+To calculate the activity matrix, we use the methodology proposed by Burivalova 2018. We begin by applying the following formula to each time bin of the recording:
 
 \deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 
-Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values. 1 = active and 0 = inactive.
+Where \eqn{\theta_{1}} equals the threshold of BGN values and \eqn{\theta_{2}} equals the threshold of dB values. We set 1 to active and 0 to inactive frequency windows.
 }
 \examples{
 if (require("ggplot2")) {
@@ -112,5 +111,5 @@ ggplot(satDF, aes(x = BIN, y = WIN, fill = ACT)) +
 }
 }
 \references{
-Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2017). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
+Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 }
