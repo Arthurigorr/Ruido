@@ -9,7 +9,11 @@ processChannel <- function(channelData,
 
   samp.rate <- channelData@samp.rate
 
-  allSamples <- getSampleBins(length(channelData), samp.rate, timeBin)
+  allSamples <- if(is.null(timeBin)) {
+    data.frame(b = 1, e = length(channelData))
+  } else {
+    getSampleBins(length(channelData), samp.rate, timeBin)
+  }
 
   frameBin <- nrow(allSamples)
 
@@ -20,7 +24,7 @@ processChannel <- function(channelData,
     setNames(list(slot(channelData, channel)), channel)
   )
 
-  BGNexp <- lapply(channelData, function(x) {
+  BGNexp <- list(values = lapply(channelData, function(x) {
 
     offset <- x - mean(x)
 
@@ -71,7 +75,7 @@ processChannel <- function(channelData,
 
     return(list(BGN = BGN, POW = POW))
 
-  })
+  }))
 
   BGNexp[["timeBins"]] <- setNames(round((allSamples$e - allSamples$b) / samp.rate),
                                      paste0("BIN", seq(frameBin)))
