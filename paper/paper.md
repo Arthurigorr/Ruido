@@ -34,17 +34,19 @@ Noise disrupts communication and impacts biodiversity and health. The demand to 
 
 Given the growing use of acoustic metrics in soundscape analysis, recent efforts have focused on developing accessible and standardized tools to support ecoacoustic research [@alcocer_acoustic_2022; @bradfer-lawrence_guidelines_2019]. In response, several R packages, such as soundecology [@pijanowski_soundecology_2013], seewave [@sueur_seewave_2025], and warbleR [@araya-salas_warbler_2017], have made it easier to compute acoustic metrics and visualize sound data, even for researchers with limited programming skills.
 
-Although these R packages offer a wide range of acoustic metrics, they lack measures focused on background noise. To address this gap, we present `Ruido`, an R package designed to efficiently compute three key acoustic metrics: Background Noise (BGN), Soundscape Power (POW), and Soundscape Saturation (SAT). Building upon the conceptual framework introduced by @towsey_calculation_2017, these metrics are implemented in a streamlined, scalable, and fully reproducible workflow within the R environment, enabling their application across large audio datasets.
+Although these R packages offer a wide range of acoustic metrics, they lack measures focused on background noise. To address this gap, we present `Ruido`, an R package designed to efficiently compute three key acoustic metrics: Background Noise (BGN), Soundscape Power (POW), and Soundscape Saturation (SAT). Building upon the conceptual framework introduced by @towsey_calculation_2017 and @burivalova_using_2018, these metrics are implemented in a streamlined, scalable, and fully reproducible workflow within the R environment, enabling their application across large audio datasets.
 
-Herein we define BGN as the modal decibel intensity within each frequency window of a spectrogram. The BGN function outputs a matrix of noise levels per time-frequency bin. POW, defined as the difference between maximum and modal decibels, complements it by capturing how distinct acoustic events are from background noise. Together, these metrics reveal temporal and spectral noise dynamics.
+# Software Design
 
-SAT, the third index, has gained use in ecoacoustic studies as a proxy for biological activity and richness [@burivalova_using_2018]. Less established than BGN or POW, it complements them by measuring the proportion of bins above a threshold, capturing event density. This metric aligns with the acoustic niche hypothesis, which proposes that coexisting species adjust their vocal timing or frequency to minimize overlap and competition for acoustic space [@krause_niche_1987]. In more stable environments, species tend to partition the soundscape by occupying distinct frequency bands, resulting in higher frequency occupancy [@krause_measuring_2011]. Consequently, greater acoustic saturation often indicates a richer vocal community [@gasc_future_2017].
+The package aims to offer a user-friendly and flexible framework for acoustic data analysis, enabling researchers to efficiently process large acoustic libraries, replicate workflows across extended temporal scales, and extract meaningful patterns with minimal coding effort. Its accessibility empowers broader adoption of ecoacoustic methods and fosters deeper insights into soundscape ecology. By operationalizing emerging metrics alongside established indices, `Ruido` simplifies ecoacoustic workflows and enhances researchers’ capacity to analyze large soundscape collections with minimal effort.
 
-Finally, by operationalizing these emerging metrics alongside established indices, Ruido simplifies ecoacoustic workflows and enhances researchers’ capacity to analyze large soundscape collections with minimal effort.
+# Research Impact Statement
+
+`Ruido` has been added pipeline of the Escutadô Project, incorporing the use of these newer acoustic metrics in a large-scale project. The package also aims to assist future studies of the growing field of ecoacoustics. To guide users, the repository and documentation contain fully reproducible tests to provide examples to the package's capabilities and functioning.
 
 # Example
 
-We show a case study with soundSat() to illustrate daily variation in soundscape saturation. We used 24 stereo recordings of 3 minutes each, captured hourly over a day with a Song Meter SM4 (Wildlife Acoustics) at 48 kHz and 16-bit resolution. Recordings were collected on April 1st 2025 in a semiarid forest dominated by Mimosa tenuiflora in Mossoró‑RN, Brazil, and are publicly available at <https://zenodo.org/records/17243660> for reproducibility and allowing users to replicate the analyses presented.
+We show a case study with `soundSat()` to illustrate daily variation in soundscape saturation. We used 24 stereo recordings of 3 minutes each, captured hourly over a day with a Song Meter SM4 (Wildlife Acoustics) at 48 kHz and 16-bit resolution. Recordings were collected on April 1st 2025 in a semiarid forest dominated by Mimosa tenuiflora in Mossoró‑RN, Brazil, and are publicly available at <https://zenodo.org/records/17243660> for reproducibility and allowing users to replicate the analyses presented.
 
 In this example, SAT quantified the proportion of occupied frequency bands over a 24‑hour cycle of audio samples. The analysis used the package’s default parameters: channel = “stereo”, time_bin = 60, dbThreshold = -90, targetSampRate = NULL, wl = 512, window = signal::hamming(wl), overlap = ceiling(length(window)/2), histbreaks = “FD”, powthr = c(5.1, 20, 0.1), bgnthr = c(0.51, 0.99, 0.02), normality = “ad.test”, beta = TRUE, and backup = NULL. The script lines are as follows:
 
@@ -88,11 +90,9 @@ With the default parameters, SAT values are calculated for each minute of a reco
 
 ![**Figure 1.** SAT variation throughout the day. The line and dots represent the mean values of each hour of the day and the colored ribbon represents standard deviancy for each side.](figures/SAT.png)
 
-Results showed daily variation, with peaks at dusk and early night. Nocturnal richness, driven by frogs and insects, reflects rainy-season soundscapes in semiarid environments.
+# AI Usage Disclosure
 
-# Conclusion
-
-Finally, our practical example highlighted that the package offers a user-friendly and flexible framework for acoustic data analysis, enabling researchers to efficiently process large acoustic libraries, replicate workflows across extended temporal scales, and extract meaningful patterns with minimal coding effort. Its accessibility empowers broader adoption of ecoacoustic methods and fosters deeper insights into soundscape ecology.
+No generative AI tools were used in the development of this software, the writing of this manuscript, or the preparation of supporting materials.
 
 # Acknowledgements
 
