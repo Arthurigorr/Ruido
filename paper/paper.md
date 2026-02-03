@@ -92,7 +92,7 @@ With the default parameters, SAT values are calculated for each minute of a reco
 
 # AI Usage Disclosure
 
-No generative AI tools were used in the development of this software, the writing of this manuscript, or the preparation of supporting materials.
+AI tools were used to fix spelling errors in documentation and manuscript.
 
 # Acknowledgements
 
