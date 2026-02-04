@@ -38,11 +38,11 @@ Although these R packages offer a wide range of acoustic metrics, they lack meas
 
 # Software Design
 
-The package aims to offer a user-friendly and flexible framework for acoustic data analysis, enabling researchers to efficiently process large acoustic libraries, replicate workflows across extended temporal scales, and extract meaningful patterns with minimal coding effort. Its accessibility empowers broader adoption of ecoacoustic methods and fosters deeper insights into soundscape ecology. By operationalizing emerging metrics alongside established indices, `Ruido` simplifies ecoacoustic workflows and enhances researchers’ capacity to analyze large soundscape collections with minimal effort.
+The package aims to offer a user-friendly and flexible framework for acoustic data analysis, enabling researchers to efficiently process large acoustic collections, replicate workflows across extended temporal scales, and extract meaningful patterns with minimal coding effort. Its accessibility empowers broader adoption of ecoacoustic methods and fosters deeper insights into soundscape ecology. By operationalizing emerging metrics alongside established indices, `Ruido` simplifies ecoacoustic workflows and enhances researchers’ capacity to analyze large soundscape collections with minimal effort.
 
 # Research Impact Statement
 
-`Ruido` has been added pipeline of the Escutadô Project, incorporing the use of these newer acoustic metrics in a large-scale project. The package also aims to assist future studies of the growing field of ecoacoustics. To guide users, the repository and documentation contain fully reproducible tests to provide examples to the package's capabilities and functioning.
+The package also aims to assist future studies of the growing field of ecoacoustics. To guide users, the repository and documentation contain fully reproducible tests to provide examples to the package's capabilities and functioning. `Ruido` has been added to the pipeline of the Escutadô Project, a large-scale research iniciative aiming to describe soundscapes of the Brazilian Semiarid region.
 
 # Example
 
