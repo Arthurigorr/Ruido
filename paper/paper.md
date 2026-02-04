@@ -42,7 +42,7 @@ The package aims to offer a user-friendly and flexible framework for acoustic da
 
 # Research Impact Statement
 
-The package also aims to assist future studies of the growing field of ecoacoustics. To guide users, the repository and documentation contain fully reproducible tests to provide examples to the package's capabilities and functioning. `Ruido` has been added to the pipeline of the Escutadô Project, a large-scale research iniciative aiming to describe soundscapes of the Brazilian Semiarid region.
+`Ruido` aims to assist future studies of the growing field of ecoacoustics. To guide users, the repository and documentation contain fully reproducible tests to provide examples to the package's functionalities and operation. The package has been added to the pipeline of the Escutadô Project, a large-scale research initiative aiming to describe soundscapes of the Brazilian Semiarid region.
 
 # Example
 
@@ -92,7 +92,7 @@ With the default parameters, SAT values are calculated for each minute of a reco
 
 # AI Usage Disclosure
 
-AI tools were used to fix spelling errors in documentation and manuscript.
+AI tools were used to aid and fix spelling in documentation and manuscript.
 
 # Acknowledgements
 
