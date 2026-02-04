@@ -25,7 +25,7 @@ multActivity(
 
 \item{channel}{channel where the saturation values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
-\item{timeBin}{size (in seconds) of the time bin. Defaults to \code{60}}
+\item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
 \item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017}
 
