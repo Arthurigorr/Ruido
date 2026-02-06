@@ -1,3 +1,14 @@
+# Ruido 1.0.2
+
+- Added functions:
+ - `activity()`
+ - `multActivity()`
+- Updated the output of already existing functions to include channel, normality statistics and path to audio. New functions also follow the same output pattern
+- Added extra examples to show more of the package's utilities. Also updated existing examples to accommodate the changes made to the outputs
+- Greatly reduced the number of lines by improving how audios are processed and managed inside the functions
+- Improved error handling for all functions
+- Overall documentation improvements
+
 # Ruido 1.0.1
 
 - `bgnoise()`, `soundSat()` and `soundMat()` now have better mono audio files handling
