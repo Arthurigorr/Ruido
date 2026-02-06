@@ -50,7 +50,7 @@ The package aims to offer a user-friendly and flexible framework for acoustic da
 
 We show a case study with `soundSat()` to illustrate daily variation in soundscape saturation. We used 24 stereo recordings of 3 minutes each, captured hourly over a day with a Song Meter SM4 (Wildlife Acoustics) at 48 kHz and 16-bit resolution. Recordings were collected on April 1st 2025 in a semiarid forest dominated by Mimosa tenuiflora in Mossoró‑RN, Brazil, and are publicly available at <https://zenodo.org/records/17243660> for reproducibility and allowing users to replicate the analyses presented.
 
-In this example, SAT quantified the proportion of occupied frequency bands over a 24‑hour cycle of audio samples. The analysis used the package’s default parameters: channel = “stereo”, time_bin = 60, dbThreshold = -90, targetSampRate = NULL, wl = 512, window = signal::hamming(wl), overlap = ceiling(length(window)/2), histbreaks = “FD”, powthr = c(5.1, 20, 0.1), bgnthr = c(0.51, 0.99, 0.02), normality = “ad.test”, beta = TRUE, and backup = NULL. The script lines are as follows:
+In this example, SAT quantified the proportion of occupied frequency bands over a 24‑hour cycle of audio samples. The analysis used the package’s default parameters: channel = “stereo”, time_bin = 60, dbThreshold = -90, targetSampRate = NULL, wl = 512, window = signal::hamming(wl), overlap = ceiling(length(window)/2), histbreaks = “FD”, powthr = c(5, 20, 1), bgnthr = c(0.5, 0.9, 0.05), normality = “ad.test”, beta = TRUE, and backup = NULL. The script lines are as follows:
 
 ``` r
 dir <- tempdir()
