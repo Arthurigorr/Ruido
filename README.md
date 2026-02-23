@@ -153,7 +153,7 @@ ggplot(
   guides(fill = guide_legend(title = "Side"))
 ```
 
-<img src="paper/figures/SAT.png" align="center"/>
+<img src="man/figures/SAT.png" align="center"/>
 
 ### Acoustic Activity
 
