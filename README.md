@@ -2,7 +2,7 @@
 
 <img src="man/figures/ruidoIcon.png" alt="Icon of Ruido" align="right" height="300"/>
 
-[![CRANStatusBadge](https://www.r-pkg.org/badges/version-ago/Ruido)](https://cran.r-project.org/package=Ruido) ![packageDownloads](https://cranlogs.r-pkg.org/badges/grand-total/Ruido?color=blue) ![lastGitCommit](https://img.shields.io/github/last-commit/Arthurigorr/Ruido) [![status](https://joss.theoj.org/papers/111563e1b539962b9cee862782aaf4f6/status.svg)](https://joss.theoj.org/papers/111563e1b539962b9cee862782aaf4f6)
+[![CRANStatusBadge](https://www.r-pkg.org/badges/version-ago/Ruido)](https://cran.r-project.org/package=Ruido) ![packageDownloads](https://cranlogs.r-pkg.org/badges/grand-total/Ruido?color=blue) ![lastGitCommit](https://img.shields.io/github/last-commit/Arthurigorr/Ruido)
 
 `Ruido` is an `R` package that aims to provide a simple and accessible framework for calculating less common soundscape metrics that describes noise dynamics. It provides accessible tools for calculating less common, but ecologically meaningful soundscape metrics, helping researchers move beyond standard and classic indices.
 
