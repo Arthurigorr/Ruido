@@ -1,15 +1,16 @@
 processChannel <- function(channelData,
-                            channel,
-                            timeBin,
-                            wl,
-                            overlap,
-                            dbThreshold,
-                            window,
-                            histbreaks) {
+                           channel,
+                           timeBin,
+                           wl,
+                           overlap,
+                           dbThreshold,
+                           window,
+                           histbreaks,
+                           DCfix) {
 
   samp.rate <- channelData@samp.rate
 
-  allSamples <- if(is.null(timeBin)) {
+  allSamples <- if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData))
   } else {
     getSampleBins(length(channelData), samp.rate, timeBin)
@@ -21,23 +22,24 @@ processChannel <- function(channelData,
     channel,
     "stereo" = list("left" = channelData@left, "right" = channelData@right),
     "mono" = list(mono = channelData@left),
-    setNames(list(slot(channelData, channel)), channel)
+    setNames(list(slot(
+      channelData, channel
+    )), channel)
   )
 
   BGNexp <- list(values = lapply(channelData, function(x) {
-
-    offset <- x - mean(x)
+    if (DCfix) {
+      x <- x - mean(x)
+    }
 
     tempHolder <- apply(allSamples, 1, function(y) {
-      list(
-        signal::specgram(
-          x = offset[y[1]:y[2]],
-          n = wl,
-          Fs = samp.rate,
-          window = window,
-          overlap = overlap
-        )$S
-      )
+      list(signal::specgram(
+        x = x[y[1]:y[2]],
+        n = wl,
+        Fs = samp.rate,
+        window = window,
+        overlap = overlap
+      )$S)
     })
 
     BGNPOWdf <- data.frame(do.call(cbind, lapply(lapply(tempHolder, function(singleBin) {
@@ -77,8 +79,7 @@ processChannel <- function(channelData,
 
   }))
 
-  BGNexp[["timeBins"]] <- setNames(round((allSamples$e - allSamples$b) / samp.rate),
-                                     paste0("BIN", seq(frameBin)))
+  BGNexp[["timeBins"]] <- setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
   BGNexp[["sampRate"]] <- samp.rate
   BGNexp[["channel"]] <- channel
 

@@ -10,7 +10,9 @@
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hammning(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
-#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` or any numeric value (foe example = `100`). Defaults to `"FD"`
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
+#' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
+#' @param DCfix if the DC offset should be removed before the metrics are calculated. Defaults to `TRUE`
 #' @param powthr numeric vector of length three containing the the range of thresholds used to evaluate the Soundscape Power of the  Activity Matrix (in dB). The values correspond to the minimum threshold, maximum threshold and step size respectively.
 #' <br> Defaults to `c(5, 20, 1)`, which evaluates thresholds from 5 dB to 20 dB in increments of 1 dB
 #' @param bgnthr numeric vector of length three containing the the range of thresholds used to evaluate the Background Noise of the  Activity Matrix (in %). The values correspond to the minimum threshold, maximum threshold and step size respectively.
@@ -140,6 +142,7 @@ soundMat <- function(soundpath,
                      window = signal::hamming(wl),
                      overlap = ceiling(length(window) / 2),
                      histbreaks = "FD",
+                     DCfix = TRUE,
                      powthr = c(5, 20, 1),
                      bgnthr = c(0.5, 0.9, 0.05),
                      beta = TRUE,
@@ -203,6 +206,7 @@ soundMat <- function(soundpath,
       window = window,
       overlap = overlap,
       histbreaks = histbreaks,
+      DCfix = DCfix,
       powthr = powthr,
       bgnthr = bgnthr,
       beta = beta,
@@ -231,7 +235,8 @@ soundMat <- function(soundpath,
         channel = channel,
         dbThreshold = dbThreshold,
         wl = wl,
-        histbreaks = histbreaks
+        histbreaks = histbreaks,
+        DCfix = DCfix
       ),
       error = function(e)
         e

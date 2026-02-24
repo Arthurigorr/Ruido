@@ -9,7 +9,8 @@
 #' @param window window used to smooth the spectrogram. Defaults to `signal::hammning(wl)`. Switch to `signal::hanning(wl)` if to use hanning instead.
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
 #' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
-#' <br>Can also be set to any number to limit or increase the amount of breaks.
+#' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
+#' @param DCfix if the DC offset should be removed before the metrics are calculated. Defaults to `TRUE`
 #' @param powthr a single value to evaluate the activity matrix for Soundscape Power (in %dB). Defaults to `10`.
 #' @param bgnthr a single value to evaluate the activity matrix for Background Noise (in %). Defaults to `0.8`
 #' @param beta how BGN thresholds are calculated. If TRUE, BGN thresholds are computed using all recordings combined.
@@ -111,6 +112,7 @@ singleSat <- function(soundfile,
                       window = signal::hamming(wl),
                       overlap = ceiling(length(window) / 2),
                       histbreaks = "FD",
+                      DCfix = TRUE,
                       powthr = 10,
                       bgnthr = 0.8,
                       beta = TRUE) {
@@ -139,7 +141,8 @@ singleSat <- function(soundfile,
     channel = channel,
     dbThreshold = dbThreshold,
     wl = wl,
-    histbreaks = histbreaks
+    histbreaks = histbreaks,
+    DCfix
   )
 
   nBins <- length(BGNPOW$timeBins)

@@ -9,6 +9,7 @@ utils::globalVariables(c(
   'channel',
   'dbThreshold',
   'histbreaks',
+  'DCfix',
   'normality',
   'type',
   'od',

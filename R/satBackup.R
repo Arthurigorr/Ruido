@@ -86,7 +86,8 @@ satBackup <- function(backup) {
           channel = channel,
           dbThreshold = dbThreshold,
           wl = wl,
-          histbreaks = histbreaks
+          histbreaks = histbreaks,
+          DCfix = DCfix
         ),
         error = function(e)
           e

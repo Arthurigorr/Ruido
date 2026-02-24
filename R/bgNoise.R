@@ -10,7 +10,9 @@
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hammning(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
-#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` or any numeric value (foe example = `100`). Defaults to `"FD"`
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
+#' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
+#' @param DCfix if the DC offset should be removed before the metrics are calculated. Defaults to `TRUE`
 #'
 #' @returns This function returns a list containing five objects. The first object (values) contain the values of BGN and POW. The second object (timeBins) contains the durations of each time bin analysed. The third object (sampRate) contains the audio's sampling rate. The fourth and last object (channel) contains the channels used for the calculation of the metric.
 #'
@@ -155,7 +157,8 @@ bgNoise <- function(soundfile,
                     wl = 512,
                     window = signal::hamming(wl),
                     overlap = ceiling(length(window) / 2),
-                    histbreaks = "FD") {
+                    histbreaks = "FD",
+                    DCfix = TRUE) {
   if (!channel %in% c("left", "right", "stereo", "mono")) {
     stop("Please provide a valid channel: 'left', 'right', 'stereo', or 'mono'.")
   }
@@ -203,7 +206,8 @@ bgNoise <- function(soundfile,
       overlap = overlap,
       dbThreshold = dbThreshold,
       window = window,
-      histbreaks = histbreaks
+      histbreaks = histbreaks,
+      DCfix = DCfix
     )
   )
 
