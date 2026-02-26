@@ -1,10 +1,10 @@
 #' @title Backup for Ruido's functions
 #'
-#' @param backup path to the .RData file create by the backup of soundSat or soundMat
+#' @param backup path to the `.RData` file create by the backup of soundSat, soundMat or multActivity
 #'
 #' @description
-#' This function is a way to continue an unfinished process of the `soundSat()`, `soundMat()` or `multActivity()` functions through a backup file.
-#' Arguments can't be inputted nor changed since the function will automatically load them from the `.RData` files. However you may manually change them (not recomended)
+#' This function offers a way to continue an unfinished process of the `soundSat()`, `soundMat()` or `multActivity()` functions through a backup file.
+#' Arguments can't be inputted nor changed since the function will automatically load them from the `.RData` file. However you may manually change them by editing the file (not recommended).
 #'
 #' @returns
 #' This functions returns the same output of `soundSat()`, `soundMat()` or `multActivity()`

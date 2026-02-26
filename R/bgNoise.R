@@ -5,7 +5,7 @@
 #' @param soundfile tuneR Wave object or path to a valid audio file
 #' @param channel channel where the metric values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
-#' @param dbThreshold minimum allowed value of dB for the spectrograms. Defaults to `-90`, as set by Towsey 2017
+#' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hammning(wl)`
@@ -14,10 +14,10 @@
 #' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
 #' @param DCfix if the DC offset should be removed before the metrics are calculated. Defaults to `TRUE`
 #'
-#' @returns This function returns a list containing five objects. The first object (values) contain the values of BGN and POW. The second object (timeBins) contains the durations of each time bin analysed. The third object (sampRate) contains the audio's sampling rate. The fourth and last object (channel) contains the channels used for the calculation of the metric.
+#' @returns This function returns a list containing five objects. The first object (values) contain the values of BGN and POW. The second object (timeBins) contains the duration of each time bin analysed. The third object (sampRate) contains the audio's sampling rate. The fourth and last object (channel) contains the channels used for the calculation of the metric.
 #'
 #' @details Background Noise (`BGN`) is an acoustic metric that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It was developed by Towsey 2017 using the Lamel et al 1981 algorithm.
-#' The metric is calculated by taking the modal value of intensity values in temporal bin c in frequency window f of a reconding:
+#' The metric is calculated by taking the modal value of intensity values in temporal bin c in frequency window f of a recording:
 #'
 #'\deqn{BGN_{f} = mode(dB_{cf})}
 #'
