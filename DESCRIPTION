@@ -15,7 +15,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Suggests: 
     ggplot2,
-    patchwork
+    patchwork,
+    testthat (>= 3.0.0)
 Maintainer: Arthur Igor da Fonseca-Freire <arthur.igorr@gmail.com>
 BugReports: https://github.com/Arthurigorr/Ruido/issues
 Config/testthat/edition: 3
