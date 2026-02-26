@@ -27,7 +27,7 @@ singleSat(
 
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
-\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017.}
+\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Set to \code{NULL} to leave db values unrestricted Defaults to \code{-90}, as set by Towsey 2017}
 
 \item{targetSampRate}{sample rate of the audios. Defaults to \code{NULL} to not change the sample rate. This argument is only used to down sample the audio.}
 

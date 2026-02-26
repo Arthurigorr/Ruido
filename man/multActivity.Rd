@@ -28,7 +28,7 @@ multActivity(
 
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
-\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017}
+\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Set to \code{NULL} to leave db values unrestricted Defaults to \code{-90}, as set by Towsey 2017}
 
 \item{targetSampRate}{desired sample rate of the audios.  This argument is only used to down sample the audio. If \code{NULL}, then audio's sample rate remains the same. Defaults to \code{NULL}}
 
@@ -43,9 +43,9 @@ multActivity(
 
 \item{DCfix}{if the DC offset should be removed before the metrics are calculated. Defaults to \code{TRUE}}
 
-\item{powthr}{single numeric value to calculate the activity matrix for soundscape power (in dB). Detauls to \code{10}}
+\item{powthr}{single numeric value to calculate the activity matrix for soundscape power (in dB). Defaults to \code{10}}
 
-\item{bgnthr}{single numeric value to calculate the activity matrix for background noise (in \%). Detauls to \code{0.8}}
+\item{bgnthr}{single numeric value to calculate the activity matrix for background noise (in \%). Defaults to \code{0.8}}
 
 \item{beta}{how BGN thresholds are calculated. If \code{TRUE}, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to \code{TRUE}}
 
@@ -64,7 +64,7 @@ We generate an activity matrix using Burivalova 2018 methodology. For each time 
 
 Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values. 1 = active and 0 = inactive.
 
-If \code{backup} is set to a valid directory, a file named \code{"SATBACKUP.RData"} is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to \code{satBackup()} (e.g., \code{~path/SATBACKUP.RData}) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the \code{.RData} object.
+If \code{backup} is set to a valid directory, a file named \code{"SATBACKUP.RData"} is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to \code{satBackup()} (e.g., as \code{~path/SATBACKUP.RData}) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the \code{.RData} object.
 }
 \examples{
 \donttest{

@@ -28,7 +28,7 @@ soundMat(
 
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
-\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017}
+\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Set to \code{NULL} to leave db values unrestricted Defaults to \code{-90}, as set by Towsey 2017}
 
 \item{targetSampRate}{desired sample rate of the audios.  This argument is only used to down sample the audio. If \code{NULL}, then audio's sample rate remains the same. Defaults to \code{NULL}}
 
@@ -57,7 +57,7 @@ soundMat(
 A list containing three objects. The first (info) contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE. The second (values) contains saturation values from all possible threshold combinations. The third (errors) contains the error messages and the paths to the files that returned an error during processing.
 }
 \description{
-Get the Soundscape Saturation matrix with all threshold combinations instead of the combination with the most normal distribution
+Get the Soundscape Saturation matrix with all threshold combinations instead of the combination with the most normal distribution.
 }
 \details{
 Soundscape Saturation (\code{SAT}) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2018 as an index to test the acoustic niche hypothesis.
@@ -73,7 +73,7 @@ For each combination of threshold a SAT measure will be taken with the following
 
 After these equations are done, we check every threshold combination for normality and pick the combination that yields the most normal distribution of saturation values.
 
-If \code{backup} is set to a valid directory, a file named \code{"SATBACKUP.RData"} is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to \code{satBackup()} (e.g., \code{~path/SATBACKUP.RData}) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the \code{.RData} object.
+If \code{backup} is set to a valid directory, a file named \code{"SATBACKUP.RData"} is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to \code{satBackup()} (e.g., as \code{~path/SATBACKUP.RData}) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the \code{.RData} object.
 }
 \examples{
 \donttest{

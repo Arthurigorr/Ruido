@@ -27,7 +27,7 @@ activity(
 
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
-\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017}
+\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Set to \code{NULL} to leave db values unrestricted Defaults to \code{-90}, as set by Towsey 2017}
 
 \item{targetSampRate}{desired sample rate of the audios.  This argument is only used to down sample the audio. If \code{NULL}, then audio's sample rate remains the same. Defaults to \code{NULL}}
 
@@ -42,14 +42,14 @@ activity(
 
 \item{DCfix}{if the DC offset should be removed before the metrics are calculated. Defaults to \code{TRUE}}
 
-\item{powthr}{single numeric value to calculate the activity matrix for soundscape power (in dB). Detauls to \code{10}}
+\item{powthr}{single numeric value to calculate the activity matrix for soundscape power (in dB). Defaults to \code{10}}
 
-\item{bgnthr}{single numeric value to calculate the activity matrix for background noise (in \%). Detauls to \code{0.8}}
+\item{bgnthr}{single numeric value to calculate the activity matrix for background noise (in \%). Defaults to \code{0.8}}
 
 \item{beta}{how BGN thresholds are calculated. If \code{TRUE}, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to \code{TRUE}}
 }
 \value{
-This function returns a 0 and 1 matrix containing the activity for all time bins of the inputted file. The matrix's number of rows will equal to half the set window lenght (\code{wl}) and number of columns will equal the number of bins. Cells with the value of 1 represent the acoustically active frequency of a bin.
+This function returns a 0 and 1 matrix containing the activity for all time bins of the inputted file. The matrix's number of rows will equal to half the set window length (\code{wl}) and number of columns will equal the number of bins. Cells with the value of 1 represent the acoustically active frequency of a bin.
 }
 \description{
 Calculate the Acoustic Activity Matrix using the methodology proposed in Burivalova 2018

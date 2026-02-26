@@ -24,7 +24,7 @@ bgNoise(
 
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
-\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Defaults to \code{-90}, as set by Towsey 2017}
+\item{dbThreshold}{minimum allowed value of dB for the spectrograms. Set to \code{NULL} to leave db values unrestricted Defaults to \code{-90}, as set by Towsey 2017}
 
 \item{targetSampRate}{desired sample rate of the audios.  This argument is only used to down sample the audio. If \code{NULL}, then audio's sample rate remains the same. Defaults to \code{NULL}}
 
@@ -40,14 +40,14 @@ bgNoise(
 \item{DCfix}{if the DC offset should be removed before the metrics are calculated. Defaults to \code{TRUE}}
 }
 \value{
-This function returns a list containing five objects. The first object (values) contain the values of BGN and POW. The second object (timeBins) contains the durations of each time bin analysed. The third object (sampRate) contains the audio's sampling rate. The fourth and last object (channel) contains the channels used for the calculation of the metric.
+This function returns a list containing five objects. The first object (values) contain the values of BGN and POW. The second object (timeBins) contains the duration of each time bin analysed. The third object (sampRate) contains the audio's sampling rate. The fourth and last object (channel) contains the channels used for the calculation of the metric.
 }
 \description{
 Calculate the Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
 }
 \details{
 Background Noise (\code{BGN}) is an acoustic metric that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It was developed by Towsey 2017 using the Lamel et al 1981 algorithm.
-The metric is calculated by taking the modal value of intensity values in temporal bin c in frequency window f of a reconding:
+The metric is calculated by taking the modal value of intensity values in temporal bin c in frequency window f of a recording:
 
 \deqn{BGN_{f} = mode(dB_{cf})}
 
