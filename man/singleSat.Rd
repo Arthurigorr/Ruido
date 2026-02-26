@@ -109,7 +109,7 @@ image(periodogram(wave, width = 8192, normalize = FALSE), xlab = "Time (s)",
 ylab = "Frequency (hz)", axes = FALSE)
 axis(1, labels = seq(0,60, 10), at = seq(0,7e5,length.out = 7))
 axis(2)
-plot(sat, xlab = "Time (s)", ylab = "Soundscape Saturation (\%)",
+plot(sat$mono, xlab = "Time (s)", ylab = "Soundscape Saturation (\%)",
 type = "b", pch = 16, axes = FALSE)
 axis(1, labels = paste0(c("0-10","10-20","20-30","30-40","40-50","50-59"),
 "s"), at = 1:6)
@@ -134,7 +134,7 @@ sat <- singleSat(recDir)
 # Printing the results
 print(sat)
 
-barplot(sat, col = c("darkgreen", "red"),
+barplot(unlist(sat), col = c("darkgreen", "red"),
        names.arg = c("Left", "Right"), ylab = "Soundscape Saturation (\%)")
 
 unlink(dir, recursive = TRUE)
