@@ -73,7 +73,7 @@
 #' ylab = "Frequency (hz)", axes = FALSE)
 #' axis(1, labels = seq(0,60, 10), at = seq(0,7e5,length.out = 7))
 #' axis(2)
-#' plot(sat, xlab = "Time (s)", ylab = "Soundscape Saturation (%)",
+#' plot(sat$mono, xlab = "Time (s)", ylab = "Soundscape Saturation (%)",
 #' type = "b", pch = 16, axes = FALSE)
 #' axis(1, labels = paste0(c("0-10","10-20","20-30","30-40","40-50","50-59"),
 #' "s"), at = 1:6)
@@ -98,7 +98,7 @@
 #' # Printing the results
 #' print(sat)
 #'
-#' barplot(sat, col = c("darkgreen", "red"),
+#' barplot(unlist(sat), col = c("darkgreen", "red"),
 #'        names.arg = c("Left", "Right"), ylab = "Soundscape Saturation (%)")
 #'
 #' unlink(dir, recursive = TRUE)
@@ -116,23 +116,13 @@ singleSat <- function(soundfile,
                       powthr = 10,
                       bgnthr = 0.8,
                       beta = TRUE) {
-  if (!(channel %in% c("left", "right", "stereo", "mono")))
-    stop("channel must be 'stereo', 'mono', 'left', or 'right'")
 
-  if (!is.numeric(timeBin))
-    stop("timeBin must be numeric")
-
-  if (!is.numeric(dbThreshold))
-    stop("timeBin must be numeric")
-
-  if (!is.null(targetSampRate)) {
-    if (!is.numeric(targetSampRate))
-      stop("targetSampRate must be either NULL or a numeric value")
-  }
+  argHandler(FUN = "singleSat", channel, timeBin, dbThreshold, targetSampRate, wl,
+             window, overlap, histbreaks, DCfix, powthr, bgnthr, beta)
 
   halfWl <- round(wl / 2)
 
-  BGNPOW <- bgNoise(
+  BGNPOW <- bgNoise.(
     soundfile,
     timeBin = timeBin,
     targetSampRate = targetSampRate,
@@ -177,6 +167,13 @@ singleSat <- function(soundfile,
 
   names(singSat) <- names
 
-  return(singSat)
+  if (BGNPOW$channel == "stereo") {
+    return(list(
+      left  = singSat[seq(nBins)],
+      right = singSat[seq(nBins + 1, nBins * 2)]
+    ))
+  } else {
+    return(setNames(list(singSat), BGNPOW$channel))
+  }
 
 }

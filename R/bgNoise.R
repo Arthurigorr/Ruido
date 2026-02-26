@@ -159,15 +159,9 @@ bgNoise <- function(soundfile,
                     overlap = ceiling(length(window) / 2),
                     histbreaks = "FD",
                     DCfix = TRUE) {
-  if (!channel %in% c("left", "right", "stereo", "mono")) {
-    stop("Please provide a valid channel: 'left', 'right', 'stereo', or 'mono'.")
-  }
 
-  if(!(histbreaks %in% c("FD", "Sturges", "scott"))) {
-    if(!is.numeric(histbreaks)) {
-      stop("histbreaks must be 'FD', 'Sturges', 'scott' or a numeric value")
-    }
-  }
+  argHandler(FUN = "bgNoise", channel, timeBin, dbThreshold, targetSampRate, wl,
+             window, overlap, histbreaks, DCfix)
 
   audio <- if (is.character(soundfile)) {
     fileExt <- tolower(tools::file_ext(soundfile))

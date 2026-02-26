@@ -147,25 +147,9 @@ soundMat <- function(soundpath,
                      bgnthr = c(0.5, 0.9, 0.05),
                      beta = TRUE,
                      backup = NULL) {
-  if (all(!dir.exists(soundpath)))
-    stop("all provided soundpaths must be valid.")
 
-  if (!is.null(backup) && !dir.exists(backup))
-    stop("please provide a valid folder for backup.")
-
-  if (!(channel %in% c("left", "right", "stereo", "mono")))
-    stop("channel must be 'stereo', 'mono', 'left', or 'right'")
-
-  if (!is.numeric(timeBin))
-    stop("timeBin must be numeric")
-
-  if (!is.numeric(dbThreshold))
-    stop("timeBin must be numeric")
-
-  if (!is.null(targetSampRate)) {
-    if (!is.numeric(targetSampRate))
-      stop("targetSampRate must be either NULL or a numeric value")
-  }
+  argHandler(FUN = "soundMat", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
+             window, overlap, histbreaks, DCfix, powthr, bgnthr, beta, backup)
 
   powthreshold <- seq(powthr[1], powthr[2], powthr[3])
   names(powthreshold) <- powthreshold
@@ -251,7 +235,7 @@ soundMat <- function(soundpath,
       match(soundfiles[soundfile], soundfiles),
       " out of ",
       length(soundfiles),
-      " recordinds concluded!",
+      " recordings concluded!",
       sep = ""
     )
 

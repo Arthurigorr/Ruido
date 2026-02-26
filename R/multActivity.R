@@ -137,25 +137,10 @@ multActivity <- function(soundpath,
                          bgnthr = 0.8,
                          beta = TRUE,
                          backup = NULL) {
-  if (all(!dir.exists(soundpath)))
-    stop("all provided soundpaths must be valid")
 
-  if (!is.null(backup) && !dir.exists(backup))
-    stop("please provide a valid folder for backup")
+  argHandler(FUN = "multActivity", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
+             window, overlap, histbreaks, DCfix, powthr, bgnthr, beta, backup)
 
-  if (!(channel %in% c("left", "right", "stereo", "mono")))
-    stop("channel must be 'stereo', 'mono', 'left', or 'right'")
-
-  if (!is.numeric(timeBin))
-    stop("timeBin must be numeric")
-
-  if (!is.numeric(dbThreshold))
-    stop("timeBin must be numeric")
-
-  if (!is.null(targetSampRate)) {
-    if (!is.numeric(targetSampRate))
-      stop("targetSampRate must be either NULL or a numeric value")
-  }
 
   soundfiles <- list.files(soundpath, full.names = TRUE, recursive = TRUE)
   soundfiles <- soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
@@ -194,7 +179,7 @@ multActivity <- function(soundpath,
     sPath <- soundfiles[[soundfile]]
 
     SATdf[["indexes"]][[soundfile]] <- tryCatch(
-      bgNoise(
+      bgNoise.(
         sPath,
         timeBin = timeBin,
         targetSampRate = targetSampRate,
@@ -219,7 +204,7 @@ multActivity <- function(soundpath,
       match(soundfiles[soundfile], soundfiles),
       " out of ",
       length(soundfiles),
-      " recordinds concluded!",
+      " recordings concluded!",
       sep = ""
     )
 
@@ -321,14 +306,14 @@ multActivity <- function(soundpath,
 
   export <- list(
     powthresh = numeric(0),
-    bgntresh = numeric(0),
+    bgnthresh = numeric(0),
     info = data.frame(),
     values = matrix(),
     errors = list()
   )
 
   export["powthresh"] <- powthr
-  export["bgntresh"] <- bgnthr * 100
+  export["bgnthresh"] <- bgnthr * 100
   export[["info"]] <- SATinfo
   export[["values"]] <- SATmat * 1
   export[["errors"]] <- ERRORS

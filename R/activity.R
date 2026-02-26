@@ -88,36 +88,26 @@
 #'   guides(fill = guide_legend(title = "Activity"))
 #'
 #' }
-activity <- function(soundfile,
-                     channel = "stereo",
-                     timeBin = 60,
-                     dbThreshold = -90,
-                     targetSampRate = NULL,
-                     wl = 512,
-                     window = signal::hamming(wl),
-                     overlap = ceiling(length(window) / 2),
-                     histbreaks = "FD",
-                     DCfix = TRUE,
-                     powthr = 10,
-                     bgnthr = 0.8,
-                     beta = TRUE) {
-  if (!(channel %in% c("left", "right", "stereo", "mono")))
-    stop("channel must be 'stereo', 'mono', 'left', or 'right'")
+  activity <- function(soundfile,
+                       channel = "stereo",
+                       timeBin = 60,
+                       dbThreshold = -90,
+                       targetSampRate = NULL,
+                       wl = 512,
+                       window = signal::hamming(wl),
+                       overlap = ceiling(length(window) / 2),
+                       histbreaks = "FD",
+                       DCfix = TRUE,
+                       powthr = 10,
+                       bgnthr = 0.8,
+                       beta = TRUE) {
 
-  if (!is.numeric(timeBin))
-    stop("timeBin must be numeric")
-
-  if (!is.numeric(dbThreshold))
-    stop("timeBin must be numeric")
-
-  if (!is.null(targetSampRate)) {
-    if (!is.numeric(targetSampRate))
-      stop("targetSampRate must be either NULL or a numeric value")
-  }
+    argHandler(FUN = "activity", channel, timeBin, dbThreshold, targetSampRate, wl,
+               window, overlap, histbreaks, DCfix, powthr, bgnthr, beta)
 
   halfWl <- round(wl / 2)
 
-  BGNPOW <- bgNoise(
+  BGNPOW <- bgNoise.(
     soundfile,
     timeBin = timeBin,
     targetSampRate = targetSampRate,

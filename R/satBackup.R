@@ -77,7 +77,7 @@ satBackup <- function(backup) {
       sPath <- soundfiles[[soundfile]]
 
       SATdf[["indexes"]][[soundfile]] <- tryCatch(
-        bgNoise(
+        bgNoise.(
           sPath,
           timeBin = timeBin,
           targetSampRate = targetSampRate,
@@ -102,7 +102,7 @@ satBackup <- function(backup) {
         match(soundfiles[soundfile], soundfiles),
         " out of ",
         length(soundfiles),
-        " recordinds concluded!",
+        " recordings concluded!",
         sep = ""
       )
 
@@ -300,14 +300,14 @@ satBackup <- function(backup) {
 
     export <- list(
       powthresh = numeric(0),
-      bgntresh = numeric(0),
+      bgnthresh = numeric(0),
       normality = list(),
       values = data.frame(),
       errors = list()
     )
 
     export["powthresh"] <- as.numeric(thresholds[1])
-    export["bgntresh"] <- as.numeric(thresholds[2]) * 100
+    export["bgnthresh"] <- as.numeric(thresholds[2]) * 100
     export[["normality"]]["test"] <- normality
     export[["normality"]]["statistic"] <- normOUT
     export[["values"]] <- SATinfo
@@ -328,14 +328,14 @@ satBackup <- function(backup) {
 
     export <- list(
       powthresh = numeric(0),
-      bgntresh = numeric(0),
+      bgnthresh = numeric(0),
       info = data.frame(),
       values = matrix(),
       errors = list()
     )
 
     export["powthresh"] <- powthr
-    export["bgntresh"] <- bgnthr * 100
+    export["bgnthresh"] <- bgnthr * 100
     export[["info"]] <- SATinfo
     export[["values"]] <- SATmat * 1
     export[["errors"]] <- ERRORS

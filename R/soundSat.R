@@ -49,6 +49,7 @@
 #'@importFrom stats setNames
 #'@importFrom stats shapiro.test
 #'@importFrom nortest ad.test
+#'@importFrom utils capture.output
 #'
 #' @examples
 #' \donttest{
@@ -107,25 +108,11 @@ soundSat <- function(soundpath,
                      normality = "ad.test",
                      beta = TRUE,
                      backup = NULL) {
-  if (all(!dir.exists(soundpath)))
-    stop("all provided soundpaths must be valid.")
 
-  if (!is.null(backup) && !dir.exists(backup))
-    stop("please provide a valid folder for backup.")
+  argHandler(FUN = "soundSat", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
+             window, overlap, histbreaks, DCfix, powthr, bgnthr, beta, backup)
 
-  if (!(channel %in% c("left", "right", "stereo", "mono")))
-    stop("channel must be 'stereo', 'mono', 'left', or 'right'")
-
-  if (!is.numeric(timeBin) & !is.null(timeBin))
-    stop("timeBin must be numeric")
-
-  if (!is.numeric(dbThreshold))
-    stop("timeBin must be numeric")
-
-  if (!is.null(targetSampRate)) {
-    if (!is.numeric(targetSampRate))
-      stop("targetSampRate must be either NULL or a numeric value")
-  }
+  normality <- normHandler(normality)
 
   powthreshold <- seq(powthr[1], powthr[2], powthr[3])
   names(powthreshold) <- powthreshold
@@ -136,53 +123,6 @@ soundSat <- function(soundpath,
 
   if (length(soundfiles) < 3)
     stop("please provide at least 3 recordings!")
-
-  if (normality == "shapiro.test") {
-    answernorm <- readline(
-      "
-      If you are working with a large dataset, then shapiro.test will most likely result in an error.
-      Do you wish to use Anderson-Darling test instead? (Y/N).
-      "
-    )
-
-    if (answernorm == "Y") {
-      normality <- "ad.test"
-    } else if (answernorm == "N") {
-      message("Using shapiro.test to test normality.")
-    } else {
-      stop("Please answer with Y or N next time.")
-    }
-
-  } else if (normality == "ks.test") {
-    answernorm <- readline(
-      "ks.test is not supported since many combinations may have identifical values.
-      Type N to ignore this warning.
-      However, we recommend choosing one of these tests:
-      a ad.test
-      b cvm.test
-      c lillie.test
-      d pearson.test
-      e sf.test
-      (Type the letter to choose)
-      "
-    )
-
-    normality <- switch(
-      answernorm,
-      "a" = "ad.test",
-      "b" = "cvm.test",
-      "c" = "lillie.test",
-      "d" = "pearson.test",
-      "e" = "sf.test",
-      "N" = "ks.test",
-      "STOP"
-    )
-
-    if (normality == "STOP") {
-      stop("Please pick a letter next time.")
-    }
-
-  }
 
   thresholdCombinations <- setNames(expand.grid(powthreshold, bgnthreshold),
                                     c("powthreshold", "bgnthreshold"))
@@ -234,7 +174,7 @@ soundSat <- function(soundpath,
     sPath <- soundfiles[[soundfile]]
 
     SATdf[["indexes"]][[soundfile]] <- tryCatch(
-      bgNoise(
+      bgNoise.(
         sPath,
         timeBin = timeBin,
         targetSampRate = targetSampRate,
@@ -259,7 +199,7 @@ soundSat <- function(soundpath,
       match(soundfiles[soundfile], soundfiles),
       " out of ",
       length(soundfiles),
-      " recordinds concluded!",
+      " recordings concluded!",
       sep = ""
     )
 
@@ -438,14 +378,14 @@ soundSat <- function(soundpath,
 
   export <- list(
     powthresh = numeric(0),
-    bgntresh = numeric(0),
+    bgnthresh = numeric(0),
     normality = list(),
     values = data.frame(),
     errors = list()
   )
 
   export["powthresh"] <- as.numeric(thresholds[1])
-  export["bgntresh"] <- as.numeric(thresholds[2]) * 100
+  export["bgnthresh"] <- as.numeric(thresholds[2]) * 100
   export[["normality"]]["test"] <- normality
   export[["normality"]]["statistic"] <- normOUT
   export[["values"]] <- SATinfo
