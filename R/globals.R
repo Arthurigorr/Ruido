@@ -1,5 +1,7 @@
 # Tell R CMD check that these arguments are imported externally in satBackup
 utils::globalVariables(c(
+  'soundpath',
+  'backup',
   'powthr',
   'bgnthr',
   'wl',
