@@ -60,18 +60,7 @@ A list containing three objects. The first (info) contains the following variabl
 Get the Soundscape Saturation matrix with all threshold combinations instead of the combination with the most normal distribution.
 }
 \details{
-Soundscape Saturation (\code{SAT}) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2018 as an index to test the acoustic niche hypothesis.
-To calculate this function, first we need to generate an activity matrix for each time bin of your recording with the following formula:
-
-\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
-
-Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values.
-Since we define a interval for both the threshold, this means that an activity matrix will be generated for each bin of each recording.
-For each combination of threshold a SAT measure will be taken with the following formula:
-
-\deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
-
-After these equations are done, we check every threshold combination for normality and pick the combination that yields the most normal distribution of saturation values.
+Check \code{\link[=soundSat]{soundSat()}} to see how the indices are calculated.
 
 If \code{backup} is set to a valid directory, a file named \code{"SATBACKUP.RData"} is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to \code{satBackup()} (e.g., as \code{~path/SATBACKUP.RData}) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the \code{.RData} object.
 }
@@ -163,4 +152,7 @@ par(oldpar)
 }
 \references{
 Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
+}
+\seealso{
+\code{\link[=soundSat]{soundSat()}} to get only the threshold with the most normal distribution and \code{\link[=multActivity]{multActivity()}} to generate only activity matrices. Also, check \code{\link[=satBackup]{satBackup()}} if you are working with larger datasets and want some safety.
 }

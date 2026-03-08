@@ -21,7 +21,7 @@ singleSat(
 )
 }
 \arguments{
-\item{soundfile}{tuneR Wave object or path to a valid audio}
+\item{soundfile}{tuneR Wave object, Ruido noise.matrix object or path to a valid audio}
 
 \item{channel}{channel where the background noise values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
@@ -49,7 +49,7 @@ singleSat(
 \item{beta}{how BGN thresholds are calculated. If TRUE, BGN thresholds are computed using all recordings combined.}
 }
 \value{
-A vector containing the saturation values for all time bins of the inputted file
+A list containing the saturation values for all time bins of the inputted file
 }
 \description{
 Single Soundscape Saturation Index
@@ -65,16 +65,39 @@ Since we define a single threshold for both in this function, we don't have to w
 For the selected threshold a soundscape saturation measure will be taken with the following formula:
 
 \deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
-
-Since this is analyzing the soundscape saturaion of a single file, no normality tests will be done.
 }
 \examples{
+# First example: Using a Ruido noise.matrix object
+# We are going to load a sample noise.matrix object to demonstrate the basic usage of singleSat()
+# To understand about the origin of this noise.matrix, check: ?sampleBGN
+data("sampleBGN")
+
+# View the sample noise.matrix object
+sampleBGN
+
+# Run the function
+SAT <- singleSat(sampleBGN)
+
+# View the results
+SAT
+
+# Now lets plot our results to see the dynamics of soundscape saturation by minute
+maxV <- max(unlist(SAT))
+minV <- min(unlist(SAT))
+
+plot(x = c(1, 3), y = c(minV, maxV), type = "n",
+     xlab = "Minute", ylab = "Soundscape Saturation (\%)", xaxt = "n")
+lines(x = 1:3, SAT$left, col = "#1ECBE1", type = "b", pch = 16)
+axis(1, at = 1:3)
+lines(x = 1:3, SAT$right, col = "#E1341E", type = "b", pch = 16)
+legend("topright", legend = c("Left", "Right"), col = c("#1ECBE1", "#E1341E"), lty = 1, pch = 16)
+
+# Second example: Using a tuneR Wave-class object
+# Lets produce an artificial audio with the tuneR package to demonstrate that the function can also read Wave-class objects (This is the same object used in the example of bgNoise!)
+
+library(tuneR)
 
 oldpar <- par(no.readonly = TRUE)
-
-### Generating an artificial audio for the example
-## For this example we'll generate a sweep in a noisy soundscape
-library(tuneR)
 
 # Define parameters for the artificial audio
 samprate <- 12050
@@ -118,6 +141,8 @@ axis(2)
 par(oldpar)
 
 \donttest{
+# Third example: Reading a file directly
+# Lets begin by loading an audio from the online Zenodo library and read it directly with the function
 # Getting audiofile from the online Zenodo library
 dir <- paste(tempdir(), "forExample", sep = "/")
 dir.create(dir)
@@ -142,4 +167,7 @@ unlink(dir, recursive = TRUE)
 }
 \references{
 Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
+}
+\seealso{
+\code{\link[=soundSat]{soundSat()}} and \code{\link[=soundMat]{soundMat()}} to work with multiple audio files and \code{\link[=activity]{activity()}} to get only the activity matrix
 }

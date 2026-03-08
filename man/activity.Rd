@@ -63,40 +63,24 @@ Where \eqn{\theta_{1}} equals the threshold of BGN values and \eqn{\theta_{2}} e
 }
 \examples{
 if (require("ggplot2")) {
-### Generating an artificial audio for the example
-## For this example we'll generate a sweep in a noisy soundscape
-library(tuneR)
 library(ggplot2)
+# We are going to load a sample noise.matrix object to demonstrate the basic usage of singleSat()
+# To understand about the origin of this noise.matrix, check: ?sampleBGN
+data("sampleBGN")
 
-# Define parameters for the artificial audio
-samprate <- 12050
-dur <- 60
-n <- samprate * dur
+# View the sample noise.matrix object
+sampleBGN
 
-# White noise
-set.seed(413)
-noise <- rnorm(n)
+# View the sample noise.matrix object
+sampleBGN
 
-# Linear fade-out envelope
-fade <- seq(1, 0, length.out = n)
+# Run the function
+sat <- activity(sampleBGN)
 
-# Apply fade
-signal <- noise * fade
-
-# Create Wave object
-wave <- Wave(
-  left = signal,
-  samp.rate = samprate,
-  bit = 16
-)
-
-# Running singleSat() on the artificial audio
-time <- 10
-sat <- activity(wave, timeBin = time)
-
-# Now we can plot the results
-satDim <- dim(sat)
-numericTime <- seq(0, dur, by = time)
+# Now we can plot the results for the left channel
+satLeft <- sat[,1:3]
+satDim <- dim(satLeft)
+numericTime <- seq(0, sum(sampleBGN@timeBins), by = sampleBGN@timeBins[1])
 labels <- paste0(numericTime[-length(numericTime)], "-", numericTime[-1], "s")
 
 satDF <- data.frame(BIN = rep(paste0("BIN", seq(satDim[2])), each = satDim[1]),

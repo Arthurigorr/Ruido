@@ -40,7 +40,7 @@ bgNoise(
 \item{DCfix}{if the DC offset should be removed before the metrics are calculated. Defaults to \code{TRUE}}
 }
 \value{
-This function returns a list containing five objects. The first object (values) contain the values of BGN and POW. The second object (timeBins) contains the duration of each time bin analysed. The third object (sampRate) contains the audio's sampling rate. The fourth and last object (channel) contains the channels used for the calculation of the metric.
+This function returns a \linkS4class{noise.matrix} object
 }
 \description{
 Calculate the Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
@@ -64,56 +64,41 @@ This mean we'll have a value of BGN and POW to each frequency window of a record
 library(tuneR)
 
 # Define the audio sample rate, duration and number of samples
-sampRate <- 12050
-dur <- 59
-sampN <- sampRate * dur
+samprate <- 12050
+dur <- 60
+n <- samprate * dur
 
-# Then we Ggenerate the white noise for our audio and apply FFT
+# Then we generate white noise
 set.seed(413)
-ruido <- rnorm(sampN)
-spec <- fft(ruido)
+noise <- rnorm(n)
 
-# Now we create a random spectral envelope for the audio and apply the spectral envelope
-nPoints <- 50
-env <- runif(nPoints)
-env <- approx(env, n=nPoints)$y
-specMod <- spec * env
+# Linear fade-out envelope
+fade <- seq(1, 0, length.out = n)
 
-# Now we invert the FFT back to into a time waveform and normalize and convert to Wave
-out <- Re(fft(specMod, inverse=TRUE)) / sampN
-wave <- Wave(left = out, samp.rate = sampRate, bit = 16)
-wave <- normalize(wave, unit = "16")
+# Apply fade
+signal <- noise * fade
 
-# Here's our artificial audio
+wave <- Wave(left = signal, right = signal,
+            samp.rate = samprate,
+            bit = 16)
+
+# Heres our artificial audio
+
 wave
 
 # Running the bgNoise function with all the default arguments
 bgn <- bgNoise(wave)
 
-# Print the results
-head(bgn$values$mono$BGN)
-head(bgn$values$mono$POW)
+# See the results
+bgn
 
-# Plotting background noise and soundscape profile for the first minute of the recording
-par(mfrow = c(2,2))
-plot(x = bgn$values$mono$BGN$BGN1, y = seq(1,bgn$sampRate, length.out = 256),
-     xlab = "Background Noise (dB)", ylab = "Frequency (hz)",
-     main = "BGN by Frequency",
-     type = "l")
-plot(x = bgn$values$mono$POW$POW1, y = seq(1,bgn$sampRate, length.out = 256),
-     xlab = "Soundscape Power (dB)", ylab = "Frequency (hz)",
-     main = "POW by Frequency",
-     type = "l")
-plot(bgn$values$mono$BGN$BGN1~bgn$values$mono$POW$POW1, pch = 16,
-     xlab = "Soundscape Power (dB)", ylab = "Background Noise (dB)",
-     main = "BGN~POW")
-hist(bgn$values$mono$BGN$BGN1, main = "Histogram of BGN distribution",
-      xlab = "Background Noise (BGN)")
+# Plot background noise and soundscape power
+plot(bgn)
 
 \donttest{
-oldpar <- par(no.readonly = TRUE)
 ### This is a secondary example using audio from a real soundscape
-### These audios are originated from the Escutadô Project
+### These audios are originated from the Escutadô Project, a project
+### that records the soundscapes of the brazilian semiarid
 # Getting audiofile from the online Zenodo library
 dir <- paste(tempdir(), "forExample", sep = "/")
 dir.create(dir)
@@ -129,45 +114,20 @@ download.file(url, destfile = recDir, mode = "wb")
 # Running the bgNoise function with all the default arguments
 bgn <- bgNoise(recDir)
 
-# Print the results
-head(bgn$values$left$BGN)
-head(bgn$values$left$POW)
+# Here's the result
+bgn
 
-# Plotting background noise and soundscape profile for the first minute of the recording
-par(mfrow = c(2, 2))
-plot(
-  x = bgn$values$left$BGN$BGN1,
-  y = seq(1, bgn$sampRate, length.out = 256),
-  xlab = "Background Noise (dB)",
-  ylab = "Frequency (hz)",
-  main = "BGN by Frequency",
-  type = "l"
-)
-plot(
-  x = bgn$values$left$POW$POW1,
-  y = seq(1, bgn$sampRate, length.out = 256),
-  xlab = "Soundscape Power (dB)",
-  ylab = "Frequency (hz)",
-  main = "POW by Frequency",
-  type = "l"
-)
-plot(
-  bgn$values$left$BGN$BGN1 ~ bgn$values$left$POW$POW1,
-  pch = 16,
-  xlab = "Soundscape Power (dB)",
-  ylab = "Background Noise (dB)",
-  main = "BGN~POW in left ear"
-)
-plot(
-  bgn$values$right$BGN$BGN1 ~ bgn$values$right$POW$POW1,
-  pch = 16,
-  xlab = "Soundscape Power (dB)",
-  ylab = "Background Noise (dB)",
-  main = "BGN~POW in right ear"
-)
+# Plot background noise and soundscape power values
+plot(bgn)
 
-unlink(dir, recursive = TRUE)
-par(oldpar)
+# Plot the two indices against each other
+plot(bgn@values$left$BGN$BGN1, bgn@values$left$POW$POW1,
+     xlab = "BGN (dB)", ylab = "POW (dB)", pch = 16)
+
+# Now lets test and plot their correlation
+BGNPOWlm <- lm(bgn@values$left$BGN$BGN1~bgn@values$left$POW$POW1)
+summary(BGNPOWlm)
+abline(lm(bgn@values$left$BGN$BGN1~bgn@values$left$POW$POW1), col = "red")
 }
 }
 \references{
