@@ -36,7 +36,7 @@ library(Ruido)
 
 ## Examples:
 
-To illustrate the package's use, we are going to use the recordings available at: <https://zenodo.org/records/17243660>. <br>Use <https://zenodo.org/records/17575795> to use lighter recordings.
+To illustrate the package's use, we are going to use the recordings available at: <https://zenodo.org/records/17243660>. <br>Use <https://zenodo.org/records/17575795> instead if you want to download lighter files.
 
 If you wish to temporary download the files using R to follow the examples, run:
 
@@ -74,7 +74,7 @@ date <- sapply(strsplit(recName, "_"), function(x)
   paste(substr(x[2], 1, 4), substr(x[2], 5, 6), substr(x[2], 7, 8), sep = "-"))
 
 dateTime <- as.POSIXct(paste(date, time))
-sampRate <- BGN_POW[[1]]$sampRate
+sampRate <- BGN_POW[[1]]@sampRate
 kHz <- cumsum(c(0, rep(sampRate / 6, 6))) / 1000
 breaks <- round(c(1, cumsum(rep(256 / 6, 6))))
 
@@ -87,10 +87,10 @@ plotN <- 1
 for (ind in c("BGN", "POW")) {
   for (cha in c("left", "right")) {
     core <- do.call(cbind, lapply(BGN_POW, function(x) {
-      x[[cha]][[ind]]
+      x@values[[cha]][[ind]]
     }))
     
-    dim(BGNLEFT)
+    sDim <- dim(core)
     
     coreDf <- data.frame(
       TIME = as.character(rep(dateTime, each = sDim[1] * 3) + rep(rep(c(0, 60, 120), each = sDim[1]), sDim[2] / 3)),
@@ -132,7 +132,7 @@ colnames(satForPlot)[c(3, 4)] <- c("sdSAT", "meanSAT")
 ggplot(
   satForPlot,
   aes(x = TIME, y = meanSAT * 100, group = CHANNEL, fill = CHANNEL,
-    ymin = pmax(meanSAT - sdSAT, 0) * 100, ymax = pmin(meanSAT + sdSAT, 100) * 100
+      ymin = pmax(meanSAT - sdSAT, 0) * 100, ymax = pmin(meanSAT + sdSAT, 100) * 100
   )
 ) +
   geom_ribbon(alpha = 0.5) +
@@ -157,7 +157,7 @@ ggplot(
 ### Acoustic Activity
 
 ``` r
-act <- multActivity(dir, powthr = sat$powthresh, bgnthr = sat$bgntresh / 100)
+act <- multActivity(dir, powthr = sat$powthresh, bgnthr = sat$bgnthresh / 100)
 
 time <- sapply(strsplit(recName, "_"), function(x)
   paste(substr(x[3], 1, 2), substr(x[3], 3, 4), substr(x[3], 5, 6), sep = ":"))
