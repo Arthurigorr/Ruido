@@ -46,9 +46,6 @@
 #' # View the sample noise.matrix object
 #' sampleBGN
 #'
-#' # View the sample noise.matrix object
-#' sampleBGN
-#'
 #' # Run the function
 #' sat <- activity(sampleBGN)
 #'
