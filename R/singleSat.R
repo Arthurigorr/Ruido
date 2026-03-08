@@ -1,6 +1,6 @@
 #' @title Single Soundscape Saturation Index
 #'
-#' @param soundfile tuneR Wave object or path to a valid audio
+#' @param soundfile tuneR Wave object, Ruido noise.matrix object or path to a valid audio
 #' @param channel channel where the background noise values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
@@ -16,7 +16,7 @@
 #' @param beta how BGN thresholds are calculated. If TRUE, BGN thresholds are computed using all recordings combined.
 #'
 #' @export
-#' @returns A vector containing the saturation values for all time bins of the inputted file
+#' @returns A list containing the saturation values for all time bins of the inputted file
 #' @details  Soundscape Saturation (`SAT`) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2018 as an index to test the acoustic niche hypothesis.
 #' To calculate this function, first we need to generate an activity matrix for each time bin of your recording with the following formula:
 #'
@@ -28,17 +28,42 @@
 #'
 #'\deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
 #'
-#'Since this is analyzing the soundscape saturaion of a single file, no normality tests will be done.
+#' @seealso [soundSat()] and [soundMat()] to work with multiple audio files and [activity()] to get only the activity matrix
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
 #' @examples
+#' # First example: Using a Ruido noise.matrix object
+#' # We are going to load a sample noise.matrix object to demonstrate the basic usage of singleSat()
+#' # To understand about the origin of this noise.matrix, check: ?sampleBGN
+#' data("sampleBGN")
+#'
+#' # View the sample noise.matrix object
+#' sampleBGN
+#'
+#' # Run the function
+#' SAT <- singleSat(sampleBGN)
+#'
+#' # View the results
+#' SAT
+#'
+#' # Now lets plot our results to see the dynamics of soundscape saturation by minute
+#' maxV <- max(unlist(SAT))
+#' minV <- min(unlist(SAT))
+#'
+#' plot(x = c(1, 3), y = c(minV, maxV), type = "n",
+#'      xlab = "Minute", ylab = "Soundscape Saturation (%)", xaxt = "n")
+#' lines(x = 1:3, SAT$left, col = "#1ECBE1", type = "b", pch = 16)
+#' axis(1, at = 1:3)
+#' lines(x = 1:3, SAT$right, col = "#E1341E", type = "b", pch = 16)
+#' legend("topright", legend = c("Left", "Right"), col = c("#1ECBE1", "#E1341E"), lty = 1, pch = 16)
+#'
+#' # Second example: Using a tuneR Wave-class object
+#' # Lets produce an artificial audio with the tuneR package to demonstrate that the function can also read Wave-class objects (This is the same object used in the example of bgNoise!)
+#'
+#' library(tuneR)
 #'
 #' oldpar <- par(no.readonly = TRUE)
-#'
-#' ### Generating an artificial audio for the example
-#' ## For this example we'll generate a sweep in a noisy soundscape
-#' library(tuneR)
 #'
 #' # Define parameters for the artificial audio
 #' samprate <- 12050
@@ -82,6 +107,9 @@
 #' par(oldpar)
 #'
 #' \donttest{
+#' # Third example: Reading a file directly
+#' # Lets begin by loading an audio from the online Zenodo library and
+#' # read it directly with the function
 #' # Getting audiofile from the online Zenodo library
 #' dir <- paste(tempdir(), "forExample", sep = "/")
 #' dir.create(dir)
@@ -122,33 +150,37 @@ singleSat <- function(soundfile,
 
   halfWl <- round(wl / 2)
 
-  BGNPOW <- bgNoise.(
-    soundfile,
-    timeBin = timeBin,
-    targetSampRate = targetSampRate,
-    window = window,
-    overlap = overlap,
-    channel = channel,
-    dbThreshold = dbThreshold,
-    wl = wl,
-    histbreaks = histbreaks,
-    DCfix
-  )
-
-  nBins <- length(BGNPOW$timeBins)
-
-  if (BGNPOW$channel == "stereo") {
-    BGN <- cbind(BGNPOW$values$left$BGN, BGNPOW$values$right$BGN)
-    names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
+  BGNPOW <- if(is(soundfile, "noise.matrix")) {
+    soundfile
   } else {
-    BGN <- BGNPOW$values[[BGNPOW$channel]]$BGN
-    names <- paste0(rep(BGNPOW$channel, nBins), seq(nBins))
+    bgNoise.(
+      soundfile,
+      timeBin = timeBin,
+      targetSampRate = targetSampRate,
+      window = window,
+      overlap = overlap,
+      channel = channel,
+      dbThreshold = dbThreshold,
+      wl = wl,
+      histbreaks = histbreaks,
+      DCfix
+    )
   }
 
-  if (BGNPOW$channel == "stereo") {
-    POW <- cbind(BGNPOW$values$left$POW, BGNPOW$values$right$POW)
+  nBins <- length(BGNPOW@timeBins)
+
+  if (BGNPOW@channel == "stereo") {
+    BGN <- cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
+    names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
   } else {
-    POW <- BGNPOW$values[[BGNPOW$channel]]$POW
+    BGN <- BGNPOW@values[[BGNPOW@channel]]$BGN
+    names <- paste0(rep(BGNPOW@channel, nBins), seq(nBins))
+  }
+
+  if (BGNPOW@channel == "stereo") {
+    POW <- cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
+  } else {
+    POW <- BGNPOW@values[[BGNPOW@channel]]$POW
   }
 
   if (beta) {
@@ -167,13 +199,13 @@ singleSat <- function(soundfile,
 
   names(singSat) <- names
 
-  if (BGNPOW$channel == "stereo") {
+  if (BGNPOW@channel == "stereo") {
     return(list(
       left  = singSat[seq(nBins)],
       right = singSat[seq(nBins + 1, nBins * 2)]
     ))
   } else {
-    return(setNames(list(singSat), BGNPOW$channel))
+    return(setNames(list(singSat), BGNPOW@channel))
   }
 
 }

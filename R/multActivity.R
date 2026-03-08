@@ -20,13 +20,15 @@
 #'
 #' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values inputted as arguments into the function. The third (info) contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE.. The fourth object (values) contains a matrix with the the values of activity for each bin of each recording and the size of the bin in seconds. The fifth contains a list with errors that occurred with specific files during the function.
 #'
-#' @details We generate an activity matrix using Burivalova 2018 methodology. For each time bin of the recording we apply the following formula:
+#' @details In this function, we only generate activity matrices for an directory using Burivalova 2018 methodology. For each time bin of the recording we apply the following formula:
 #'
 #'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
 #'
 #'Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values. 1 = active and 0 = inactive.
 #'
 #' If `backup` is set to a valid directory, a file named `"SATBACKUP.RData"` is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to `satBackup()` (e.g., as `~path/SATBACKUP.RData`) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the `.RData` object.
+#'
+#' @seealso [soundSat()] and [soundMat()] to get saturation values. Also, check [satBackup()] if you are working with larger datasets and want some safety.
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
@@ -141,7 +143,6 @@ multActivity <- function(soundpath,
   argHandler(FUN = "multActivity", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
              window, overlap, histbreaks, DCfix, powthr, bgnthr, beta, backup)
 
-
   soundfiles <- list.files(soundpath, full.names = TRUE, recursive = TRUE)
   soundfiles <- soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
 
@@ -195,7 +196,7 @@ multActivity <- function(soundpath,
         e
     )
 
-    SATdf[["indexes"]][[soundfile]][["path"]] <- sPath
+    SATdf[["indexes"]][[soundfile]]@path <- sPath
 
     message(
       "\r(",
@@ -224,45 +225,45 @@ multActivity <- function(soundpath,
   indexes <- SATdf$indexes[!whichError]
 
   BGN <- do.call(cbind, sapply(indexes, function(x) {
-    if (x$channel == "stereo") {
-      cbind(x$values$left$BGN, x$values$right$BGN)
+    if (x@channel == "stereo") {
+      cbind(x@values$left$BGN, x@values$right$BGN)
     } else {
-      x$values[[x$channel]]$BGN
+      x@values[[x@channel]]$BGN
     }
   }))
 
   POW <- do.call(cbind, sapply(indexes, function(x) {
-    if (x$channel == "stereo") {
-      cbind(x$values$left$POW, x$values$right$POW)
+    if (x@channel == "stereo") {
+      cbind(x@values$left$POW, x@values$right$POW)
     } else {
-      x$values[[x$channel]]$POW
+      x@values[[x@channel]]$POW
     }
   }))
 
   INFO <- lapply(indexes, function(x) {
-    nBins <- length(x$timeBins)
-    if (x$channel == "stereo") {
+    nBins <- length(x@timeBins)
+    if (x@channel == "stereo") {
       list(
-        rep(x$timeBins, each = 2),
-        rep(x$sampRate, length(x$timeBins) * 2),
-        rep(1:length(x$timeBins), 2),
+        rep(x@timeBins, each = 2),
+        rep(x@sampRate, length(x@timeBins) * 2),
+        rep(1:length(x@timeBins), 2),
         rep(c("left", "right"), each = nBins)
       )
     } else {
       list(
-        x$timeBins,
-        rep(x$sampRate, length(x$timeBins)),
-        1:length(x$timeBins),
-        rep(x$channel, nBins)
+        x@timeBins,
+        rep(x@sampRate, length(x@timeBins)),
+        1:length(x@timeBins),
+        rep(x@channel, nBins)
       )
     }
   })
 
   paths <- unlist(sapply(indexes, function(x) {
-    if (x$channel == "stereo") {
-      rep(x$path, length(x$timeBins) * 2)
+    if (x@channel == "stereo") {
+      rep(x@path, length(x@timeBins) * 2)
     } else {
-      rep(x$path, length(x$timeBins))
+      rep(x@path, length(x@timeBins))
     }
   }))
 

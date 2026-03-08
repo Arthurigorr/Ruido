@@ -38,40 +38,24 @@
 #'
 #' @examples
 #' if (require("ggplot2")) {
-#' ### Generating an artificial audio for the example
-#' ## For this example we'll generate a sweep in a noisy soundscape
-#' library(tuneR)
 #' library(ggplot2)
+#' # We are going to load a sample noise.matrix object to demonstrate the basic usage of singleSat()
+#' # To understand about the origin of this noise.matrix, check: ?sampleBGN
+#' data("sampleBGN")
 #'
-#' # Define parameters for the artificial audio
-#' samprate <- 12050
-#' dur <- 60
-#' n <- samprate * dur
+#' # View the sample noise.matrix object
+#' sampleBGN
 #'
-#' # White noise
-#' set.seed(413)
-#' noise <- rnorm(n)
+#' # View the sample noise.matrix object
+#' sampleBGN
 #'
-#' # Linear fade-out envelope
-#' fade <- seq(1, 0, length.out = n)
+#' # Run the function
+#' sat <- activity(sampleBGN)
 #'
-#' # Apply fade
-#' signal <- noise * fade
-#'
-#' # Create Wave object
-#' wave <- Wave(
-#'   left = signal,
-#'   samp.rate = samprate,
-#'   bit = 16
-#' )
-#'
-#' # Running singleSat() on the artificial audio
-#' time <- 10
-#' sat <- activity(wave, timeBin = time)
-#'
-#' # Now we can plot the results
-#' satDim <- dim(sat)
-#' numericTime <- seq(0, dur, by = time)
+#' # Now we can plot the results for the left channel
+#' satLeft <- sat[,1:3]
+#' satDim <- dim(satLeft)
+#' numericTime <- seq(0, sum(sampleBGN@timeBins), by = sampleBGN@timeBins[1])
 #' labels <- paste0(numericTime[-length(numericTime)], "-", numericTime[-1], "s")
 #'
 #' satDF <- data.frame(BIN = rep(paste0("BIN", seq(satDim[2])), each = satDim[1]),
@@ -88,7 +72,7 @@
 #'   guides(fill = guide_legend(title = "Activity"))
 #'
 #' }
-  activity <- function(soundfile,
+activity <- function(soundfile,
                        channel = "stereo",
                        timeBin = 60,
                        dbThreshold = -90,
@@ -107,33 +91,37 @@
 
   halfWl <- round(wl / 2)
 
-  BGNPOW <- bgNoise.(
-    soundfile,
-    timeBin = timeBin,
-    targetSampRate = targetSampRate,
-    window = window,
-    overlap = overlap,
-    channel = channel,
-    dbThreshold = dbThreshold,
-    wl = wl,
-    histbreaks = histbreaks,
-    DCfix = DCfix
-  )
-
-  nBins <- length(BGNPOW$timeBins)
-
-  if (BGNPOW$channel == "stereo") {
-    BGN <- cbind(BGNPOW$values$left$BGN, BGNPOW$values$right$BGN)
-    names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
+  BGNPOW <- if(is(soundfile, "noise.matrix")) {
+    soundfile
   } else {
-    BGN <- BGNPOW$values[[BGNPOW$channel]]$BGN
-    names <- paste0(rep(BGNPOW$channel, nBins), seq(nBins))
+    bgNoise.(
+      soundfile,
+      timeBin = timeBin,
+      targetSampRate = targetSampRate,
+      window = window,
+      overlap = overlap,
+      channel = channel,
+      dbThreshold = dbThreshold,
+      wl = wl,
+      histbreaks = histbreaks,
+      DCfix
+    )
   }
 
-  if (BGNPOW$channel == "stereo") {
-    POW <- cbind(BGNPOW$values$left$POW, BGNPOW$values$right$POW)
+  nBins <- length(BGNPOW@timeBins)
+
+  if (BGNPOW@channel == "stereo") {
+    BGN <- cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
+    names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
   } else {
-    POW <- BGNPOW$values[[BGNPOW$channel]]$POW
+    BGN <- BGNPOW@values[[BGNPOW@channel]]$BGN
+    names <- paste0(rep(BGNPOW@channel, nBins), seq(nBins))
+  }
+
+  if (BGNPOW@channel == "stereo") {
+    POW <- cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
+  } else {
+    POW <- BGNPOW@values[[BGNPOW@channel]]$POW
   }
 
   if (beta) {
@@ -149,6 +137,7 @@
 
   }
 
+  # The purpose of the "* 1" is to convert the values from logical to numerical (0 = FALSE and 1 = TRUE)
   return(singSat * 1)
 
 }
