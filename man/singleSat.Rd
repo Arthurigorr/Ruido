@@ -142,7 +142,8 @@ par(oldpar)
 
 \donttest{
 # Third example: Reading a file directly
-# Lets begin by loading an audio from the online Zenodo library and read it directly with the function
+# Lets begin by loading an audio from the online Zenodo library and
+# read it directly with the function
 # Getting audiofile from the online Zenodo library
 dir <- paste(tempdir(), "forExample", sep = "/")
 dir.create(dir)
