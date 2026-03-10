@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' # It's impossible to create a functioning example since you would have to manually stop the process
+#' # It's impossible to demonstrate this function's intended use due to it's nature
 #' # However, here is how this function is used:
 #' ## This example will load an entire day of audios to your computer, so beware.
 #'
@@ -93,7 +93,7 @@ satBackup <- function(backup) {
           e
       )
 
-      SATdf[["indexes"]][[soundfile]][["path"]] <- sPath
+      SATdf[["indexes"]][[soundfile]]@path <- sPath
 
       message(
         "\r(",
