@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("multActivity can properly generate a matrix", {
 
   options(timeout = 500)
 
