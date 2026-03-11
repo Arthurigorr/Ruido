@@ -255,15 +255,15 @@ setMethod("show", signature(object = "noise.matrix"), function(object) {
 #' @importFrom methods new
 #' @importFrom utils head
 #'
-setMethod("plot", signature(x = "noise.matrix"), function(x, channel = c("stereo", "mono", "left", "right"), bin = 1, index = c("BGN", "POW"), nbreaks = 5,
+setMethod("plot", signature(x = "noise.matrix"), function(x, channel = NULL, bin = 1, index = c("BGN", "POW"), nbreaks = 5,
                                                           yunit = c("hz", "khz"), main = NULL, xlab = "dB", ylab = "Frequency", col = c("blue", "red"),
                                                           type = "p", draw0 = TRUE, box = TRUE, axes = TRUE, annotate = TRUE,
                                                           ...) {
 
-  if (is.null(channel)) {
-    channel <- x@channel
-  } else {
+  if (!is.null(channel)) {
     channel <- match.arg(channel, c("stereo", "mono", "left", "right"))
+  } else {
+    channel <- x@channel
   }
 
   if (is.null(main)) {
