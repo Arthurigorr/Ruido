@@ -15,20 +15,37 @@ test_that("bgNoise() reads tuneR Wave objects", {
 
   signal <- noise * fade
 
-  wave <- tuneR::Wave(
+  wave1 <- tuneR::Wave(
     left = signal,
     right = signal,
     samp.rate = samprate,
     bit = 16
   )
+  wave2 <- tuneR::Wave(
+    left = signal,
+    samp.rate = samprate,
+    bit = 16
+  )
 
-  bgn <- bgNoise(wave)
+  bgn1 <- bgNoise(wave1)
+  bgn2 <- bgNoise(wave2)
+  bgn3 <- bgNoise(wave1, timeBin = 10)
+  bgn4 <- bgNoise(wave1, timeBin = 30)
 
-  show(bgn)
+  show(bgn1)
+  show(bgn2)
+  show(bgn3)
+  show(bgn4)
 
-  plot(bgn, yunit = "khz")
+  plot(bgn1, yunit = "khz")
+  plot(bgn2)
+  plot(bgn3, index = "POW")
+  plot(bgn4, channel = "left")
 
-  expect_s4_class(bgn, "noise.matrix")
+  expect_s4_class(bgn1, "noise.matrix")
+  expect_s4_class(bgn2, "noise.matrix")
+  expect_s4_class(bgn3, "noise.matrix")
+  expect_s4_class(bgn4, "noise.matrix")
 
 })
 
