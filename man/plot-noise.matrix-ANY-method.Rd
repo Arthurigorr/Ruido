@@ -6,7 +6,7 @@
 \usage{
 \S4method{plot}{noise.matrix,ANY}(
   x,
-  channel = c("stereo", "mono", "left", "right"),
+  channel = NULL,
   bin = 1,
   index = c("BGN", "POW"),
   nbreaks = 5,
