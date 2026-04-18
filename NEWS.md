@@ -1,16 +1,15 @@
 # Ruido 1.0.3
 
-- Created `noise.matrix` object and methods for better function output handling and calling
-- Added argument `DCfix` to all functions to give the user the option to skip DC offset removal
-- Updated argument `timeBin` to accept `NULL` (#10)
-- Made `singleSat()` output consistent when working with both stereo and mono files (#11)
-- Improved error and normality handling with new internal functions:
+- Added `noise.matrix` object and associated methods to improve function output handling
+- Added two internal helper functions for error handling and normality testing:
   - `argHandler()`
   - `normHandler()`
-- Moved all auxiliary functions to a single file
-- Added sample data for tests (sampleBGN)
+- Added the `DCfix` argument across all functions to allow users to optionally skip DC offset removal
+- Added sample dataset `sampleBGN` for testing
 - Added package `testhat` to package suggests
-- Overall functions improvement
+- Updated the `timeBin` argument to actually accept `NULL` (#10)
+- Updated `singleSat()` output to be consistent when working with both stereo and mono files (#11)
+- Moved all auxiliary functions to a single file
 
 # Ruido 1.0.2
 
