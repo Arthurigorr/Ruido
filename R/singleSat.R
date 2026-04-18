@@ -59,7 +59,9 @@
 #' legend("topright", legend = c("Left", "Right"), col = c("#1ECBE1", "#E1341E"), lty = 1, pch = 16)
 #'
 #' # Second example: Using a tuneR Wave-class object
-#' # Lets produce an artificial audio with the tuneR package to demonstrate that the function can also read Wave-class objects (This is the same object used in the example of bgNoise!)
+#' # Lets produce an artificial audio with the tuneR package to demonstrate that
+#' # the function can also read Wave-class objects (This is the same object used in
+#' # the example of bgNoise!)
 #'
 #' library(tuneR)
 #'
