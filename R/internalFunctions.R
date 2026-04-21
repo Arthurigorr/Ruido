@@ -99,7 +99,6 @@ processChannel.ACI <- function(channelData,
                                channel,
                                timeBin,
                                j,
-                               weight,
                                wl,
                                overlap,
                                window,
@@ -136,7 +135,6 @@ processChannel.ACI <- function(channelData,
 
     ACIdf = data.frame(do.call(cbind, lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin[[1]])
-      spectS = spectS / max(spectS)
 
       specDim = dim(spectS)
       duration = length(spectS) / samp.rate
@@ -157,11 +155,7 @@ processChannel.ACI <- function(channelData,
           ACIvals[t] = D / sum(spectS[s, timeMin:timeMax])
         }
 
-        ACIvect[s] = if (weight) {
-          sum(ACIvals * (length(spectS[s, timeMin:timeMax]) / jump))
-        } else {
-          sum(ACIvals)
-        }
+        ACIvect[s] = sum(ACIvals)
 
       }
 
@@ -226,7 +220,7 @@ bgNoise. <- function(soundfile,
     audio <- tuneR::downsample(audio, targetSampRate)
   }
 
-  BGNexp <- processChannel(
+  BGNexp <- processChannel.BGN(
     audio,
     channel = channel,
     timeBin = timeBin,
@@ -297,19 +291,6 @@ argHandler <- function(FUN, ...) {
         call. = FALSE
       )
     }
-  }
-
-  #### weight ----
-  if ("weight" %in% names(args)) {
-    if (!is.logical(args$weight) || length(args$weight) != 1) {
-      stop(paste0(
-        'weight = ',
-        capture.output(dput(weight)),
-        "\nweight must be either TRUE or FALSE"
-      ),
-      call. = FALSE)
-    }
-
   }
 
   #### dbThreshold ----
@@ -581,6 +562,7 @@ argHandler <- function(FUN, ...) {
 ## This function deals with the normality tests
 
 normHandler <- function(normality) {
+
   if (normality == "shapiro.test") {
     answernorm <- readline(
       "
@@ -644,7 +626,38 @@ getSampleBins <- function(samples, samp.rate, binSize) {
 
 }
 
-# plotNOISE ----
+#' Plot noise.matrix objects
+#'
+#' @param x an `noise.matrix` object
+#' @param channel channel or channels to be ploted. By default, this set to `x@channel`, but can be changed to `left` or `right` if `x@channel` = `stereo`
+#' @param bin temporal bin to be plotted. Defaults to `1`
+#' @param index a character vector of length 1 or 2 with indexes to be plotted. Available indices are: `c("BGN", "POW")`, `"BGN"`, `"POW"` and `"ACI"`. Defaults to the indexes listed in `x@index`
+#' @param nbreaks amount of breaks of the y axis. Defaults to `5`
+#' @param yunit frequency unit to be used in plot. Available units are: `"hz"` and `"khz"`. Defaults to `"hz"`
+#' @param main title for the plot. Set two strings if you are plotting and stereo noise.matrix. If set to `NULL`, default title will be `left/right/mono channel`
+#' @param xlab label for the x-axis. Changes depending on `x@index`
+#' @param ylab label for the y-axis. Defaults to `"Frequency"`
+#' @param col plotting color for de indices. Defaults to `c("blue","red")`
+#' @param type desired plot type. For details see [base::plot]
+#' @param draw0 if a stripped line should be drawn at 0. Defaults to `TRUE`
+#' @param box if a box should be drawn around the plot. Defaults to `TRUE`
+#' @param axes if axes should be drawn. Defaults to `TRUE`
+#' @param annotate if bin information should be added to the plot. Defaults to `TRUE`
+#' @param ... further [graphical parameters] passed down to plot
+#'
+#' @details This is a method to quickly plot the results of [bgNoise]. This calls the helper function `plotBGN`, which is not meant to be used or seen by the user.
+#'
+#' @importFrom grDevices xy.coords
+#' @importFrom graphics abline
+#' @importFrom graphics axis
+#' @importFrom graphics mtext
+#' @importFrom graphics par
+#' @importFrom graphics plot.new
+#' @importFrom graphics plot.window
+#' @importFrom graphics plot.xy
+#' @importFrom methods new
+#' @importFrom utils head
+#'
 plotNOISE <- function(x,
                       channel,
                       bin,
