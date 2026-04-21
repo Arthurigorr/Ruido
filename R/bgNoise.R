@@ -120,7 +120,7 @@ bgNoise <- function(soundfile,
                     histbreaks = "FD",
                     DCfix = TRUE) {
 
-  argHandler(FUN = "bgNoise", channel, timeBin, dbThreshold, targetSampRate, wl,
+  argHandler(FUN = "bgNoise", soundfile, channel, timeBin, dbThreshold, targetSampRate, wl,
              window, overlap, histbreaks, DCfix)
 
   audio <- if (is.character(soundfile)) {
@@ -151,7 +151,7 @@ bgNoise <- function(soundfile,
     audio <- tuneR::downsample(audio, targetSampRate)
   }
 
-  BGNexp <- processChannel(
+  BGNexp <- processChannel.BGN(
       audio,
       channel = channel,
       timeBin = timeBin,
