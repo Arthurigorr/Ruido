@@ -16,16 +16,19 @@
 #'
 #' @returns This function returns a [noise.matrix-class] object
 #'
-#' @details Background Noise (`BGN`) is an acoustic metric that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It was developed by Towsey 2017 using the Lamel et al 1981 algorithm.
-#' The metric is calculated by taking the modal value of intensity values in temporal bin c in frequency window f of a recording:
+#' @details Background Noise (`BGN`) is an acoustic metric that estimates the dominant baseline level of acoustic energy within a frequency window and time bin. It was described by Towsey (2017) based on the approach of Lamel et al. (1981).
 #'
-#'\deqn{BGN_{f} = mode(dB_{cf})}
+#' For each frequency window \eqn{f} and time bin \eqn{c}, `BGN` is defined as the modal value of the intensity distribution (in dB), representing the most frequently occurring sound level:
 #'
-#'Soundscape Power represents a measure of signal-to-noise ratio. It measures the relation of BGN to the loudest intensities in temporal bin c in frequency window f:
+#' \deqn{BGN_f = \mathrm{mode}(dB_{c,f})}
 #'
-#'\deqn{POW_{f} = max(dB_{cf}) - BGN_{cf}}
+#' This value approximates the continuous background component of the soundscape, filtering out transient acoustic events such as bird calls or other short-duration signals.
 #'
-#' This mean we'll have a value of BGN and POW to each frequency window of a recording.
+#' Soundscape Power (`POW`) quantifies the contrast between this baseline level and the strongest acoustic events within the same frequency window and time bin. It is defined as:
+#'
+#' \deqn{POW_f = \max(dB_{c,f}) - BGN_f}
+#'
+#' where \eqn{\max(dB_{c,f})} is the maximum intensity observed. `POW` can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
 #'
 #' @references
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
