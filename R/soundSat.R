@@ -24,20 +24,25 @@
 #'
 #' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
 #'
-#' @details Soundscape Saturation (`SAT`) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2018 as an index to test the acoustic niche hypothesis.
-#' To calculate this function, first we need to generate an activity matrix for each time bin of your recording with the following formula:
+#' @details  Soundscape Saturation (`SAT`) quantifies the proportion of frequency bins that are acoustically active within a given time bin. It wasproposed by Burivalova et al. (2018) as a metric to evaluate the acoustic niche hypothesis.
 #'
-#'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
+#' For each time bin \eqn{m}, an activity matrix \eqn{a_{m,f}} is first constructed across frequency bins \eqn{f}. A frequency bin is considered active if either its background level (`BGN`) or its soundscape power (`POW`) exceeds a defined threshold:
 #'
-#'Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values.
-#'Since we define a interval for both the threshold, this means that an activity matrix will be generated for each bin of each recording.
-#'For each combination of threshold a SAT measure will be taken with the following formula:
+#' \deqn{a_{m,f} = \begin{cases} 1, & \text{if } BGN_{m,f} > \theta_1 \ \text{ or } POW_{m,f} > \theta_2 \\ 0, & \text{otherwise} \end{cases}}
 #'
-#'\deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
+#' where \eqn{\theta} is a user-defined threshold applied uniformly to both `BGN` and `POW`.
 #'
-#'After these equations are done, we check every threshold combination for normality and pick the combination that yields the most normal distribution of saturation values.
+#' Soundscape saturation for time bin \eqn{m} is then calculated as the proportion of active frequency bins:
 #'
-#' If `backup` is set to a valid directory, a file named `"SATBACKUP.RData"` is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to [satBackup()] (e.g., as `~path/SATBACKUP.RData`) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the `.RData` object.
+#' \deqn{S_m = \frac{\sum_{f = 1}^{N} a_{m,f}}{N}}
+#'
+#' where \eqn{N} is the total number of frequency bins. Higher values of `SAT` indicate a greater fraction of the frequency spectrum being occupied by acoustic activity.
+#'
+#' After computing \eqn{S_m}, the function evaluates all tested threshold values and selects the one that yields the most normally distributed set of saturation values across time bins. Normality is assessed to identify a threshold that best stabilizes the distribution of `SAT`.
+#'
+#' If `backup` is set to a valid directory, a file named `"SATBACKUP.RData"` is automatically saved after every batch of five processed files. This file stores the current processing state and allows interrupted runs (e.g., due to manual termination, session crashes, or system shutdowns) to be resumed using [satBackup()].
+#'
+#' To resume processing, pass the saved file (e.g., `"path/SATBACKUP.RData"`) to [satBackup()]. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved `.RData` object.
 #'
 #' @seealso [soundMat()] to get saturation for ALL thresholds and [multActivity()] to get only activity values. Also, check [satBackup()] if you are working with bigger datasets.
 #'
@@ -112,7 +117,7 @@ soundSat <- function(soundpath,
                      backup = NULL) {
 
   argHandler(FUN = "soundSat", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
-             window, overlap, histbreaks, DCfix, powthr, bgnthr, beta, backup)
+             window, overlap, histbreaks, DCfix, powthr, bgnthr, normality, beta, backup)
 
   normality <- normHandler(normality)
 

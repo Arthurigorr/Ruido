@@ -17,18 +17,21 @@
 #'
 #' @export
 #' @returns A list containing the saturation values for all time bins of the inputted file
-#' @details  Soundscape Saturation (`SAT`) is a measure of the proportion of frequency bins that are acoustically active in a determined window of time. It was developed by Burivalova et al. 2018 as an index to test the acoustic niche hypothesis.
-#' To calculate this function, first we need to generate an activity matrix for each time bin of your recording with the following formula:
+#' @details Soundscape Saturation (`SAT`) quantifies the proportion of frequency bins that are acoustically active within a given time bin. It wasproposed by Burivalova et al. (2018) as a metric to evaluate the acoustic niche hypothesis.
 #'
-#'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
+#' For each time bin \eqn{m}, an activity matrix \eqn{a_{m,f}} is first constructed across frequency bins \eqn{f}. A frequency bin is considered active if either its background level (`BGN`) or its soundscape power (`POW`) exceeds a defined threshold:
 #'
-#'Where \eqn{\theta_{1}} is the threshold of BGN values and \eqn{\theta_{2}} is a threshold of dB values.
-#'Since we define a single threshold for both in this function, we don't have to worry about generating a saturation value for many different combinations.
-#'For the selected threshold a soundscape saturation measure will be taken with the following formula:
+#' \deqn{a_{m,f} = \begin{cases} 1, & \text{if } BGN_{m,f} > \theta_1 \ \text{ or } POW_{m,f} > \theta_2 \\ 0, & \text{otherwise} \end{cases}}
 #'
-#'\deqn{S_{m} = \frac{\sum_{f = 1}^N a_{mf}}{N}}
+#' where \eqn{\theta} is a user-defined threshold applied uniformly to both `BGN` and `POW`.
 #'
-#' @seealso [soundSat()] and [soundMat()] to work with multiple audio files and [activity()] to get only the activity matrix
+#' Soundscape saturation for time bin \eqn{m} is then calculated as the proportion of active frequency bins:
+#'
+#' \deqn{S_m = \frac{\sum_{f = 1}^{N} a_{m,f}}{N}}
+#'
+#' where \eqn{N} is the total number of frequency bins. Higher values of `SAT` indicate a greater fraction of the frequency spectrum being occupied by acoustic activity.
+#'
+#' @seealso [soundSat()] and [soundMat()] to work with multiple audio files and [activity()] to get only the activity matrix.
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
@@ -147,7 +150,7 @@ singleSat <- function(soundfile,
                       bgnthr = 0.8,
                       beta = TRUE) {
 
-  argHandler(FUN = "singleSat", channel, timeBin, dbThreshold, targetSampRate, wl,
+  argHandler(FUN = "singleSat", soundfile, channel, timeBin, dbThreshold, targetSampRate, wl,
              window, overlap, histbreaks, DCfix, powthr, bgnthr, beta)
 
   halfWl <- round(wl / 2)

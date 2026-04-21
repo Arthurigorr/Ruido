@@ -21,9 +21,9 @@
 #'
 #' @details To calculate the activity matrix, we use the methodology proposed by Burivalova 2018. We begin by applying the following formula to each time bin of the recording:
 #'
-#'\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
+#' \deqn{a_{m,f} = \begin{cases} 1, & \text{if } BGN_{m,f} > \theta_1 \ \text{ or } POW_{m,f} > \theta_2 \\ 0, & \text{otherwise} \end{cases}}
 #'
-#'Where \eqn{\theta_{1}} equals the threshold of BGN values and \eqn{\theta_{2}} equals the threshold of dB values. We set 1 to active and 0 to inactive frequency windows.
+#' where \eqn{\theta} is a user-defined threshold applied uniformly to both `BGN` and `POW`. We set 1 to active and 0 to inactive frequency windows.
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
@@ -83,7 +83,7 @@ activity <- function(soundfile,
                        bgnthr = 0.8,
                        beta = TRUE) {
 
-    argHandler(FUN = "activity", channel, timeBin, dbThreshold, targetSampRate, wl,
+    argHandler(FUN = "activity", soundfile, channel, timeBin, dbThreshold, targetSampRate, wl,
                window, overlap, histbreaks, DCfix, powthr, bgnthr, beta)
 
   halfWl <- round(wl / 2)
