@@ -61,8 +61,6 @@ Get the Soundscape Saturation matrix with all threshold combinations instead of 
 }
 \details{
 Check \code{\link[=soundSat]{soundSat()}} to see how the indices are calculated.
-
-If \code{backup} is set to a valid directory, a file named \code{"SATBACKUP.RData"} is saved after every batch of five processed files. If the function execution is interrupted (e.g., manual termination, an R session crash, or a system shutdown), this backup file can be passed to \code{satBackup()} (e.g., as \code{~path/SATBACKUP.RData}) to resume the original process. Once a backup is created, all arguments and file paths must remain unchanged, unless they are manually modified within the \code{.RData} object.
 }
 \examples{
 \donttest{

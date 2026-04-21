@@ -46,16 +46,19 @@ This function returns a \linkS4class{noise.matrix} object
 Calculate the Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
 }
 \details{
-Background Noise (\code{BGN}) is an acoustic metric that measures the most common continuous baseline level of acoustic energy in a frequency window and in a time bin. It was developed by Towsey 2017 using the Lamel et al 1981 algorithm.
-The metric is calculated by taking the modal value of intensity values in temporal bin c in frequency window f of a recording:
+Background Noise (\code{BGN}) is an acoustic metric that estimates the dominant baseline level of acoustic energy within a frequency window and time bin. It was described by Towsey (2017) based on the approach of Lamel et al. (1981).
 
-\deqn{BGN_{f} = mode(dB_{cf})}
+For each frequency window \eqn{f} and time bin \eqn{c}, \code{BGN} is defined as the modal value of the intensity distribution (in dB), representing the most frequently occurring sound level:
 
-Soundscape Power represents a measure of signal-to-noise ratio. It measures the relation of BGN to the loudest intensities in temporal bin c in frequency window f:
+\deqn{BGN_f = \mathrm{mode}(dB_{c,f})}
 
-\deqn{POW_{f} = max(dB_{cf}) - BGN_{cf}}
+This value approximates the continuous background component of the soundscape, filtering out transient acoustic events such as bird calls or other short-duration signals.
 
-This mean we'll have a value of BGN and POW to each frequency window of a recording.
+Soundscape Power (\code{POW}) quantifies the contrast between this baseline level and the strongest acoustic events within the same frequency window and time bin. It is defined as:
+
+\deqn{POW_f = \max(dB_{c,f}) - BGN_f}
+
+where \eqn{\max(dB_{c,f})} is the maximum intensity observed. \code{POW} can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
 }
 \examples{
 ### For our main example we'll create an artificial audio with

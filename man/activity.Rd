@@ -57,9 +57,9 @@ Calculate the Acoustic Activity Matrix using the methodology proposed in Burival
 \details{
 To calculate the activity matrix, we use the methodology proposed by Burivalova 2018. We begin by applying the following formula to each time bin of the recording:
 
-\deqn{a_{mf} = 1\  if (BGN_{mf} > \theta_{1})\  or\  (POW_{mf} > \theta_{2});\  otherwise,\  a_{mf} = 0,}
+\deqn{a_{m,f} = \begin{cases} 1, & \text{if } BGN_{m,f} > \theta_1 \ \text{ or } POW_{m,f} > \theta_2 \\ 0, & \text{otherwise} \end{cases}}
 
-Where \eqn{\theta_{1}} equals the threshold of BGN values and \eqn{\theta_{2}} equals the threshold of dB values. We set 1 to active and 0 to inactive frequency windows.
+where \eqn{\theta} is a user-defined threshold applied uniformly to both \code{BGN} and \code{POW}. We set 1 to active and 0 to inactive frequency windows.
 }
 \examples{
 if (require("ggplot2")) {
