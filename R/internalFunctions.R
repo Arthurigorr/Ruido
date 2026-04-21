@@ -1,17 +1,18 @@
-# processChannel ----------------------------------------------------------
-## This function handles the calculation of the BGN and POW index.
-## It's called by bgNoise and bgNoise.
+# processChannel.BGN ----------------------------------------------------------
+## This version of processChannel handles the calculation of the BGN and POW index.
+## This is called by bgNoise and bgNoise.
+## This should not be seen or used by the user, as it is only intended for internal use by other functions.
 
-processChannel <- function(channelData,
-                           channel,
-                           timeBin,
-                           wl,
-                           overlap,
-                           dbThreshold,
-                           window,
-                           histbreaks,
-                           DCfix,
-                           noiseOBJ) {
+processChannel.BGN <- function(channelData,
+                               channel,
+                               timeBin,
+                               wl,
+                               overlap,
+                               dbThreshold,
+                               window,
+                               histbreaks,
+                               DCfix,
+                               noiseOBJ) {
   samp.rate <- channelData@samp.rate
 
   allSamples <- if (is.null(timeBin)) {
@@ -85,6 +86,95 @@ processChannel <- function(channelData,
 
   })
 
+  noiseOBJ@index <- c("BGN", "POW")
+  noiseOBJ@timeBins <- setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
+  noiseOBJ@sampRate <- samp.rate
+  noiseOBJ@channel <- channel
+
+  return(noiseOBJ)
+
+}
+
+processChannel.ACI <- function(channelData,
+                               channel,
+                               timeBin,
+                               j,
+                               weight,
+                               wl,
+                               overlap,
+                               window,
+                               noiseOBJ) {
+  samp.rate <- channelData@samp.rate
+
+  allSamples <- if (is.null(timeBin)) {
+    data.frame(b = 1, e = length(channelData))
+  } else {
+    getSampleBins(length(channelData), samp.rate, timeBin)
+  }
+
+  frameBin <- nrow(allSamples)
+
+  channelData <- switch(
+    channel,
+    "stereo" = list("left" = channelData@left, "right" = channelData@right),
+    "mono" = list(mono = channelData@left),
+    setNames(list(slot(
+      channelData, channel
+    )), channel)
+  )
+
+  noiseOBJ@values <- lapply(channelData, function(x) {
+    tempHolder <- apply(allSamples, 1, function(y) {
+      list(signal::specgram(
+        x = x[y[1]:y[2]],
+        n = wl,
+        Fs = samp.rate,
+        window = window,
+        overlap = overlap
+      )$S)
+    })
+
+    ACIdf = data.frame(do.call(cbind, lapply(tempHolder, function(singleBin) {
+      spectS = abs(singleBin[[1]])
+      spectS = spectS / max(spectS)
+
+      specDim = dim(spectS)
+      duration = length(spectS) / samp.rate
+
+      jump = as.integer(j / (duration / specDim[2]))
+      forJ = ceiling(specDim[2] / jump)
+
+      ACIvals = vector("numeric", forJ)
+      ACIvect = vector("numeric", specDim[1])
+
+      for (s in 1:specDim[1]) {
+        for (t in 1:forJ) {
+          timeMin = (t - 1) * jump + 1
+          timeMax = min(t * jump, specDim[2])
+
+          D = sum(abs(diff(spectS[s, timeMin:(timeMax)])))
+
+          ACIvals[t] = D / sum(spectS[s, timeMin:timeMax])
+        }
+
+        ACIvect[s] = if (weight) {
+          sum(ACIvals * (length(spectS[s, timeMin:timeMax]) / jump))
+        } else {
+          sum(ACIvals)
+        }
+
+      }
+
+      return(ACIvect)
+
+    })))
+
+    colnames(ACIdf) <- paste0("ACI", rep(1:frameBin))
+    return(list(ACI = ACIdf))
+
+  })
+
+  noiseOBJ@index <- "ACI"
   noiseOBJ@timeBins <- setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
   noiseOBJ@sampRate <- samp.rate
   noiseOBJ@channel <- channel
@@ -137,17 +227,17 @@ bgNoise. <- function(soundfile,
   }
 
   BGNexp <- processChannel(
-      audio,
-      channel = channel,
-      timeBin = timeBin,
-      wl = wl,
-      overlap = overlap,
-      dbThreshold = dbThreshold,
-      window = window,
-      histbreaks = histbreaks,
-      DCfix = DCfix,
-      noiseOBJ = new("noise.matrix.internal")
-    )
+    audio,
+    channel = channel,
+    timeBin = timeBin,
+    wl = wl,
+    overlap = overlap,
+    dbThreshold = dbThreshold,
+    window = window,
+    histbreaks = histbreaks,
+    DCfix = DCfix,
+    noiseOBJ = new("noise.matrix.internal")
+  )
 
 }
 
@@ -157,102 +247,18 @@ bgNoise. <- function(soundfile,
 argHandler <- function(FUN, ...) {
   args <- list(...)
 
-  names(args) <- switch(
-    FUN,
-    "activity" = c(
-      "channel",
-      "timeBin",
-      "dbThreshold",
-      "targetSampRate",
-      "wl",
-      "window",
-      "overlap",
-      "histbreaks",
-      "DCfix",
-      "powthr",
-      "bgnthr",
-      "beta"
-    ),
-    "bgNoise" = c(
-      "channel",
-      "timeBin",
-      "dbThreshold",
-      "targetSampRate",
-      "wl",
-      "window",
-      "overlap",
-      "histbreaks",
-      "DCfix"
-    ),
-    "multActivity" = c(
-      "soundpath",
-      "channel",
-      "timeBin",
-      "dbThreshold",
-      "targetSampRate",
-      "wl",
-      "window",
-      "overlap",
-      "histbreaks",
-      "DCfix",
-      "powthr",
-      "bgnthr",
-      "beta",
-      "backup"
-    ),
-    "singleSat" = c(
-      "channel",
-      "timeBin",
-      "dbThreshold",
-      "targetSampRate",
-      "wl",
-      "window",
-      "overlap",
-      "histbreaks",
-      "DCfix",
-      "powthr",
-      "bgnthr",
-      "beta"
-    ),
-    "soundMat" = c(
-      "soundpath",
-      "channel",
-      "timeBin",
-      "dbThreshold",
-      "targetSampRate",
-      "wl",
-      "window",
-      "overlap",
-      "histbreaks",
-      "DCfix",
-      "powthr",
-      "bgnthr",
-      "beta",
-      "backup"
-    ),
-    "soundSat" = c(
-      "soundpath",
-      "channel",
-      "timeBin",
-      "dbThreshold",
-      "targetSampRate",
-      "wl",
-      "window",
-      "overlap",
-      "histbreaks",
-      "DCfix",
-      "powthr",
-      "bgnthr",
-      "beta",
-      "backup"
-    )
-  )
+  gatherFun <- get(FUN)
+  expectedArgs <- names(formals(gatherFun))
 
+  names(args) <- expectedArgs
+
+  #### soundpath ----
   if ("soundpath" %in% names(args)) {
     if (all(!dir.exists(args$soundpath)))
       stop("all provided soundpaths must be valid")
   }
 
+  #### channel ----
   if (length(args$channel) != 1 ||
       !(args$channel %in% c("left", "right", "stereo", "mono")))
     stop(
@@ -263,6 +269,7 @@ argHandler <- function(FUN, ...) {
       )
     )
 
+  #### timeBin ----
   if (!is.null(args$timeBin) &&
       (!is.numeric(args$timeBin) ||
        length(args$timeBin) != 1 || args$timeBin < 0)) {
@@ -276,21 +283,54 @@ argHandler <- function(FUN, ...) {
     )
   }
 
-  if (!is.null(args$dbThreshold) &&
-      (
-        !is.numeric(args$dbThreshold) ||
-        length(args$dbThreshold) != 1 || args$dbThreshold >= 0
-      )) {
-    stop(
-      paste0(
-        'dbThreshold = ',
-        capture.output(dput(args$dbThreshold)),
-        '\ndbThreshold must be a single negative number'
-      ),
-      call. = FALSE
-    )
+  #### j ----
+  if ("j" %in% names(args)) {
+    if (!is.null(args$j) &&
+        (!is.numeric(args$j) ||
+         length(args$j) != 1 || args$j < 0)) {
+      stop(
+        paste0(
+          'j = ',
+          capture.output(dput(args$j)),
+          '\nj must be NULL or a single single non-negative number'
+        ),
+        call. = FALSE
+      )
+    }
   }
 
+  #### weight ----
+  if ("weight" %in% names(args)) {
+    if (!is.logical(args$weight) || length(args$weight) != 1) {
+      stop(paste0(
+        'weight = ',
+        capture.output(dput(weight)),
+        "\nweight must be either TRUE or FALSE"
+      ),
+      call. = FALSE)
+    }
+
+  }
+
+  #### dbThreshold ----
+  if ("dbThreshold" %in% names(args)) {
+    if (!is.null(args$dbThreshold) &&
+        (
+          !is.numeric(args$dbThreshold) ||
+          length(args$dbThreshold) != 1 || args$dbThreshold >= 0
+        )) {
+      stop(
+        paste0(
+          'dbThreshold = ',
+          capture.output(dput(args$dbThreshold)),
+          '\ndbThreshold must be a single negative number'
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  #### targetSampRate ----
   if (!is.null(args$targetSampRate) &&
       (
         !is.numeric(args$targetSampRate) ||
@@ -307,6 +347,7 @@ argHandler <- function(FUN, ...) {
     )
   }
 
+  #### wl ----
   if (!is.numeric(args$wl) || length(args$wl) != 1 || args$wl < 0)
     stop(
       paste0(
@@ -317,6 +358,7 @@ argHandler <- function(FUN, ...) {
       call. = FALSE
     )
 
+  #### window ----
   if (!is.numeric(args$window) || length(args$window) != args$wl) {
     stop(
       paste0(
@@ -326,6 +368,7 @@ argHandler <- function(FUN, ...) {
     )
   }
 
+  #### overlap ----
   if (!is.numeric(args$overlap) ||
       length(args$overlap) != 1 || args$overlap < 0)
     stop(
@@ -337,27 +380,34 @@ argHandler <- function(FUN, ...) {
       call. = FALSE
     )
 
-  if (length(args$histbreaks) != 1 ||
-      !is.numeric(args$histbreaks) &&
-      !(args$histbreaks %in% c("FD", "Sturges", "scott")))
-    stop(
-      paste0(
-        'histbreaks = ',
-        capture.output(dput(args$histbreaks)),
-        "\nhistbreaks must be 'FD', 'Sturges', 'scott' or a single non-negative number"
-      ),
-      call. = FALSE
-    )
-
-  if (length(args$DCfix) != 1 || !is.logical(args$DCfix)) {
-    stop(paste0(
-      'DCfix = ',
-      capture.output(dput(args$DCfix)),
-      "\nDCfix must be either TRUE or FALSE"
-    ),
-    call. = FALSE)
+  #### histbreaks ----
+  if ("histbreaks" %in% names(args)) {
+    if (length(args$histbreaks) != 1 ||
+        !is.numeric(args$histbreaks) &&
+        !(args$histbreaks %in% c("FD", "Sturges", "scott")))
+      stop(
+        paste0(
+          'histbreaks = ',
+          capture.output(dput(args$histbreaks)),
+          "\nhistbreaks must be 'FD', 'Sturges', 'scott' or a single non-negative number"
+        ),
+        call. = FALSE
+      )
   }
 
+  #### DCfix ----
+  if ("DCfix" %in% names(args)) {
+    if (length(args$DCfix) != 1 || !is.logical(args$DCfix)) {
+      stop(paste0(
+        'DCfix = ',
+        capture.output(dput(args$DCfix)),
+        "\nDCfix must be either TRUE or FALSE"
+      ),
+      call. = FALSE)
+    }
+  }
+
+  #### powthr ----
   if ("powthr" %in% names(args)) {
     if (FUN %in% c("soundSat", "soundMat")) {
       if (!is.numeric(args$powthr))
@@ -427,6 +477,7 @@ argHandler <- function(FUN, ...) {
     }
   }
 
+  #### bgnthr ----
   if ("bgnthr" %in% names(args)) {
     if (FUN %in% c("soundSat", "soundMat")) {
       if (!is.numeric(args$bgnthr))
@@ -496,18 +547,20 @@ argHandler <- function(FUN, ...) {
     }
   }
 
+  #### beta ----
   if ("beta" %in% names(args)) {
     if (!is.logical(args$beta) || length(args$beta) != 1) {
       stop(paste0(
         'beta = ',
         capture.output(dput(args$beta)),
-        "\nDCfix must be either TRUE or FALSE"
+        "\nbeta must be either TRUE or FALSE"
       ),
       call. = FALSE)
     }
 
   }
 
+  #### backup ----
   if ("backup" %in% names(args)) {
     if (!is.null(args$backup) && !dir.exists(args$backup))
       stop(
@@ -591,45 +644,23 @@ getSampleBins <- function(samples, samp.rate, binSize) {
 
 }
 
-# plotBGN -----------------------------------------------------------------
-
-#' @title Helper function to plot `noise.matrix` objects
-#'
-#' @param x an `noise.matrix` object generated by [bgNoise]
-#' @param channel channel or channels to be ploted. By default, this set to `x@channel`, but can be changed to `left` or `right` if `x@channel` = `stereo`
-#' @param bin temporal bin to be plotted. Defaults to `1`
-#' @param index a character vector of length 1 or 2 with indeces to be plotted. Available indices are: BGN and POW. Defaults to `c("BGN", "POW)`
-#' @param nbreaks amount of breaks of the y axis. Defaults to `5`
-#' @param yunit frequency unit to be used in plot. Available units are: `"hz"` and `"khz"`. Defaults to `"hz"`
-#' @param main title for the plot. Set two strings if you are plotting and stereo noise.matrix. If set to `NULL`, default title will be `left/right/mono channel`
-#' @param xlab label for the x-axis. Defaults to `"dB"`
-#' @param ylab label for the y-axis. Defaults to `"Frequency"`
-#' @param col plotting color for de indices. Defaults to `c("blue","red")`
-#' @param type desired plot type. For details see [base::plot]
-#' @param draw0 if a stripped line should be drawn at 0. Defaults to `TRUE`
-#' @param box if a box should be drawn around the plot. Defaults to `TRUE`
-#' @param axes if axes should be drawn. Defaults to `TRUE`
-#' @param annotate if bin information should be added to the plot. Defaults to `TRUE`
-#' @param ... further [graphical parameters] passed down to plot
-#'
-#' @details This is a helper function called by `plot,Wave,missing-method`. This is not intended to be seen or used by the user!
-#'
-plotBGN <- function(x,
-                    channel,
-                    bin,
-                    index,
-                    nbreaks,
-                    yunit,
-                    main,
-                    xlab,
-                    ylab,
-                    col,
-                    type,
-                    draw0,
-                    box,
-                    axes,
-                    annotate,
-                    ...) {
+# plotNOISE ----
+plotNOISE <- function(x,
+                      channel,
+                      bin,
+                      index,
+                      nbreaks,
+                      yunit,
+                      main,
+                      xlab,
+                      ylab,
+                      col,
+                      type,
+                      draw0,
+                      box,
+                      axes,
+                      annotate,
+                      ...) {
   channels <- if (channel == "stereo") {
     c("left", "right")
   } else {
@@ -641,8 +672,7 @@ plotBGN <- function(x,
   sampleStep <- seq(1, sampRate, length.out = x@wl)
   roundAt <- floor(sampDivide / 1000) * 1000
 
-  if(yunit == "khz") {
-
+  if (yunit == "khz") {
     sampRate <- sampRate / 1000
     sampDivide <- sampDivide / 1000
     sampleStep <- sampleStep / 1000
@@ -717,7 +747,7 @@ plotBGN <- function(x,
 
     }
 
-    title <- if(length(main) == 1 && main == "channel") {
+    title <- if (length(main) == 1 && main == "channel") {
       paste(ch, "channel")
     } else {
       main[chLoop]
@@ -738,7 +768,8 @@ plotBGN <- function(x,
           "s | Channel: ",
           ch,
           " | Sampling Rate: ",
-          sampRate, ifelse(yunit == "khz", "kHz", "Hz"),
+          sampRate,
+          ifelse(yunit == "khz", "kHz", "Hz"),
           " | Window Length: ",
           x@wl
         ),
