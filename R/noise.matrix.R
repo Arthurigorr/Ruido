@@ -206,6 +206,8 @@ setMethod("show", signature(object = "noise.matrix"), function(object) {
 #' @importFrom methods new
 #' @importFrom utils head
 #'
+#' @export
+#'
 setMethod("plot", signature(x = "noise.matrix"), function(x,
                                                           channel = NULL,
                                                           bin = 1,
