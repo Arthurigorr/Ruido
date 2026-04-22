@@ -1,5 +1,5 @@
 Package: Ruido
-Title: Soundscape Background Noise, Power, and Saturation
+Title: Soundscape Spectral Metrics
 Version: 1.0.3
 Date: 2026-4-18
 Authors@R: c(
@@ -7,7 +7,7 @@ Authors@R: c(
     person(given = "Weslley Geremias dos", family = "Santos", email = "weslleygeremias@gmail.com", role = "aut"),
     person(given = "Lucas Rodriguez", family =  "Forti", email = "lucas.forti@ufersa.edu.br", role = "aut")
     )
-Description: Accessible and flexible implementation of three ecoacoustic indices that are less commonly available in existing R frameworks: Background Noise, Soundscape Power and Soundscape Saturation. The functions were design to accommodate a variety of sampling designs. Users can tailor calculations by specifying spectrogram time bin size, amplitude thresholds and normality tests. By simplifying computation and standardizing reproducible methods, the package aims to support ecoacoustics studies. For more details about the indices read Towsey (2017) <https://eprints.qut.edu.au/110634/> and Burivalova (2017) <doi:10.1111/cobi.12968>.
+Description: Accessible and flexible implementation of spectral ecoacoustic indices. The functions were design to accommodate a variety of sampling designs. Users can tailor calculations by specifying spectrogram time bin size, amplitude thresholds and normality tests. By simplifying computation and standardizing reproducible methods, the package aims to support ecoacoustics studies.
 Depends: R(>= 4.3.0)
 Imports: methods, tuneR, signal, nortest
 License: MIT + file LICENSE
