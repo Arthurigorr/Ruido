@@ -16,7 +16,7 @@ ACIspec(
 )
 }
 \arguments{
-\item{soundfile}{tuneR Wave object or path to a valid audio file}
+\item{soundfile}{wav package numeric matrix, tuneR package Wave object or path to a valid audio file}
 
 \item{channel}{channel where the metric values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}}
 
@@ -33,7 +33,7 @@ ACIspec(
 \item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 }
 \value{
-This function returns a \linkS4class{noise.matrix} object.
+This function returns a \link[=noise.matrix-class]{noise.matrix} object.
 }
 \description{
 Calculate the Acoustic Complexity Index values of a single audio using the methodology proposed in Pieretti, et al. 2011

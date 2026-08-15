@@ -21,7 +21,7 @@ activity(
 )
 }
 \arguments{
-\item{soundfile}{tuneR Wave object or path to a valid audio}
+\item{soundfile}{wav package numeric matrix, tuneR package Wave object or path to a valid audio file}
 
 \item{channel}{channel where the saturation values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 

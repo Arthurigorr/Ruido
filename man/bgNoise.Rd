@@ -18,7 +18,7 @@ bgNoise(
 )
 }
 \arguments{
-\item{soundfile}{tuneR Wave object or path to a valid audio file}
+\item{soundfile}{wav package numeric matrix, tuneR package Wave object or path to a valid audio file}
 
 \item{channel}{channel where the metric values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}}
 
@@ -40,7 +40,7 @@ bgNoise(
 \item{DCfix}{if the DC offset should be removed before the metrics are calculated. Defaults to \code{TRUE}}
 }
 \value{
-This function returns a \linkS4class{noise.matrix} object
+This function returns a \link[=noise.matrix-class]{noise.matrix} object
 }
 \description{
 Calculate the Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017

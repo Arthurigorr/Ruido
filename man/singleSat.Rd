@@ -21,7 +21,7 @@ singleSat(
 )
 }
 \arguments{
-\item{soundfile}{tuneR Wave object, Ruido noise.matrix object or path to a valid audio}
+\item{soundfile}{wav package numeric matrix, tuneR package Wave object, Ruido noise.matrix object or path to a valid audio}
 
 \item{channel}{channel where the background noise values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
