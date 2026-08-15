@@ -4,6 +4,7 @@
 ## This should not be seen or used by the user, as it is only intended for internal use by other functions.
 
 processChannel.BGN <- function(channelData,
+                               samp.rate,
                                channel,
                                timeBin,
                                wl,
@@ -12,25 +13,44 @@ processChannel.BGN <- function(channelData,
                                window,
                                histbreaks,
                                DCfix,
+                               wavPKG,
                                noiseOBJ) {
-  samp.rate <- channelData@samp.rate
+  if (wavPKG == "tuneR") {
+    allSamples <- if (is.null(timeBin)) {
+      data.frame(b = 1, e = length(channelData))
+    } else {
+      getSampleBins(length(channelData), samp.rate, timeBin)
+    }
 
-  allSamples <- if (is.null(timeBin)) {
-    data.frame(b = 1, e = length(channelData))
-  } else {
-    getSampleBins(length(channelData), samp.rate, timeBin)
+    frameBin <- nrow(allSamples)
+
+    channelData <- switch(
+      channel,
+      "stereo" = list("left" = channelData@left, "right" = channelData@right),
+      "mono" = list(mono = channelData@left),
+      setNames(list(slot(
+        channelData, channel
+      )), channel)
+    )
+  } else if (wavPKG == "wav") {
+    allSamples <- if (is.null(timeBin)) {
+      data.frame(b = 1, e = length(channelData[1, ]))
+    } else {
+      getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
+    }
+
+    frameBin <- nrow(allSamples)
+
+    channelData <- switch(
+      channel,
+      "stereo" = list("left" = channelData[1, ], "right" = channelData[2, ]),
+      "mono" = list(mono = channelData[1, ]),
+      setNames(list(slot(
+        channelData, channel
+      )), channel)
+    )
+
   }
-
-  frameBin <- nrow(allSamples)
-
-  channelData <- switch(
-    channel,
-    "stereo" = list("left" = channelData@left, "right" = channelData@right),
-    "mono" = list(mono = channelData@left),
-    setNames(list(slot(
-      channelData, channel
-    )), channel)
-  )
 
   noiseOBJ@values <- lapply(channelData, function(x) {
     if (DCfix) {
@@ -60,9 +80,17 @@ processChannel.BGN <- function(channelData,
         dbMax <- max(z)
         dbMin <- min(z)
 
-        num_bins <- ifelse(is.numeric(histbreaks), histbreaks, eval(parse(
-          text = paste0("nclass.", histbreaks, "(z)")
-        )))
+        num_bins <- if (is.numeric(histbreaks)) {
+          histbreaks
+        } else {
+          switch(
+            histbreaks,
+            "FD" = nclass.FD(z),
+            "Sturges" = nclass.Sturges(z),
+            "scott" = nclass.scott(z),
+            stop("Unknown histogram break method: ", histbreaks)
+          )
+        }
 
         modal_intensity <- dbMin + ((which.max(tabulate(
           findInterval(
@@ -96,31 +124,52 @@ processChannel.BGN <- function(channelData,
 }
 
 processChannel.ACI <- function(channelData,
+                               samp.rate,
                                channel,
                                timeBin,
                                j,
                                wl,
                                overlap,
                                window,
+                               wavPKG,
                                noiseOBJ) {
-  samp.rate <- channelData@samp.rate
 
-  allSamples <- if (is.null(timeBin)) {
-    data.frame(b = 1, e = length(channelData))
-  } else {
-    getSampleBins(length(channelData), samp.rate, timeBin)
+  if (wavPKG == "tuneR") {
+    allSamples <- if (is.null(timeBin)) {
+      data.frame(b = 1, e = length(channelData))
+    } else {
+      getSampleBins(length(channelData), samp.rate, timeBin)
+    }
+
+    frameBin <- nrow(allSamples)
+
+    channelData <- switch(
+      channel,
+      "stereo" = list("left" = channelData@left, "right" = channelData@right),
+      "mono" = list(mono = channelData@left),
+      setNames(list(slot(
+        channelData, channel
+      )), channel)
+    )
+  } else if (wavPKG == "wav") {
+    allSamples <- if (is.null(timeBin)) {
+      data.frame(b = 1, e = length(channelData[1, ]))
+    } else {
+      getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
+    }
+
+    frameBin <- nrow(allSamples)
+
+    channelData <- switch(
+      channel,
+      "stereo" = list("left" = channelData[1, ], "right" = channelData[2, ]),
+      "mono" = list(mono = channelData[1, ]),
+      setNames(list(slot(
+        channelData, channel
+      )), channel)
+    )
+
   }
-
-  frameBin <- nrow(allSamples)
-
-  channelData <- switch(
-    channel,
-    "stereo" = list("left" = channelData@left, "right" = channelData@right),
-    "mono" = list(mono = channelData@left),
-    setNames(list(slot(
-      channelData, channel
-    )), channel)
-  )
 
   noiseOBJ@values <- lapply(channelData, function(x) {
     tempHolder <- apply(allSamples, 1, function(y) {
@@ -192,36 +241,59 @@ bgNoise. <- function(soundfile,
                      overlap = ceiling(length(window) / 2),
                      histbreaks = "FD",
                      DCfix = TRUE) {
-  audio <- if (is.character(soundfile)) {
-    fileExt <- tolower(tools::file_ext(soundfile))
-    if (fileExt %in% c("mp3", "wav")) {
-      if (fileExt == "mp3") {
-        tuneR::readMP3(soundfile)
-      } else {
-        tuneR::readWave(soundfile)
+  audio = soundfile
+
+  if (is.character(audio)) {
+    if (tolower(tools::file_ext(soundfile)) == "wav") {
+      soundfile = wav::read_wav(soundfile)
+      samp.rate = attr(soundfile, "sample_rate")
+      wavPKG = "wav"
+
+      if (channel == "mono" && nrow(soundfile) > 1) {
+        soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
+        attr(soundfile, "sample_rate") = samp.rate
       }
+
+      if (channel == "stereo" && nrow(soundfile) == 1) {
+        message("Audio is not stereo, defaulting to left channel.")
+        channel = "mono"
+      }
+
     } else {
-      stop("The audio file must be in MP3 or WAV format.")
+      stop("The audio file must be in the WAV format.")
+    }
+  } else if (class(audio)[1] == "Wave") {
+    samp.rate = soundfile@samp.rate
+    wavPKG = "tuneR"
+    if (channel == "mono" && soundfile@stereo) {
+      soundfile = tuneR::mono(soundfile, which = "both")
+    }
+    if (channel == "stereo" && !soundfile@stereo) {
+      message("Audio is not stereo, defaulting to left channel.")
+      channel = "mono"
+    }
+    if (!is.null(targetSampRate)) {
+      soundfile <- tuneR::downsample(soundfile, targetSampRate)
     }
   } else {
-    soundfile
+    samp.rate = attr(soundfile, "sample_rate")
+    wavPKG = "wav"
+    if (channel == "mono" && nrow(soundfile) > 1) {
+      soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
+      attr(soundfile, "sample_rate") = samp.rate
+    }
+
+    if (channel == "stereo" && nrow(soundfile) == 1) {
+      message("Audio is not stereo, defaulting to left channel.")
+      channel = "mono"
+    }
   }
 
-  if (channel == "mono" && audio@stereo) {
-    audio <- tuneR::mono(audio, which = "both")
-  }
-
-  if (channel == "stereo" && !audio@stereo) {
-    message("Audio is not stereo, defaulting to left channel.")
-    channel <- "mono"
-  }
-
-  if (!is.null(targetSampRate)) {
-    audio <- tuneR::downsample(audio, targetSampRate)
-  }
+  rm(audio)
 
   BGNexp <- processChannel.BGN(
-    audio,
+    soundfile,
+    samp.rate,
     channel = channel,
     timeBin = timeBin,
     wl = wl,
@@ -230,6 +302,7 @@ bgNoise. <- function(soundfile,
     window = window,
     histbreaks = histbreaks,
     DCfix = DCfix,
+    wavPKG = wavPKG,
     noiseOBJ = new("noise.matrix.internal")
   )
 
@@ -248,8 +321,13 @@ argHandler <- function(FUN, ...) {
 
   #### soundpath ----
   if ("soundpath" %in% names(args)) {
-    if (all(!dir.exists(args$soundpath)))
-      stop("all provided soundpaths must be valid")
+    if (length(args$soundpath) == 1) {
+      if (!file.exists(args$soundpath))
+        stop("provided soundpath must be valid")
+    } else {
+      if (all(!dir.exists(args$soundpath)))
+        stop("all provided soundpaths must be valid")
+    }
   }
 
   #### channel ----
@@ -562,7 +640,6 @@ argHandler <- function(FUN, ...) {
 ## This function deals with the normality tests
 
 normHandler <- function(normality) {
-
   if (normality == "shapiro.test") {
     answernorm <- readline(
       "

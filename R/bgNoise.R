@@ -2,7 +2,7 @@
 #'
 #' @description Calculate the Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
 #'
-#' @param soundfile tuneR Wave object or path to a valid audio file
+#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a valid audio file
 #' @param channel channel where the metric values will be extract from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
@@ -39,6 +39,10 @@
 #'@importFrom tuneR readWave
 #'@importFrom tuneR readMP3
 #'@importFrom tuneR downsample
+#'@importFrom wav read_wav
+#'@importFrom grDevices nclass.FD
+#'@importFrom grDevices nclass.Sturges
+#'@importFrom grDevices nclass.scott
 #'
 #' @examples
 #' ### For our main example we'll create an artificial audio with
@@ -122,50 +126,84 @@ bgNoise <- function(soundfile,
                     overlap = ceiling(length(window) / 2),
                     histbreaks = "FD",
                     DCfix = TRUE) {
+  argHandler(
+    FUN = "bgNoise",
+    soundfile,
+    channel,
+    timeBin,
+    dbThreshold,
+    targetSampRate,
+    wl,
+    window,
+    overlap,
+    histbreaks,
+    DCfix
+  )
 
-  argHandler(FUN = "bgNoise", soundfile, channel, timeBin, dbThreshold, targetSampRate, wl,
-             window, overlap, histbreaks, DCfix)
+  audio = soundfile
 
-  audio <- if (is.character(soundfile)) {
-    fileExt <- tolower(tools::file_ext(soundfile))
-    if (fileExt %in% c("mp3", "wav")) {
-      if (fileExt == "mp3") {
-        tuneR::readMP3(soundfile)
-      } else {
-        tuneR::readWave(soundfile)
+  if (is.character(audio)) {
+    if (tolower(tools::file_ext(soundfile)) == "wav") {
+      soundfile = wav::read_wav(soundfile)
+      samp.rate = attr(soundfile, "sample_rate")
+      wavPKG = "wav"
+
+      if (channel == "mono" && nrow(soundfile) > 1) {
+        soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
+        attr(soundfile, "sample_rate") = samp.rate
       }
+
+      if (channel == "stereo" && nrow(soundfile) == 1) {
+        message("Audio is not stereo, defaulting to left channel.")
+        channel = "mono"
+      }
+
     } else {
-      stop("The audio file must be in MP3 or WAV format.")
+      stop("The audio file must be in the WAV format.")
+    }
+  } else if (class(audio)[1] == "Wave") {
+    samp.rate = soundfile@samp.rate
+    wavPKG = "tuneR"
+    if (channel == "mono" && soundfile@stereo) {
+      soundfile = tuneR::mono(soundfile, which = "both")
+    }
+    if (channel == "stereo" && !soundfile@stereo) {
+      message("Audio is not stereo, defaulting to left channel.")
+      channel = "mono"
+    }
+    if (!is.null(targetSampRate)) {
+      soundfile <- tuneR::downsample(soundfile, targetSampRate)
     }
   } else {
-    soundfile
+    samp.rate = attr(soundfile, "sample_rate")
+    wavPKG = "wav"
+    if (channel == "mono" && nrow(soundfile) > 1) {
+      soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
+      attr(soundfile, "sample_rate") = samp.rate
+    }
+
+    if (channel == "stereo" && nrow(soundfile) == 1) {
+      message("Audio is not stereo, defaulting to left channel.")
+      channel = "mono"
+    }
   }
 
-  if(channel == "mono" && audio@stereo) {
-    audio <- tuneR::mono(audio, which = "both")
-  }
-
-  if (channel == "stereo" && !audio@stereo) {
-    message("Audio is not stereo, defaulting to left channel.")
-    channel <- "mono"
-  }
-
-  if (!is.null(targetSampRate)) {
-    audio <- tuneR::downsample(audio, targetSampRate)
-  }
+  rm(audio)
 
   BGNexp <- processChannel.BGN(
-      audio,
-      channel = channel,
-      timeBin = timeBin,
-      wl = wl,
-      overlap = overlap,
-      dbThreshold = dbThreshold,
-      window = window,
-      histbreaks = histbreaks,
-      DCfix = DCfix,
-      noiseOBJ = new("noise.matrix")
-    )
+    soundfile,
+    samp.rate,
+    channel = channel,
+    timeBin = timeBin,
+    wl = wl,
+    overlap = overlap,
+    dbThreshold = dbThreshold,
+    window = window,
+    histbreaks = histbreaks,
+    DCfix = DCfix,
+    wavPKG = wavPKG,
+    noiseOBJ = new("noise.matrix")
+  )
 
   if (BGNexp@channel == "stereo") {
     BGNexp@wl <- nrow(BGNexp@values$left$BGN)
