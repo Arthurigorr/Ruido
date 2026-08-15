@@ -1,3 +1,5 @@
+# Ruido 1.1.0
+
 # Ruido 1.0.3
 
 - Added `noise.matrix` object and associated methods to improve function output handling
