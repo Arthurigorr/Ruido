@@ -194,7 +194,9 @@ soundMat <- function(soundpath,
   SATdf[["indexes"]] <- vector("list", nFiles)
 
   for (soundfile in 1:nFiles) {
-    gc()
+    # gc()
+    # I recently learned that R does garbage collection automatically, rendering this line unnecessary!
+    # Will keep gc() commented here if I change my mind in the future!
 
     sPath <- soundfiles[[soundfile]]
 
