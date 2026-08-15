@@ -2,9 +2,7 @@
 
 <img src="man/figures/ruidoIcon.png" alt="Icon of Ruido" align="right" height="300"/>
 
-[![CRANStatusBadge](https://www.r-pkg.org/badges/version-ago/Ruido)](https://cran.r-project.org/package=Ruido) ![packageDownloads](https://cranlogs.r-pkg.org/badges/grand-total/Ruido?color=blue)
-[![R-CMD-check](https://github.com/Arthurigorr/Ruido/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Arthurigorr/Ruido/actions/workflows/R-CMD-check.yaml)
-![lastGitCommit](https://img.shields.io/github/last-commit/Arthurigorr/Ruido) [![Codecov test coverage](https://codecov.io/gh/Arthurigorr/Ruido/graph/badge.svg)](https://app.codecov.io/gh/Arthurigorr/Ruido)
+[![CRANStatusBadge](https://www.r-pkg.org/badges/version-ago/Ruido)](https://cran.r-project.org/package=Ruido) ![packageDownloads](https://cranlogs.r-pkg.org/badges/grand-total/Ruido?color=blue) [![R-CMD-check](https://github.com/Arthurigorr/Ruido/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Arthurigorr/Ruido/actions/workflows/R-CMD-check.yaml) ![lastGitCommit](https://img.shields.io/github/last-commit/Arthurigorr/Ruido) [![Codecov test coverage](https://codecov.io/gh/Arthurigorr/Ruido/graph/badge.svg)](https://app.codecov.io/gh/Arthurigorr/Ruido)
 
 `Ruido` is an `R` package that aims to provide a simple and accessible framework for calculating spectral soundscape metrics that describes noise dynamics. It provides accessible tools for calculating less common, but ecologically meaningful soundscape metrics, helping researchers move beyond standard and classic indices.
 
@@ -15,12 +13,6 @@
 -   **Soundscape Saturation (SAT)**, following Burivalova et al. (2018)
 
 These metrics can be used to explore acoustic complexity, biotic activity, and environmental disturbance, making `Ruido` useful for ecological monitoring, bioacoustic surveys, or experimental soundscape studies.
-
-### References
-
--   Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. <https://doi.org/10.1111/cobi.12968>
--   Pieretti, N., Farina, A., & Morri, D. (2011). A new methodology to infer the singing activity of an avian community: The Acoustic Complexity Index (ACI). Ecological Indicators, 11(3), 868–873. <https://doi.org/10.1016/j.ecolind.2010.11.005>
--   Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. <https://eprints.qut.edu.au/110634/>
 
 ## Installation
 
@@ -209,3 +201,9 @@ plotList[[1]] + plotList[[2]] +
 ```
 
 <img src="man/figures/ACTIVITY.png" align="center"/>
+
+## References
+
+-   Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. <https://doi.org/10.1111/cobi.12968>
+-   Pieretti, N., Farina, A., & Morri, D. (2011). A new methodology to infer the singing activity of an avian community: The Acoustic Complexity Index (ACI). Ecological Indicators, 11(3), 868–873. <https://doi.org/10.1016/j.ecolind.2010.11.005>
+-   Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. <https://eprints.qut.edu.au/110634/>
