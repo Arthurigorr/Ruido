@@ -98,66 +98,52 @@ ACIspec = function(soundfile,
     j <- if (is.null(j)) timeBin else min(j, timeBin)
   }
 
-  audio = soundfile
+  audio = typeof(soundfile)
 
-  if (is.character(audio)) {
+  if (audio == "character") {
     if (tolower(tools::file_ext(soundfile)) == "wav") {
       soundfile = wav::read_wav(soundfile)
-      samp.rate = attr(soundfile, "sample_rate")
-      wavPKG = "wav"
-
-      if (channel == "mono" && nrow(soundfile) > 1) {
-        soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
-        attr(soundfile, "sample_rate") = samp.rate
-      }
-
-      if (channel == "stereo" && nrow(soundfile) == 1) {
-        message("Audio is not stereo, defaulting to left channel.")
-        channel = "mono"
-      }
-
     } else {
       stop("The audio file must be in the WAV format.")
     }
-  } else if (class(audio)[1] == "Wave") {
-    samp.rate = soundfile@samp.rate
-    wavPKG = "tuneR"
-    if (channel == "mono" && soundfile@stereo) {
-      soundfile = tuneR::mono(soundfile, which = "both")
+  } else if (audio == "S4") {
+    tempSamp = soundfile@samp.rate
+    if (soundfile@stereo) {
+      soundfile = matrix(c(soundfile@left, soundfile@right),
+                         nrow = 2,
+                         byrow = TRUE)
+    } else {
+      soundfile = matrix(soundfile@left)
     }
-    if (channel == "stereo" && !soundfile@stereo) {
-      message("Audio is not stereo, defaulting to left channel.")
-      channel = "mono"
-    }
-    if (!is.null(targetSampRate)) {
-      soundfile <- tuneR::downsample(soundfile, targetSampRate)
-    }
-  } else {
-    samp.rate = attr(soundfile, "sample_rate")
-    wavPKG = "wav"
-    if (channel == "mono" && nrow(soundfile) > 1) {
-      soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
-      attr(soundfile, "sample_rate") = samp.rate
-    }
-
-    if (channel == "stereo" && nrow(soundfile) == 1) {
-      message("Audio is not stereo, defaulting to left channel.")
-      channel = "mono"
-    }
+    attr(soundfile, "sample_rate") = tempSamp
   }
 
-  rm(audio)
+  savedAttr = attributes(soundfile)
+
+  if (channel == "mono" && savedAttr$dim[1] > 1) {
+    soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
+    savedAttr$dim = dim(soundfile)
+  }
+  if (channel == "stereo" && nrow(soundfile) == 1) {
+    message("Audio is not stereo, defaulting to left channel.")
+    channel = "mono"
+  }
+  if (!is.null(targetSampRate)) {
+    audioLen = length(soundfile[1, ])
+    test = soundfile[1:savedAttr$dim[1], seq(1, audioLen, length = targetSampRate * audioLen /
+                                               savedAttr$sample_rate)]
+    attr(soundfile, "sample_rate") = targetSampRate
+  }
 
   ACIexp <- processChannel.ACI(
     soundfile,
-    samp.rate = samp.rate,
+    samp.rate = savedAttr$sample_rate,
     channel = channel,
     timeBin = timeBin,
     j = j,
     wl = wl,
     overlap = overlap,
     window = window,
-    wavPKG = wavPKG,
     noiseOBJ = new("noise.matrix")
   )
 

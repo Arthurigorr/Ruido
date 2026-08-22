@@ -177,12 +177,12 @@ multActivity <- function(soundpath,
   SATdf[["indexes"]] <- vector("list", nFiles)
 
   for (soundfile in 1:nFiles) {
-    gc()
+    ## gc()
 
     sPath <- soundfiles[[soundfile]]
 
     SATdf[["indexes"]][[soundfile]] <- tryCatch(
-      bgNoise.(
+      bgNoise..(
         sPath,
         timeBin = timeBin,
         targetSampRate = targetSampRate,

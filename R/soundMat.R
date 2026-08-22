@@ -201,7 +201,7 @@ soundMat <- function(soundpath,
     sPath <- soundfiles[[soundfile]]
 
     SATdf[["indexes"]][[soundfile]] <- tryCatch(
-      bgNoise.(
+      bgNoise..(
         sPath,
         timeBin = timeBin,
         targetSampRate = targetSampRate,

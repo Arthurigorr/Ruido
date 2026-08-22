@@ -72,12 +72,12 @@ satBackup <- function(backup) {
 
   } else {
     for (soundfile in concluded:nFiles) {
-      gc()
+      ## gc()
 
       sPath <- soundfiles[[soundfile]]
 
       SATdf[["indexes"]][[soundfile]] <- tryCatch(
-        bgNoise.(
+        bgNoise..(
           sPath,
           timeBin = timeBin,
           targetSampRate = targetSampRate,
