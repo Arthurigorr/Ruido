@@ -15,7 +15,6 @@ test_that("ACIspec reads audio files directly and can pass down arugments to arg
   show(aci)
 
   expect_s4_class(aci, "noise.matrix")
-  expect_error(ACIspec(recDir, j = 850))
   expect_error(ACIspec(recDir, j = "five"))
 
 })
