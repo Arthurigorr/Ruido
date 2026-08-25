@@ -23,7 +23,7 @@ singleSat(
 \arguments{
 \item{soundfile}{wav package numeric matrix, tuneR package Wave object, Ruido noise.matrix object or path to a valid audio}
 
-\item{channel}{channel where the background noise values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
+\item{channel}{channel where the background noise values will be extracted from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
@@ -33,7 +33,7 @@ singleSat(
 
 \item{wl}{window length of the spectrogram. Defaults to \code{512}.}
 
-\item{window}{window used to smooth the spectrogram. Defaults to \code{signal::hammning(wl)}. Switch to \code{signal::hanning(wl)} if to use hanning instead.}
+\item{window}{window used to smooth the spectrogram. Defaults to \code{signal::hamming(wl)}. Switch to \code{signal::hanning(wl)} if to use hanning instead.}
 
 \item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 

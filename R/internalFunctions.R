@@ -13,7 +13,6 @@ processChannel.BGN <- function(channelData,
                                window,
                                histbreaks,
                                DCfix,
-                               wavPKG,
                                noiseOBJ) {
   allSamples <- if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData[1, ]))
@@ -67,8 +66,7 @@ processChannel.BGN <- function(channelData,
             histbreaks,
             "FD" = nclass.FD(z),
             "Sturges" = nclass.Sturges(z),
-            "scott" = nclass.scott(z),
-            stop("Unknown histogram break method: ", histbreaks)
+            "scott" = nclass.scott(z)
           )
         }
 
@@ -103,6 +101,11 @@ processChannel.BGN <- function(channelData,
 
 }
 
+# processChannel.ACI ----------------------------------------------------------
+## This version of processChannel handles the calculation of the ACI index.
+## This is called by ACIspec()
+## This should not be seen or used by the user, as it is only intended for internal use by other functions.
+
 processChannel.ACI <- function(channelData,
                                samp.rate,
                                channel,
@@ -111,7 +114,6 @@ processChannel.ACI <- function(channelData,
                                wl,
                                overlap,
                                window,
-                               wavPKG,
                                noiseOBJ) {
   allSamples <- if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData[1, ]))
@@ -185,6 +187,75 @@ processChannel.ACI <- function(channelData,
 
 }
 
+
+# processChannel.ENT ------------------------------------------------------
+## This version of processChannel handles the calculation of the ENT index.
+## This is called by ENTspec()
+## This should not be seen or used by the user, as it is only intended for internal use by other functions.
+
+processChannel.ENT <- function(channelData,
+                               samp.rate,
+                               channel,
+                               timeBin,
+                               wl,
+                               overlap,
+                               window,
+                               noiseOBJ) {
+  allSamples <- if (is.null(timeBin)) {
+    data.frame(b = 1, e = length(channelData[1, ]))
+  } else {
+    getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
+  }
+
+  frameBin <- nrow(allSamples)
+
+  channelData <- switch(
+    channel,
+    "stereo" = list("left" = channelData[1, ], "right" = channelData[2, ]),
+    "mono" = list(mono = channelData[1, ]),
+    setNames(list(slot(
+      channelData, channel
+    )), channel)
+  )
+
+  noiseOBJ@values <- lapply(channelData, function(x) {
+    tempHolder <- apply(allSamples, 1, function(y) {
+      list(signal::specgram(
+        x = x[y[1]:y[2]],
+        n = wl,
+        Fs = samp.rate,
+        window = window,
+        overlap = overlap
+      )$S)
+    })
+
+    ENTdf = data.frame(do.call(cbind, lapply(tempHolder, function(singleBin) {
+      spectS = abs(singleBin[[1]])
+      amp2    = spectS**2
+
+      rowTot <- rowSums(amp2)
+      rowTot[rowTot == 0] <- 1 ## Safeguard!
+      pmf <- amp2 / rowTot
+
+      term <- ifelse(pmf > 0, pmf * log2(pmf), 0)
+      H <- -rowSums(term) / log2(dim(amp2)[2])
+
+      return(1 - H)
+    })))
+
+    colnames(ENTdf) <- paste0("ENT", rep(1:frameBin))
+    return(list(ENT = ENTdf))
+
+  })
+
+  noiseOBJ@index <- "ENT"
+  noiseOBJ@timeBins <- setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
+  noiseOBJ@sampRate <- samp.rate
+  noiseOBJ@channel <- channel
+
+  return(noiseOBJ)
+
+}
 
 # bgnoise alts ------------------------------------------------------------
 ## bgNoise

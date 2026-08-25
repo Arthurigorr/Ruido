@@ -18,7 +18,7 @@ ACIspec(
 \arguments{
 \item{soundfile}{wav package numeric matrix, tuneR package Wave object or path to a valid audio file}
 
-\item{channel}{channel where the metric values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}}
+\item{channel}{channel where the metric values will be extracted from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}}
 
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
@@ -28,7 +28,7 @@ ACIspec(
 
 \item{wl}{window length of the spectrogram. Defaults to \code{512}}
 
-\item{window}{window used to smooth the spectrogram. Switch to \code{signal::hanning(wl)} to use hanning instead. Defaults to \code{signal::hammning(wl)}}
+\item{window}{window used to smooth the spectrogram. Switch to \code{signal::hanning(wl)} to use hanning instead. Defaults to \code{signal::hamming(wl)}}
 
 \item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 }
@@ -73,7 +73,7 @@ where \eqn{q} is the total number of frequency bins. This final aggregation step
 }
 \examples{
 \donttest{
-### This is a secondary example using audio from a real soundscape
+### This is an secondary example using audio from a real soundscape
 ### These audios are originated from the Escutadô Project, a project
 ### that records the soundscapes of the brazilian semiarid
 # Getting audiofile from the online Zenodo library

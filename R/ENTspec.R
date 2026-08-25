@@ -1,11 +1,10 @@
-#' @title Spectral Acoustic Complexity Index
+#' @title Spectral Temporal Entropy Index
 #'
-#' @description Calculate the Acoustic Complexity Index values of a single audio using the methodology proposed in Pieretti, et al. 2011
+#' @description Calculate the Temporal Entropy values of a single audio using the methodology proposed in Towsey, et al. 2014
 #'
 #' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a valid audio file
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
-#' @param j size (in seconds) of the cluster interval. Set to `NULL` to use the entire bin as a single cluster. Defaults to `5`
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hamming(wl)`
@@ -13,40 +12,26 @@
 #'
 #' @returns This function returns a [noise.matrix-class] object.
 #'
-#' @details The Acoustic Complexity Index (`ACI`) quantifies the average proportional change in spectral amplitude between adjacent time steps  across frequency bins. Because biological sounds, particularly bird vocalizations, often exhibit rapid and irregular amplitude fluctuations over time, `ACI` captures this temporal variability as a proxy for acoustic complexity.
+#' @details The Temporal Entropy (`ENT`) quantifies how concentrated or dispersed acoustic energy is over time within each frequency bin. Unlike indices that track frame-to-frame change (e.g. `ACI`), `ENT` treats the distribution of energy across an entire time bin as a probability mass function and measures its Shannon entropy, capturing whether energy is spread evenly through time (high entropy, low concentration) or concentrated into brief pulses (low entropy, high concentration).
 #'
-#' In `Ruido`, `ACI` is computed independently within each time bin. Within a time bin, the signal is further subdivided into smaller temporal segments, here referred to as cluster intervals \eqn{j}.
+#' In `Ruido`, `ENT` is computed independently within each time bin, using every time step of the spectrogram in that bin.
 #'
-#' For a given frequency bin \eqn{f_l}, acoustic intensity values \eqn{I_k} are evaluated across consecutive time steps \eqn{k} within each cluster interval \eqn{j}. The absolute differences between adjacent time steps are calculated as:
+#' For a given frequency bin \eqn{f}, the squared amplitude values \eqn{I_t} across all time steps \eqn{t} within the time bin are normalized to unit area, producing a probability mass function:
 #'
-#' \deqn{d_k = |I_k - I_{k+1}|}
+#' \deqn{pmf_{f,t} = \frac{I_t^2}{\sum_{t = 1}^{N} I_t^2}}
 #'
-#' These differences are summed within each cluster interval:
+#' where \eqn{N} is the number of time steps in the time bin. The Shannon entropy of this distribution is then calculated as:
 #'
-#' \deqn{D_j = \sum_{k = 1}^{N} d_k}
+#' \deqn{H[f] = \frac{-\sum_{t = 1}^{N} pmf_{f,t} \times \log_2(pmf_{f,t})}{\log_2 N}}
 #'
-#' where \eqn{N} is the number of time steps \eqn{\Delta t_k} in interval \eqn{j}. The `ACI` for each cluster interval is then:
+#' To express the result as an intuitive measure of energy concentration rather than dispersion, `ENT` is calculated as the complement of \eqn{H}:
 #'
-#' \deqn{ACI_j = \frac{D_j}{\sum_{k = 1}^{N} I_k}}
+#' \deqn{ENT[f] = 1 - H[f]}
 #'
-#' where \eqn{\sum_{k = 1}^{N} I_k} is the total acoustic intensity within the same interval.
-#'
-#' For each frequency bin \eqn{f_l}, `ACI` values are summed across all cluster intervals within the time bin:
-#'
-#' \deqn{ACI_{f_l} = \sum_{j = 1}^{m} ACI_j}
-#'
-#' where \eqn{m} is the number of cluster intervals in the time bin.
-#'
-#' The result is a frequency-resolved representation of `ACI` for each time bin, rather than a single scalar value for the entire recording.
-#'
-#' In the original formulation (Pieretti et al., 2011), `ACI` is further summed across all frequency bins:
-#'
-#' \deqn{ACI_{tot} = \sum_{l = 1}^{q} ACI_{f_l}}
-#'
-#' where \eqn{q} is the total number of frequency bins. This final aggregation step is not performed in this package.
+#' The result is a frequency-resolved representation of `ENT` for each time bin, rather than a single scalar value for the entire recording. Values close to `1` indicate energy concentrated in few time steps (e.g. transient calls or pulses), while values close to `0` indicate energy spread evenly across the time bin (e.g. steady background noise).
 #'
 #' @references
-#' Pieretti, N., Farina, A., & Morri, D. (2011). A new methodology to infer the singing activity of an avian community: The Acoustic Complexity Index (ACI). Ecological Indicators, 11(3), 868–873. https://doi.org/10.1016/j.ecolind.2010.11.005
+#' Towsey, M., Wimmer, J., Williamson, I., & Roe, P. (2014). The use of acoustic indices to determine avian species richness in audio-recordings of the environment. Ecological Informatics, 21, 110–119. https://doi.org/10.1016/j.ecoinf.2013.11.007
 #'
 #' @export
 #'@importFrom signal specgram
@@ -57,7 +42,7 @@
 #'
 #' @examples
 #' \donttest{
-#' ### This is an secondary example using audio from a real soundscape
+#' ### This is an example using audio from a real soundscape
 #' ### These audios are originated from the Escutadô Project, a project
 #' ### that records the soundscapes of the brazilian semiarid
 #' # Getting audiofile from the online Zenodo library
@@ -72,31 +57,26 @@
 #' # Downloading the file, might take some time denpending on your internet
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
-#' # Running the ACIspec function with all the default arguments
-#' aci <- ACIspec(recDir)
+#' # Running the ENTspec function with all the default arguments
+#' ent <- ENTspec(recDir)
 #'
 #' # Here's the result
-#' aci
+#' ent
 #'
-#' # Plot ACI values
-#' plot(aci)
+#' # Plot ENT values
+#' plot(ent)
 #'}
 #'
-ACIspec = function(soundfile,
+ENTspec = function(soundfile,
                    channel = "stereo",
                    timeBin = 60,
-                   j = 5,
                    targetSampRate = NULL,
                    wl = 512,
                    window = signal::hamming(wl),
                    overlap = ceiling(length(window) / 2)) {
 
-  argHandler(FUN = "ACIspec", soundfile, channel, timeBin, j, targetSampRate, wl,
+  argHandler(FUN = "ENTspec", soundfile, channel, timeBin, targetSampRate, wl,
              window, overlap)
-
-  if (!is.null(timeBin)) {
-    j <- if (is.null(j)) timeBin else min(j, timeBin)
-  }
 
   audio = typeof(soundfile)
 
@@ -135,26 +115,25 @@ ACIspec = function(soundfile,
     attr(soundfile, "sample_rate") = targetSampRate
   }
 
-  ACIexp <- processChannel.ACI(
+  ENTexp <- processChannel.ENT(
     soundfile,
     samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
     timeBin = timeBin,
-    j = j,
     wl = wl,
     overlap = overlap,
     window = window,
     noiseOBJ = new("noise.matrix")
   )
 
-  if (ACIexp@channel == "stereo") {
-    ACIexp@wl <- nrow(ACIexp@values$left$ACI)
+  if (ENTexp@channel == "stereo") {
+    ENTexp@wl <- nrow(ENTexp@values$left$ENT)
 
   } else {
-    ACIexp@wl <- nrow(ACIexp@values[[channel]]$ACI)
+    ENTexp@wl <- nrow(ENTexp@values[[channel]]$ENT)
 
   }
 
-  return(ACIexp)
+  return(ENTexp)
 
 }

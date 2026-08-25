@@ -24,7 +24,7 @@ soundMat(
 \arguments{
 \item{soundpath}{single or multiple directories to your audio files}
 
-\item{channel}{channel where the saturation values will be extract from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
+\item{channel}{channel where the saturation values will be extracted from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
@@ -34,7 +34,7 @@ soundMat(
 
 \item{wl}{window length of the spectrogram. Defaults to \code{512}}
 
-\item{window}{window used to smooth the spectrogram. Switch to \code{signal::hanning(wl)} to use hanning instead. Defaults to \code{signal::hammning(wl)}}
+\item{window}{window used to smooth the spectrogram. Switch to \code{signal::hanning(wl)} to use hanning instead. Defaults to \code{signal::hamming(wl)}}
 
 \item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 

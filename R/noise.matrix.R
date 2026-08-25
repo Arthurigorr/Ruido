@@ -46,7 +46,7 @@ setMethod("show", signature(object = "noise.matrix"), function(object) {
                   "ENT" = "Spectral Acoustic Entrophy Index")
 
   cat(titleMap[[paste(object@index, collapse = "+")]])
-  cat("\nindex:                 ", object@index)
+  cat("\nIndex:                 ", object@index)
   cat("\nChannel:               ", object@channel)
   cat("\nSampling Rate (Hz):    ", object@sampRate)
   cat("\nWindow Length:         ", object@wl)
@@ -237,8 +237,8 @@ setMethod("plot", signature(x = "noise.matrix"), function(x,
   if (is.null(xlab)) {
     xlab = switch(paste(sort(x@index), collapse = "+"),
                   "BGN+POW" = "dB",
-                  "ACI" = "Amplitude")
-
+                  "ACI" = "Amplitude",
+                  "ENT" = "Entropy")
   }
 
   yunit <- match.arg(yunit)
