@@ -28,7 +28,7 @@ test_that("bgNoise() reads tuneR Wave objects", {
   )
 
   bgn1 <- bgNoise(wave1)
-  bgn2 <- bgNoise(wave2)
+  bgn2 <- bgNoise(wave2, channel = "mono")
   bgn3 <- bgNoise(wave1, timeBin = 10)
   bgn4 <- bgNoise(wave1, timeBin = 30)
 
@@ -46,6 +46,15 @@ test_that("bgNoise() reads tuneR Wave objects", {
   expect_s4_class(bgn2, "noise.matrix")
   expect_s4_class(bgn3, "noise.matrix")
   expect_s4_class(bgn4, "noise.matrix")
+  expect_s4_class(bgNoise(wave1, timeBin = 30, channel = "left"), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, timeBin = 30, channel = "right"), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, targetSampRate = 6650), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, window = signal::hanning(512)), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, histbreaks = 100), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, DCfix = FALSE), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, wl = 256), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, dbThreshold = -60), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, overlap = 128), "noise.matrix")
 
 })
 
