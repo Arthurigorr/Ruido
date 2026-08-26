@@ -3,7 +3,7 @@
 ## This is called by bgNoise and bgNoise.
 ## This should not be seen or used by the user, as it is only intended for internal use by other functions.
 
-processChannel.BGN <- function(channelData,
+processChannel.BGN = function(channelData,
                                samp.rate,
                                channel,
                                timeBin,
@@ -14,29 +14,28 @@ processChannel.BGN <- function(channelData,
                                histbreaks,
                                DCfix,
                                noiseOBJ) {
-  allSamples <- if (is.null(timeBin)) {
+  allSamples = if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData[1, ]))
   } else {
     getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
   }
 
-  frameBin <- nrow(allSamples)
+  frameBin = nrow(allSamples)
 
-  channelData <- switch(
+  channelData = switch(
     channel,
-    "stereo" = list("left" = channelData[1, ], "right" = channelData[2, ]),
-    "mono" = list(mono = channelData[1, ]),
-    setNames(list(slot(
-      channelData, channel
-    )), channel)
+    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
+    "mono"   = list(mono  = channelData[1, ]),
+    "left"   = list(left  = channelData[1, ]),
+    "right"  = list(right = channelData[2, ])
   )
 
-  noiseOBJ@values <- lapply(channelData, function(x) {
+  noiseOBJ@values = lapply(channelData, function(x) {
     if (DCfix) {
-      x <- x - mean(x)
+      x = x - mean(x)
     }
 
-    tempHolder <- apply(allSamples, 1, function(y) {
+    tempHolder = apply(allSamples, 1, function(y) {
       list(signal::specgram(
         x = x[y[1]:y[2]],
         n = wl,
@@ -46,36 +45,32 @@ processChannel.BGN <- function(channelData,
       )$S)
     })
 
-    BGNPOWdf <- data.frame(do.call(cbind, lapply(lapply(tempHolder, function(singleBin) {
-      spectS <- abs(singleBin[[1]])
+    BGNPOWdf = data.frame(do.call(cbind, lapply(lapply(tempHolder, function(singleBin) {
+      spectS = abs(singleBin[[1]])
 
-      spectS <- 10 * log10(spectS / max(spectS))
+      spectS = 10 * log10(spectS / max(spectS))
 
       if (!is.null(dbThreshold)) {
-        spectS[spectS < dbThreshold] <- dbThreshold
+        spectS[spectS < dbThreshold] = dbThreshold
       }
 
       apply(spectS, 1, function(z) {
-        dbMax <- max(z)
-        dbMin <- min(z)
+        dbMax = max(z)
+        dbMin = min(z)
 
-        num_bins <- if (is.numeric(histbreaks)) {
+        num_bins = if (is.numeric(histbreaks)) {
           histbreaks
         } else {
           switch(
             histbreaks,
-            "FD" = nclass.FD(z),
+            "FD"      = nclass.FD(z),
             "Sturges" = nclass.Sturges(z),
-            "scott" = nclass.scott(z)
+            "scott"   = nclass.scott(z)
           )
         }
-
-        modal_intensity <- dbMin + ((which.max(tabulate(
-          findInterval(
-            x = z,
-            vec = seq(dbMin, dbMax, length.out = num_bins)
-          )
-        ))) * 2 * IQR(z) / length(z)^(1 / 3))
+        breaks   = seq(dbMin, dbMax, length.out = num_bins + 1)
+        modalBin = which.max(tabulate(findInterval(x = z, vec = breaks)))
+        modal_intensity = dbMin + modalBin * (breaks[2] - breaks[1])
 
         c(BGN = modal_intensity, POW = dbMax - modal_intensity)
       })
@@ -83,19 +78,19 @@ processChannel.BGN <- function(channelData,
     }), function(x)
       data.frame(t(x)))))
 
-    colnames(BGNPOWdf) <- paste0(rep(c("BGN", "POW"), frameBin), rep(1:frameBin, each = 2))
+    colnames(BGNPOWdf) = paste0(rep(c("BGN", "POW"), frameBin), rep(1:frameBin, each = 2))
 
-    BGN <- data.frame(BGNPOWdf[, grepl("BGN", colnames(BGNPOWdf)), drop = FALSE])
-    POW <- data.frame(BGNPOWdf[, grepl("POW", colnames(BGNPOWdf)), drop = FALSE])
+    BGN = data.frame(BGNPOWdf[, grepl("BGN", colnames(BGNPOWdf)), drop = FALSE])
+    POW = data.frame(BGNPOWdf[, grepl("POW", colnames(BGNPOWdf)), drop = FALSE])
 
     return(list(BGN = BGN, POW = POW))
 
   })
 
-  noiseOBJ@index <- c("BGN", "POW")
-  noiseOBJ@timeBins <- setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
-  noiseOBJ@sampRate <- samp.rate
-  noiseOBJ@channel <- channel
+  noiseOBJ@index = c("BGN", "POW")
+  noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
+  noiseOBJ@sampRate = samp.rate
+  noiseOBJ@channel = channel
 
   return(noiseOBJ)
 
@@ -106,7 +101,7 @@ processChannel.BGN <- function(channelData,
 ## This is called by ACIspec()
 ## This should not be seen or used by the user, as it is only intended for internal use by other functions.
 
-processChannel.ACI <- function(channelData,
+processChannel.ACI = function(channelData,
                                samp.rate,
                                channel,
                                timeBin,
@@ -115,15 +110,15 @@ processChannel.ACI <- function(channelData,
                                overlap,
                                window,
                                noiseOBJ) {
-  allSamples <- if (is.null(timeBin)) {
+  allSamples = if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData[1, ]))
   } else {
     getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
   }
 
-  frameBin <- nrow(allSamples)
+  frameBin = nrow(allSamples)
 
-  channelData <- switch(
+  channelData = switch(
     channel,
     "stereo" = list("left" = channelData[1, ], "right" = channelData[2, ]),
     "mono" = list(mono = channelData[1, ]),
@@ -132,8 +127,8 @@ processChannel.ACI <- function(channelData,
     )), channel)
   )
 
-  noiseOBJ@values <- lapply(channelData, function(x) {
-    tempHolder <- apply(allSamples, 1, function(y) {
+  noiseOBJ@values = lapply(channelData, function(x) {
+    tempHolder = apply(allSamples, 1, function(y) {
       list(signal::specgram(
         x = x[y[1]:y[2]],
         n = wl,
@@ -173,15 +168,15 @@ processChannel.ACI <- function(channelData,
 
     })))
 
-    colnames(ACIdf) <- paste0("ACI", rep(1:frameBin))
+    colnames(ACIdf) = paste0("ACI", rep(1:frameBin))
     return(list(ACI = ACIdf))
 
   })
 
-  noiseOBJ@index <- "ACI"
-  noiseOBJ@timeBins <- setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
-  noiseOBJ@sampRate <- samp.rate
-  noiseOBJ@channel <- channel
+  noiseOBJ@index = "ACI"
+  noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
+  noiseOBJ@sampRate = samp.rate
+  noiseOBJ@channel = channel
 
   return(noiseOBJ)
 
@@ -193,7 +188,7 @@ processChannel.ACI <- function(channelData,
 ## This is called by ENTspec()
 ## This should not be seen or used by the user, as it is only intended for internal use by other functions.
 
-processChannel.ENT <- function(channelData,
+processChannel.ENT = function(channelData,
                                samp.rate,
                                channel,
                                timeBin,
@@ -201,15 +196,15 @@ processChannel.ENT <- function(channelData,
                                overlap,
                                window,
                                noiseOBJ) {
-  allSamples <- if (is.null(timeBin)) {
+  allSamples = if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData[1, ]))
   } else {
     getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
   }
 
-  frameBin <- nrow(allSamples)
+  frameBin = nrow(allSamples)
 
-  channelData <- switch(
+  channelData = switch(
     channel,
     "stereo" = list("left" = channelData[1, ], "right" = channelData[2, ]),
     "mono" = list(mono = channelData[1, ]),
@@ -218,8 +213,8 @@ processChannel.ENT <- function(channelData,
     )), channel)
   )
 
-  noiseOBJ@values <- lapply(channelData, function(x) {
-    tempHolder <- apply(allSamples, 1, function(y) {
+  noiseOBJ@values = lapply(channelData, function(x) {
+    tempHolder = apply(allSamples, 1, function(y) {
       list(signal::specgram(
         x = x[y[1]:y[2]],
         n = wl,
@@ -231,27 +226,27 @@ processChannel.ENT <- function(channelData,
 
     ENTdf = data.frame(do.call(cbind, lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin[[1]])
-      amp2    = spectS**2
+      amp2    = spectS ** 2
 
-      rowTot <- rowSums(amp2)
-      rowTot[rowTot == 0] <- 1 ## Safeguard!
-      pmf <- amp2 / rowTot
+      rowTot = rowSums(amp2)
+      rowTot[rowTot == 0] = 1 ## Safeguard!
+      pmf = amp2 / rowTot
 
-      term <- ifelse(pmf > 0, pmf * log2(pmf), 0)
-      H <- -rowSums(term) / log2(dim(amp2)[2])
+      term = ifelse(pmf > 0, pmf * log2(pmf), 0)
+      H = -rowSums(term) / log2(dim(amp2)[2])
 
       return(1 - H)
     })))
 
-    colnames(ENTdf) <- paste0("ENT", rep(1:frameBin))
+    colnames(ENTdf) = paste0("ENT", rep(1:frameBin))
     return(list(ENT = ENTdf))
 
   })
 
-  noiseOBJ@index <- "ENT"
-  noiseOBJ@timeBins <- setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
-  noiseOBJ@sampRate <- samp.rate
-  noiseOBJ@channel <- channel
+  noiseOBJ@index = "ENT"
+  noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
+  noiseOBJ@sampRate = samp.rate
+  noiseOBJ@channel = channel
 
   return(noiseOBJ)
 
@@ -263,7 +258,7 @@ processChannel.ENT <- function(channelData,
 ## In this version, the check for the arguments is skipped and is handled
 ## by a higher function.
 
-bgNoise. <- function(soundfile,
+bgNoise. = function(soundfile,
                      channel = "stereo",
                      timeBin = 60,
                      dbThreshold = -90,
@@ -305,14 +300,14 @@ bgNoise. <- function(soundfile,
   }
   if (!is.null(targetSampRate)) {
     audioLen = length(soundfile[1, ])
-    test = soundfile[1:savedAttr$dim[1], seq(1, audioLen, length = targetSampRate * audioLen /
-                                               savedAttr$sample_rate)]
+    soundfile = soundfile[1:savedAttr$dim[1], seq(1, audioLen, length = targetSampRate * audioLen /
+                                                    savedAttr$sample_rate)]
     attr(soundfile, "sample_rate") = targetSampRate
   }
 
   rm(audio)
 
-  BGNexp <- processChannel.BGN(
+  BGNexp = processChannel.BGN(
     soundfile,
     samp.rate = savedAttr$sample_rate,
     channel = channel,
@@ -333,7 +328,7 @@ bgNoise. <- function(soundfile,
 ## This version is used in functions that take a folder as input.
 ## It skips mosts checks and reads the audio files directly.
 
-bgNoise.. <- function(soundfile,
+bgNoise.. = function(soundfile,
                       channel = "stereo",
                       timeBin = 60,
                       dbThreshold = -90,
@@ -361,7 +356,7 @@ bgNoise.. <- function(soundfile,
     stop("The audio file must be in the WAV format.")
   }
 
-  BGNexp <- processChannel.BGN(
+  BGNexp = processChannel.BGN(
     soundfile,
     samp.rate,
     channel = channel,
@@ -380,13 +375,13 @@ bgNoise.. <- function(soundfile,
 # argHandler --------------------------------------------------------------
 ## Function to check if the inputed arguments are supported.
 
-argHandler <- function(FUN, ...) {
-  args <- list(...)
+argHandler = function(FUN, ...) {
+  args = list(...)
 
-  gatherFun <- get(FUN)
-  expectedArgs <- names(formals(gatherFun))
+  gatherFun = get(FUN)
+  expectedArgs = names(formals(gatherFun))
 
-  names(args) <- expectedArgs
+  names(args) = expectedArgs
 
   #### soundpath ----
   if ("soundpath" %in% names(args)) {
@@ -709,9 +704,9 @@ argHandler <- function(FUN, ...) {
 # normHandler -------------------------------------------------------------
 ## This function deals with the normality tests
 
-normHandler <- function(normality) {
+normHandler = function(normality) {
   if (normality == "shapiro.test") {
-    answernorm <- readline(
+    answernorm = readline(
       "
       If you are working with a large dataset, then shapiro.test will most likely result in an error.
       Do you wish to use Anderson-Darling test instead? (Y/N).
@@ -719,7 +714,7 @@ normHandler <- function(normality) {
     )
 
     if (answernorm == "Y") {
-      normality <- "ad.test"
+      normality = "ad.test"
     } else if (answernorm == "N") {
       message("Using shapiro.test to test normality.")
     } else {
@@ -727,7 +722,7 @@ normHandler <- function(normality) {
     }
 
   } else if (normality == "ks.test") {
-    answernorm <- readline(
+    answernorm = readline(
       "ks.test is not supported since many combinations may have identifical values.
       Type N to ignore this warning.
       However, we recommend choosing one of these tests:
@@ -740,7 +735,7 @@ normHandler <- function(normality) {
       "
     )
 
-    normality <- switch(
+    normality = switch(
       answernorm,
       "a" = "ad.test",
       "b" = "cvm.test",
@@ -764,11 +759,11 @@ normHandler <- function(normality) {
 # getSampleBins -----------------------------------------------------------
 ## This is a helper function to dynamically transform seconds to samples
 
-getSampleBins <- function(samples, samp.rate, binSize) {
-  b <- seq(1, samples, by = samp.rate * binSize)
-  e <- pmin(b + samp.rate * binSize - 1, samples)
+getSampleBins = function(samples, samp.rate, binSize) {
+  b = seq(1, samples, by = samp.rate * binSize)
+  e = pmin(b + samp.rate * binSize - 1, samples)
 
-  keepThese <- ((samp.rate * binSize) * 0.1) < e - b ## This is so we can keep only bins that are at least 10% the size of the audio's samp.rate
+  keepThese = ((samp.rate * binSize) * 0.1) < e - b ## This is so we can keep only bins that are at least 10% the size of the audio's samp.rate
   data.frame(b, e)[keepThese, ]
 
 }
@@ -805,7 +800,7 @@ getSampleBins <- function(samples, samp.rate, binSize) {
 #' @importFrom methods new
 #' @importFrom utils head
 #'
-plotNOISE <- function(x,
+plotNOISE = function(x,
                       channel,
                       bin,
                       index,
@@ -821,25 +816,25 @@ plotNOISE <- function(x,
                       axes,
                       annotate,
                       ...) {
-  channels <- if (channel == "stereo") {
+  channels = if (channel == "stereo") {
     c("left", "right")
   } else {
     channel
   }
 
-  sampRate <- x@sampRate
-  sampDivide <- sampRate / nbreaks
-  sampleStep <- seq(1, sampRate, length.out = x@wl)
-  roundAt <- floor(sampDivide / 1000) * 1000
+  sampRate = x@sampRate
+  sampDivide = sampRate / nbreaks
+  sampleStep = seq(1, sampRate, length.out = x@wl)
+  roundAt = floor(sampDivide / 1000) * 1000
 
   if (yunit == "khz") {
-    sampRate <- sampRate / 1000
-    sampDivide <- sampDivide / 1000
-    sampleStep <- sampleStep / 1000
-    roundAt <- roundAt / 1000
+    sampRate = sampRate / 1000
+    sampDivide = sampDivide / 1000
+    sampleStep = sampleStep / 1000
+    roundAt = roundAt / 1000
   }
 
-  geometry <- if (channel == "stereo") {
+  geometry = if (channel == "stereo") {
     c(1, 2)
 
   } else {
@@ -847,23 +842,23 @@ plotNOISE <- function(x,
 
   }
 
-  opar <- par(no.readonly = TRUE)
+  opar = par(no.readonly = TRUE)
   on.exit(par(opar))
 
   par(mfrow = geometry)
 
-  chLoop <- 0
+  chLoop = 0
 
   for (ch in channels) {
-    chLoop <- chLoop + 1
+    chLoop = chLoop + 1
 
-    values <- sapply(index, function(ind) {
+    values = sapply(index, function(ind) {
       x@values[[ch]][[ind]][, bin]
 
     })
 
-    minV <- min(values)
-    maxV <- max(values)
+    minV = min(values)
+    maxV = max(values)
 
     plot.new()
     plot.window(c(minV, maxV), c(0, sampRate), yaxs = "i", ...)
@@ -885,7 +880,7 @@ plotNOISE <- function(x,
       }
     }
 
-    adj <- if (length(index) > 1) {
+    adj = if (length(index) > 1) {
       c(((minV / 2) - minV) / (maxV - minV), ((maxV / 2) - minV) / (maxV - minV))
     } else {
       0.5
@@ -907,13 +902,13 @@ plotNOISE <- function(x,
 
     }
 
-    title <- if (length(main) == 1 && main == "channel") {
+    title = if (length(main) == 1 && main == "channel") {
       paste(ch, "channel")
     } else {
       main[chLoop]
     }
 
-    titleY <- paste(ylab, ifelse(yunit == "khz", "(kHz)", "(Hz)"))
+    titleY = paste(ylab, ifelse(yunit == "khz", "(kHz)", "(Hz)"))
 
     title(main = title, ylab = titleY, ...)
     mtext(xlab, side = 1, line = 2, ...)

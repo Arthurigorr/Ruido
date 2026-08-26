@@ -51,21 +51,21 @@
 #' library(tuneR)
 #'
 #' # Define the audio sample rate, duration and number of samples
-#' samprate <- 12050
-#' dur <- 60
-#' n <- samprate * dur
+#' samprate = 12050
+#' dur = 60
+#' n = samprate * dur
 #'
 #' # Then we generate white noise
 #' set.seed(413)
-#' noise <- rnorm(n)
+#' noise = rnorm(n)
 #'
 #' # Linear fade-out envelope
-#' fade <- seq(1, 0, length.out = n)
+#' fade = seq(1, 0, length.out = n)
 #'
 #' # Apply fade
-#' signal <- noise * fade
+#' signal = noise * fade
 #'
-#' wave <- Wave(left = signal, right = signal,
+#' wave = Wave(left = signal, right = signal,
 #'             samp.rate = samprate,
 #'             bit = 16)
 #'
@@ -74,7 +74,7 @@
 #' wave
 #'
 #' # Running the bgNoise function with all the default arguments
-#' bgn <- bgNoise(wave)
+#' bgn = bgNoise(wave)
 #'
 #' # See the results
 #' bgn
@@ -87,11 +87,11 @@
 #' ### These audios are originated from the Escutadô Project, a project
 #' ### that records the soundscapes of the brazilian semiarid
 #' # Getting audiofile from the online Zenodo library
-#' dir <- paste(tempdir(), "forExample", sep = "/")
+#' dir = paste(tempdir(), "forExample", sep = "/")
 #' dir.create(dir)
-#' rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0), ".wav")
-#' recDir <- paste(dir, rec , sep = "/")
-#' url <- paste0("https://zenodo.org/records/17575795/files/",
+#' rec = paste0("GAL24576_20250401_", sprintf("%06d", 0), ".wav")
+#' recDir = paste(dir, rec , sep = "/")
+#' url = paste0("https://zenodo.org/records/17575795/files/",
 #'               rec,
 #'               "?download=1")
 #'
@@ -99,7 +99,7 @@
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Running the bgNoise function with all the default arguments
-#' bgn <- bgNoise(recDir)
+#' bgn = bgNoise(recDir)
 #'
 #' # Here's the result
 #' bgn
@@ -112,11 +112,11 @@
 #'      xlab = "BGN (dB)", ylab = "POW (dB)", pch = 16)
 #'
 #' # Now lets test and plot their correlation
-#' BGNPOWlm <- lm(bgn@values$left$BGN$BGN1~bgn@values$left$POW$POW1)
+#' BGNPOWlm = lm(bgn@values$left$BGN$BGN1~bgn@values$left$POW$POW1)
 #' summary(BGNPOWlm)
 #' abline(lm(bgn@values$left$BGN$BGN1~bgn@values$left$POW$POW1), col = "red")
 #'}
-bgNoise <- function(soundfile,
+bgNoise = function(soundfile,
                     channel = "stereo",
                     timeBin = 60,
                     dbThreshold = -90,
@@ -163,7 +163,9 @@ bgNoise <- function(soundfile,
   savedAttr = attributes(soundfile)
 
   if (channel == "mono" && savedAttr$dim[1] > 1) {
-    soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
+    sampRate = attr(soundfile, "sample_rate")
+    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
+    attr(soundfile, "sample_rate") = sampRate
     savedAttr$dim = dim(soundfile)
   }
   if (channel == "stereo" && nrow(soundfile) == 1) {
@@ -172,14 +174,12 @@ bgNoise <- function(soundfile,
   }
   if (!is.null(targetSampRate)) {
     audioLen = length(soundfile[1, ])
-    test = soundfile[1:savedAttr$dim[1], seq(1, audioLen, length = targetSampRate * audioLen /
-                                               savedAttr$sample_rate)]
+    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
+    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
     attr(soundfile, "sample_rate") = targetSampRate
   }
 
-  rm(audio)
-
-  BGNexp <- processChannel.BGN(
+  BGNexp = processChannel.BGN(
     soundfile,
     samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
@@ -194,10 +194,10 @@ bgNoise <- function(soundfile,
   )
 
   if (BGNexp@channel == "stereo") {
-    BGNexp@wl <- nrow(BGNexp@values$left$BGN)
+    BGNexp@wl = nrow(BGNexp@values$left$BGN)
 
   } else {
-    BGNexp@wl <- nrow(BGNexp@values[[channel]]$BGN)
+    BGNexp@wl = nrow(BGNexp@values[[channel]]$BGN)
 
   }
 
