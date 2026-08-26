@@ -120,11 +120,10 @@ processChannel.ACI = function(channelData,
 
   channelData = switch(
     channel,
-    "stereo" = list("left" = channelData[1, ], "right" = channelData[2, ]),
-    "mono" = list(mono = channelData[1, ]),
-    setNames(list(slot(
-      channelData, channel
-    )), channel)
+    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
+    "mono"   = list(mono  = channelData[1, ]),
+    "left"   = list(left  = channelData[1, ]),
+    "right"  = list(right = channelData[2, ])
   )
 
   noiseOBJ@values = lapply(channelData, function(x) {
@@ -206,11 +205,10 @@ processChannel.ENT = function(channelData,
 
   channelData = switch(
     channel,
-    "stereo" = list("left" = channelData[1, ], "right" = channelData[2, ]),
-    "mono" = list(mono = channelData[1, ]),
-    setNames(list(slot(
-      channelData, channel
-    )), channel)
+    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
+    "mono"   = list(mono  = channelData[1, ]),
+    "left"   = list(left  = channelData[1, ]),
+    "right"  = list(right = channelData[2, ])
   )
 
   noiseOBJ@values = lapply(channelData, function(x) {

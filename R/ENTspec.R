@@ -101,7 +101,9 @@ ENTspec = function(soundfile,
   savedAttr = attributes(soundfile)
 
   if (channel == "mono" && savedAttr$dim[1] > 1) {
-    soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
+    sampRate = attr(soundfile, "sample_rate")
+    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
+    attr(soundfile, "sample_rate") = sampRate
     savedAttr$dim = dim(soundfile)
   }
   if (channel == "stereo" && nrow(soundfile) == 1) {
@@ -110,8 +112,8 @@ ENTspec = function(soundfile,
   }
   if (!is.null(targetSampRate)) {
     audioLen = length(soundfile[1, ])
-    test = soundfile[1:savedAttr$dim[1], seq(1, audioLen, length = targetSampRate * audioLen /
-                                               savedAttr$sample_rate)]
+    keepIdx  = seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate)
+    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
     attr(soundfile, "sample_rate") = targetSampRate
   }
 
