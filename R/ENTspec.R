@@ -33,7 +33,7 @@
 #' @references
 #' Towsey, M., Wimmer, J., Williamson, I., & Roe, P. (2014). The use of acoustic indices to determine avian species richness in audio-recordings of the environment. Ecological Informatics, 21, 110–119. https://doi.org/10.1016/j.ecoinf.2013.11.007
 #'
-#' @export
+#'@export
 #'@importFrom signal specgram
 #'@importFrom tuneR readWave
 #'@importFrom tuneR readMP3

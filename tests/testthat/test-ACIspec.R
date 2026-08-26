@@ -10,11 +10,10 @@ test_that("ACIspec reads audio files directly and can pass down arugments to arg
 
   download.file(url, destfile = recDir, mode = "wb")
 
-  aci <- ACIspec(recDir)
-
-  show(aci)
-
-  expect_s4_class(aci, "noise.matrix")
+  expect_s4_class(ACIspec(recDir), "noise.matrix")
+  expect_s4_class(ACIspec(recDir, channel = "mono"), "noise.matrix")
+  expect_s4_class(ACIspec(recDir, j = 800), "noise.matrix")
+  expect_s4_class(ACIspec(recDir, targetSampRate = 12250), "noise.matrix")
   expect_error(ACIspec(recDir, j = "five"))
 
 })

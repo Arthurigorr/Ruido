@@ -48,7 +48,7 @@
 #' @references
 #' Pieretti, N., Farina, A., & Morri, D. (2011). A new methodology to infer the singing activity of an avian community: The Acoustic Complexity Index (ACI). Ecological Indicators, 11(3), 868–873. https://doi.org/10.1016/j.ecolind.2010.11.005
 #'
-#' @export
+#'@export
 #'@importFrom signal specgram
 #'@importFrom tuneR readWave
 #'@importFrom tuneR readMP3
