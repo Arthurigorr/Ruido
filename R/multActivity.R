@@ -52,14 +52,14 @@
 #'   library(patchwork)
 #'
 #'   ### Downloading audiofiles from public Zenodo library
-#'   dir <- paste0(tempdir(), "/forExamples")
+#'   dir = paste0(tempdir(), "/forExamples")
 #'   dir.create(dir)
-#'   recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)), ".wav")
-#'   recDir <- paste(dir, recName, sep = "/")
+#'   recName = paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)), ".wav")
+#'   recDir = paste(dir, recName, sep = "/")
 #'
 #'   for (rec in recName) {
 #'     print(rec)
-#'     url <- paste0("https://zenodo.org/records/17575795/files/",
+#'     url = paste0("https://zenodo.org/records/17575795/files/",
 #'                   rec,
 #'                   "?download=1")
 #'     download.file(url,
@@ -67,39 +67,39 @@
 #'                   mode = "wb")
 #'   }
 #'
-#'   time <- sapply(strsplit(recName, "_"), function(x)
+#'   time = sapply(strsplit(recName, "_"), function(x)
 #'     paste(substr(x[3], 1, 2), substr(x[3], 3, 4), substr(x[3], 5, 6), sep = ":"))
-#'   date <- sapply(strsplit(recName, "_"), function(x)
+#'   date = sapply(strsplit(recName, "_"), function(x)
 #'     paste(substr(x[2], 1, 4), substr(x[2], 5, 6), substr(x[2], 7, 8), sep = "-"))
 #'
-#'   dateTime <- as.POSIXct(paste(date, time))
+#'   dateTime = as.POSIXct(paste(date, time))
 #'
-#'   timeLabels <- time[c(1, 7, 13, 19, 24)]
-#'   timeBreaks <- as.character(dateTime[c(1, 7, 13, 19, 24)])
+#'   timeLabels = time[c(1, 7, 13, 19, 24)]
+#'   timeBreaks = as.character(dateTime[c(1, 7, 13, 19, 24)])
 #'
-#'   breaks <- round(c(1, cumsum(rep(256 / 6, 6))))
+#'   breaks = round(c(1, cumsum(rep(256 / 6, 6))))
 #'
 #'   ### Running the function
-#'   act <- multActivity(dir)
+#'   act = multActivity(dir)
 #'
-#'   plotN <- 1
+#'   plotN = 1
 #'
-#'   sDim <- dim(act$values)
+#'   sDim = dim(act$values)
 #'
-#'   sampRate <- act$info$SAMPRATE[1]
-#'   kHz <- cumsum(c(0, rep(sampRate / 6, 6))) / 1000
+#'   sampRate = act$info$SAMPRATE[1]
+#'   kHz = cumsum(c(0, rep(sampRate / 6, 6))) / 1000
 #'
-#'   plotList <- list()
+#'   plotList = list()
 #'
 #'   for (cha in c("left", "right")) {
-#'     actCurrent <- act$values[, act$info$CHANNEL == cha]
-#'     actCurrentDF <- data.frame(
+#'     actCurrent = act$values[, act$info$CHANNEL == cha]
+#'     actCurrentDF = data.frame(
 #'       TIME = as.character(rep(dateTime, each = sDim[1])),
 #'       SPEC = rep(seq(sDim[1]), sDim[2]),
 #'       VAL = factor(c(unlist(actCurrent)), levels = c(0, 1))
 #'     )
 #'
-#'     plotList[[plotN]] <- ggplot(actCurrentDF, aes(x = TIME, y = SPEC, fill = VAL)) +
+#'     plotList[[plotN]] = ggplot(actCurrentDF, aes(x = TIME, y = SPEC, fill = VAL)) +
 #'       geom_tile() +
 #'       theme_classic() +
 #'       scale_y_continuous(expand = c(NA, NA),
@@ -116,7 +116,7 @@
 #'         title = paste("Acoustic Activity in the", cha, "channel")
 #'       )
 #'
-#'     plotN <- plotN + 1
+#'     plotN = plotN + 1
 #'
 #'   }
 #'
@@ -127,7 +127,7 @@
 #'
 #'   }
 #' }
-multActivity <- function(soundpath,
+multActivity = function(soundpath,
                          channel = "stereo",
                          timeBin = 60,
                          dbThreshold = -90,
@@ -145,15 +145,15 @@ multActivity <- function(soundpath,
   argHandler(FUN = "multActivity", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
              window, overlap, histbreaks, DCfix, powthr, bgnthr, beta, backup)
 
-  soundfiles <- list.files(soundpath, full.names = TRUE, recursive = TRUE)
-  soundfiles <- soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
+  soundfiles = list.files(soundpath, full.names = TRUE, recursive = TRUE)
+  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
 
-  halfWl <- round(wl / 2)
+  halfWl = round(wl / 2)
 
-  SATdf <- list()
+  SATdf = list()
 
   if (!is.null(backup)) {
-    SATdf[["ogARGS"]] <- list(
+    SATdf[["ogARGS"]] = list(
       channel = channel,
       timeBin = timeBin,
       dbThreshold = dbThreshold,
@@ -173,15 +173,15 @@ multActivity <- function(soundpath,
     )
   }
 
-  nFiles <- length(soundfiles)
-  SATdf[["indexes"]] <- vector("list", nFiles)
+  nFiles = length(soundfiles)
+  SATdf[["indexes"]] = vector("list", nFiles)
 
   for (soundfile in 1:nFiles) {
     ## gc()
 
-    sPath <- soundfiles[[soundfile]]
+    sPath = soundfiles[[soundfile]]
 
-    SATdf[["indexes"]][[soundfile]] <- tryCatch(
+    SATdf[["indexes"]][[soundfile]] = tryCatch(
       bgNoise..(
         sPath,
         timeBin = timeBin,
@@ -198,7 +198,7 @@ multActivity <- function(soundpath,
         e
     )
 
-    SATdf[["indexes"]][[soundfile]]@path <- sPath
+    SATdf[["indexes"]][[soundfile]]@path = sPath
 
     message(
       "\r(",
@@ -212,21 +212,21 @@ multActivity <- function(soundpath,
     )
 
     if (!is.null(backup) && soundfile %% 5 == 1) {
-      SATdf$ogARGS$concluded <- soundfile
+      SATdf$ogARGS$concluded = soundfile
 
       saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.RData"))
     }
 
   }
 
-  whichError <- sapply(SATdf[["indexes"]], function(x) {
+  whichError = sapply(SATdf[["indexes"]], function(x) {
     is(x, "error")
   })
 
-  ERRORS <- SATdf$indexes[whichError]
-  indexes <- SATdf$indexes[!whichError]
+  ERRORS = SATdf$indexes[whichError]
+  indexes = SATdf$indexes[!whichError]
 
-  BGN <- do.call(cbind, sapply(indexes, function(x) {
+  BGN = do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$BGN, x@values$right$BGN)
     } else {
@@ -234,7 +234,7 @@ multActivity <- function(soundpath,
     }
   }))
 
-  POW <- do.call(cbind, sapply(indexes, function(x) {
+  POW = do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$POW, x@values$right$POW)
     } else {
@@ -242,8 +242,8 @@ multActivity <- function(soundpath,
     }
   }))
 
-  INFO <- lapply(indexes, function(x) {
-    nBins <- length(x@timeBins)
+  INFO = lapply(indexes, function(x) {
+    nBins = length(x@timeBins)
     if (x@channel == "stereo") {
       list(
         rep(x@timeBins, each = 2),
@@ -261,7 +261,7 @@ multActivity <- function(soundpath,
     }
   })
 
-  paths <- unlist(sapply(indexes, function(x) {
+  paths = unlist(sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       rep(x@path, length(x@timeBins) * 2)
     } else {
@@ -269,7 +269,7 @@ multActivity <- function(soundpath,
     }
   }))
 
-  SATinfo <- data.frame(
+  SATinfo = data.frame(
     PATH = dirname(paths),
     AUDIO = basename(paths),
     CHANNEL = c(unlist(sapply(INFO, function(x) {
@@ -286,28 +286,28 @@ multActivity <- function(soundpath,
     })))
   )
 
-  dimBGN <- dim(BGN)
+  dimBGN = dim(BGN)
 
   if (beta) {
-    BGNQ <- quantile(unlist(BGN), probs = bgnthr) |>
+    BGNQ = quantile(unlist(BGN), probs = bgnthr) |>
       setNames(bgnthr)
 
-    SATmat <- BGN > BGNQ |
+    SATmat = BGN > BGNQ |
       POW > powthr
 
   } else {
-    SATmat <- sapply(1:ncol(BGN), function(t) {
+    SATmat = sapply(1:ncol(BGN), function(t) {
       BGN[, t] > quantile(BGN[, t], bgnthr) |
         POW[, t] > powthr
     })
   }
 
   if (!is.null(backup)) {
-    SATdf["ogARGS"] <- NULL
+    SATdf["ogARGS"] = NULL
     file.remove(paste0(backup, "/SATBACKUP.RData"))
   }
 
-  export <- list(
+  export = list(
     powthresh = numeric(0),
     bgnthresh = numeric(0),
     info = data.frame(),
@@ -315,11 +315,11 @@ multActivity <- function(soundpath,
     errors = list()
   )
 
-  export["powthresh"] <- powthr
-  export["bgnthresh"] <- bgnthr * 100
-  export[["info"]] <- SATinfo
-  export[["values"]] <- SATmat * 1
-  export[["errors"]] <- ERRORS
+  export["powthresh"] = powthr
+  export["bgnthresh"] = bgnthr * 100
+  export[["info"]] = SATinfo
+  export[["values"]] = SATmat * 1
+  export[["errors"]] = ERRORS
 
   return(export)
 

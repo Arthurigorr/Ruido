@@ -45,14 +45,14 @@
 #' sampleBGN
 #'
 #' # Run the function
-#' SAT <- singleSat(sampleBGN)
+#' SAT = singleSat(sampleBGN)
 #'
 #' # View the results
 #' SAT
 #'
 #' # Now lets plot our results to see the dynamics of soundscape saturation by minute
-#' maxV <- max(unlist(SAT))
-#' minV <- min(unlist(SAT))
+#' maxV = max(unlist(SAT))
+#' minV = min(unlist(SAT))
 #'
 #' plot(x = c(1, 3), y = c(minV, maxV), type = "n",
 #'      xlab = "Minute", ylab = "Soundscape Saturation (%)", xaxt = "n")
@@ -68,32 +68,32 @@
 #'
 #' library(tuneR)
 #'
-#' oldpar <- par(no.readonly = TRUE)
+#' oldpar = par(no.readonly = TRUE)
 #'
 #' # Define parameters for the artificial audio
-#' samprate <- 12050
-#' dur <- 59
-#' n <- samprate * dur
+#' samprate = 12050
+#' dur = 59
+#' n = samprate * dur
 #'
 #' # White noise
 #' set.seed(413)
-#' noise <- rnorm(n)
+#' noise = rnorm(n)
 #'
 #' # Linear fade-out envelope
-#' fade <- seq(1, 0, length.out = n)
+#' fade = seq(1, 0, length.out = n)
 #'
 #' # Apply fade
-#' signal <- noise * fade
+#' signal = noise * fade
 #'
 #' # Create Wave object
-#' wave <- Wave(
+#' wave = Wave(
 #'   left = signal,
 #'   samp.rate = samprate,
 #'   bit = 16
 #' )
 #'
 #' # Running singleSat() on the artificial audio
-#' sat <- singleSat(wave, timeBin = 10)
+#' sat = singleSat(wave, timeBin = 10)
 #'
 #' # Now we can plot the results
 #' # In the left we have a periodogram and in the right saturaion values
@@ -116,17 +116,17 @@
 #' # Lets begin by loading an audio from the online Zenodo library and
 #' # read it directly with the function
 #' # Getting audiofile from the online Zenodo library
-#' dir <- paste(tempdir(), "forExample", sep = "/")
+#' dir = paste(tempdir(), "forExample", sep = "/")
 #' dir.create(dir)
-#' rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0),".wav")
-#' recDir <- paste(dir,rec , sep = "/")
-#' url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
+#' rec = paste0("GAL24576_20250401_", sprintf("%06d", 0),".wav")
+#' recDir = paste(dir,rec , sep = "/")
+#' url = paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
 #'
 #' # Downloading the file, might take some time denpending on your internet
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Now we calculate soundscape saturation for both sides of the recording
-#' sat <- singleSat(recDir)
+#' sat = singleSat(recDir)
 #'
 #' # Printing the results
 #' print(sat)
@@ -136,7 +136,7 @@
 #'
 #' unlink(dir, recursive = TRUE)
 #' }
-singleSat <- function(soundfile,
+singleSat = function(soundfile,
                       channel = "stereo",
                       timeBin = 60,
                       dbThreshold = -90,
@@ -153,9 +153,9 @@ singleSat <- function(soundfile,
   argHandler(FUN = "singleSat", soundfile, channel, timeBin, dbThreshold, targetSampRate, wl,
              window, overlap, histbreaks, DCfix, powthr, bgnthr, beta)
 
-  halfWl <- round(wl / 2)
+  halfWl = round(wl / 2)
 
-  BGNPOW <- if(is(soundfile, "noise.matrix")) {
+  BGNPOW = if(is(soundfile, "noise.matrix")) {
     soundfile
   } else {
     bgNoise.(
@@ -172,29 +172,29 @@ singleSat <- function(soundfile,
     )
   }
 
-  nBins <- length(BGNPOW@timeBins)
+  nBins = length(BGNPOW@timeBins)
 
   if (BGNPOW@channel == "stereo") {
-    BGN <- cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
-    names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
+    BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
+    names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
   } else {
-    BGN <- BGNPOW@values[[BGNPOW@channel]]$BGN
-    names <- paste0(rep(BGNPOW@channel, nBins), seq(nBins))
+    BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
+    names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
   }
 
   if (BGNPOW@channel == "stereo") {
-    POW <- cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
+    POW = cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
   } else {
-    POW <- BGNPOW@values[[BGNPOW@channel]]$POW
+    POW = BGNPOW@values[[BGNPOW@channel]]$POW
   }
 
   if (beta) {
-    BGNQ <- quantile(unlist(BGN), bgnthr)
+    BGNQ = quantile(unlist(BGN), bgnthr)
 
-    singSat <- colMeans(BGN > BGNQ | POW > powthr)
+    singSat = colMeans(BGN > BGNQ | POW > powthr)
 
   } else {
-    singSat <- sapply(1:ncol(BGN), function(t) {
+    singSat = sapply(1:ncol(BGN), function(t) {
       sum(BGN[, t] > quantile(BGN[, t], bgnthr) |
             POW[, t] > powthr) / halfWl
 
@@ -202,7 +202,7 @@ singleSat <- function(soundfile,
 
   }
 
-  names(singSat) <- names
+  names(singSat) = names
 
   if (BGNPOW@channel == "stereo") {
     return(list(

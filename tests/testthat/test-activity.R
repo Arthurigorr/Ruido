@@ -6,18 +6,18 @@ test_that("activity() can read noise.matrix objects and produces a matrix correc
 
 test_that("activity() can read tuneR Wave class objects", {
 
-  samprate <- 12050
-  dur <- 60
-  n <- samprate * dur
+  samprate = 12050
+  dur = 60
+  n = samprate * dur
 
   set.seed(413)
-  noise <- rnorm(n)
+  noise = rnorm(n)
 
-  fade <- seq(1, 0, length.out = n)
+  fade = seq(1, 0, length.out = n)
 
-  signal <- noise * fade
+  signal = noise * fade
 
-  wave <- tuneR::Wave(
+  wave = tuneR::Wave(
     left = signal,
     right = signal,
     samp.rate = samprate,

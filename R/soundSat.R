@@ -61,32 +61,32 @@
 #' @examples
 #' \donttest{
 #' ### Downloading audiofiles from public Zenodo library
-#' dir <- paste(tempdir(), "forExample", sep = "/")
+#' dir = paste(tempdir(), "forExample", sep = "/")
 #' dir.create(dir)
-#' recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
-#' recDir <- paste(dir, recName, sep = "/")
+#' recName = paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
+#' recDir = paste(dir, recName, sep = "/")
 #'
 #' for(rec in recDir) {
 #'  print(rec)
-#'  url <- paste0("https://zenodo.org/records/17575795/files/", basename(rec), "?download=1")
+#'  url = paste0("https://zenodo.org/records/17575795/files/", basename(rec), "?download=1")
 #'  download.file(url, destfile = rec, mode = "wb")
 #' }
 #'
 #' ### Running the function
-#' sat <- soundSat(dir)
+#' sat = soundSat(dir)
 #'
 #' ### Preparing the plot
-#' timeSplit <- strsplit(sat$values$AUDIO, "_")
-#' sides <- sat$values$CHANNEL
-#' date <- sapply(timeSplit, function(x)
+#' timeSplit = strsplit(sat$values$AUDIO, "_")
+#' sides = sat$values$CHANNEL
+#' date = sapply(timeSplit, function(x)
 #'   x[2])
-#' time <- sapply(timeSplit, function(x)
+#' time = sapply(timeSplit, function(x)
 #'   substr(x[3],1,6))
-#' datePos <- paste(substr(date,1,4), substr(date,5,6), substr(date,7,8), sep = "-")
-#' timePos <- paste(substr(time,1,2), substr(time,3,4), substr(time,5,6), sep = ":")
-#' dateTime <- as.POSIXct(paste(datePos, timePos), format = "%Y-%m-%d %H:%M:%OS")
-#' leftEar <- data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = dateTime[sides == "left"])
-#' rightEar <- data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = dateTime[sides == "right"])
+#' datePos = paste(substr(date,1,4), substr(date,5,6), substr(date,7,8), sep = "-")
+#' timePos = paste(substr(time,1,2), substr(time,3,4), substr(time,5,6), sep = ":")
+#' dateTime = as.POSIXct(paste(datePos, timePos), format = "%Y-%m-%d %H:%M:%OS")
+#' leftEar = data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = dateTime[sides == "left"])
+#' rightEar = data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = dateTime[sides == "right"])
 #'
 #' ### Plotting results
 #'
@@ -100,7 +100,7 @@
 #'
 #' unlink(dir, recursive = TRUE)
 #' }
-soundSat <- function(soundpath,
+soundSat = function(soundpath,
                      channel = "stereo",
                      timeBin = 60,
                      dbThreshold = -90,
@@ -119,22 +119,22 @@ soundSat <- function(soundpath,
   argHandler(FUN = "soundSat", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
              window, overlap, histbreaks, DCfix, powthr, bgnthr, normality, beta, backup)
 
-  normality <- normHandler(normality)
+  normality = normHandler(normality)
 
-  powthreshold <- seq(powthr[1], powthr[2], powthr[3])
-  names(powthreshold) <- powthreshold
-  bgnthreshold <- seq(bgnthr[1], bgnthr[2], bgnthr[3])
+  powthreshold = seq(powthr[1], powthr[2], powthr[3])
+  names(powthreshold) = powthreshold
+  bgnthreshold = seq(bgnthr[1], bgnthr[2], bgnthr[3])
 
-  soundfiles <- list.files(soundpath, full.names = TRUE, recursive = TRUE)
-  soundfiles <- soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
+  soundfiles = list.files(soundpath, full.names = TRUE, recursive = TRUE)
+  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
 
   if (length(soundfiles) < 3)
     stop("please provide at least 3 recordings!")
 
-  thresholdCombinations <- setNames(expand.grid(powthreshold, bgnthreshold),
+  thresholdCombinations = setNames(expand.grid(powthreshold, bgnthreshold),
                                     c("powthreshold", "bgnthreshold"))
 
-  combinations <- paste(thresholdCombinations[, 1], thresholdCombinations[, 2], sep = "/")
+  combinations = paste(thresholdCombinations[, 1], thresholdCombinations[, 2], sep = "/")
 
   message(
     paste(
@@ -146,12 +146,12 @@ soundSat <- function(soundpath,
     )
   )
 
-  halfWl <- round(wl / 2)
+  halfWl = round(wl / 2)
 
-  SATdf <- list()
+  SATdf = list()
 
   if (!is.null(backup)) {
-    SATdf[["ogARGS"]] <- list(
+    SATdf[["ogARGS"]] = list(
       channel = channel,
       timeBin = timeBin,
       dbThreshold = dbThreshold,
@@ -172,17 +172,17 @@ soundSat <- function(soundpath,
     )
   }
 
-  nFiles <- length(soundfiles)
-  SATdf[["indexes"]] <- vector("list", nFiles)
+  nFiles = length(soundfiles)
+  SATdf[["indexes"]] = vector("list", nFiles)
 
   for (soundfile in 1:nFiles) {
     # gc()
     # I recently learned that R does garbage collection automatically, rendering this line unnecessary!
     # Will keep gc() commented here if I change my mind in the future!
 
-    sPath <- soundfiles[[soundfile]]
+    sPath = soundfiles[[soundfile]]
 
-    SATdf[["indexes"]][[soundfile]] <- tryCatch(
+    SATdf[["indexes"]][[soundfile]] = tryCatch(
       bgNoise.(
         sPath,
         timeBin = timeBin,
@@ -199,7 +199,7 @@ soundSat <- function(soundpath,
         e
     )
 
-    SATdf[["indexes"]][[soundfile]]@path <- sPath
+    SATdf[["indexes"]][[soundfile]]@path = sPath
 
     message(
       "\r(",
@@ -213,21 +213,21 @@ soundSat <- function(soundpath,
     )
 
     if (!is.null(backup) && soundfile %% 5 == 1) {
-      SATdf$ogARGS$concluded <- soundfile
+      SATdf$ogARGS$concluded = soundfile
 
       saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.RData"))
     }
 
   }
 
-  whichError <- sapply(SATdf[["indexes"]], function(x) {
+  whichError = sapply(SATdf[["indexes"]], function(x) {
     is(x, "error")
   })
 
-  ERRORS <- SATdf$indexes[whichError]
-  indexes <- SATdf$indexes[!whichError]
+  ERRORS = SATdf$indexes[whichError]
+  indexes = SATdf$indexes[!whichError]
 
-  BGN <- do.call(cbind, sapply(indexes, function(x) {
+  BGN = do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$BGN, x@values$right$BGN)
     } else {
@@ -235,7 +235,7 @@ soundSat <- function(soundpath,
     }
   }))
 
-  POW <- do.call(cbind, sapply(indexes, function(x) {
+  POW = do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$POW, x@values$right$POW)
     } else {
@@ -243,8 +243,8 @@ soundSat <- function(soundpath,
     }
   }))
 
-  INFO <- lapply(indexes, function(x) {
-    nBins <- length(x@timeBins)
+  INFO = lapply(indexes, function(x) {
+    nBins = length(x@timeBins)
     if (x@channel == "stereo") {
       list(
         rep(x@timeBins, each = 2),
@@ -262,7 +262,7 @@ soundSat <- function(soundpath,
     }
   })
 
-  paths <- unlist(sapply(indexes, function(x) {
+  paths = unlist(sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       rep(x@path, length(x@timeBins) * 2)
     } else {
@@ -270,7 +270,7 @@ soundSat <- function(soundpath,
     }
   }))
 
-  SATinfo <- data.frame(
+  SATinfo = data.frame(
     PATH = dirname(paths),
     AUDIO = basename(paths),
     CHANNEL = c(unlist(sapply(INFO, function(x) {
@@ -288,13 +288,13 @@ soundSat <- function(soundpath,
     SAT = NA
   )
 
-  dimBGN <- dim(BGN)
+  dimBGN = dim(BGN)
 
   if (beta) {
-    BGNQ <- quantile(unlist(BGN), probs = seq(bgnthr[1], bgnthr[2], bgnthr[3])) |>
+    BGNQ = quantile(unlist(BGN), probs = seq(bgnthr[1], bgnthr[2], bgnthr[3])) |>
       setNames(bgnthreshold)
 
-    SATmat <- mapply(
+    SATmat = mapply(
       function(bgnthresh, powthresh) {
         sapply(1:ncol(BGN), function(t) {
           sum(BGN[, t] > BGNQ[names(BGNQ) == bgnthresh] |
@@ -308,7 +308,7 @@ soundSat <- function(soundpath,
     )
 
   } else {
-    SATmat <- mapply(
+    SATmat = mapply(
       function(bgnthresh, powthresh) {
         sapply(1:ncol(BGN), function(t) {
           sum(BGN[, t] > quantile(BGN[, t], bgnthresh) |
@@ -323,9 +323,9 @@ soundSat <- function(soundpath,
 
   }
 
-  colnames(SATmat) <- combinations
+  colnames(SATmat) = combinations
 
-  normal <- apply(SATmat, 2, function(Q) {
+  normal = apply(SATmat, 2, function(Q) {
     if (length(unique(Q)) != 1) {
       do.call(normality, list(Q))$statistic
     } else {
@@ -335,14 +335,14 @@ soundSat <- function(soundpath,
   })
 
   if (normality %in% c("sf.test", "shapiro.test")) {
-    thresholds <- unlist(strsplit(names(which.max(normal)), split = "/"))
-    normOUT <- max(normal, na.rm = TRUE)
+    thresholds = unlist(strsplit(names(which.max(normal)), split = "/"))
+    normOUT = max(normal, na.rm = TRUE)
   } else {
-    thresholds <- unlist(strsplit(names(which.min(normal)), split = "/"))
-    normOUT <- min(normal, na.rm = TRUE)
+    thresholds = unlist(strsplit(names(which.min(normal)), split = "/"))
+    normOUT = min(normal, na.rm = TRUE)
   }
 
-  normname <- switch(
+  normname = switch(
     normality,
     "shapiro.test" = "Shapiro-Wilk",
     "sf.test" = "Shapiro-Francia",
@@ -351,7 +351,7 @@ soundSat <- function(soundpath,
     "lillie.test" = "Lilliefors",
     "pearson.test" = "Pearson chi-square"
   )
-  normstat <- switch(
+  normstat = switch(
     normality,
     "shapiro.test" = "W",
     "sf.test" = "W'",
@@ -379,13 +379,13 @@ soundSat <- function(soundpath,
   )
 
   if (!is.null(backup)) {
-    SATdf["ogARGS"] <- NULL
+    SATdf["ogARGS"] = NULL
     file.remove(paste0(backup, "/SATBACKUP.RData"))
   }
 
-  SATinfo$SAT <- SATmat[, which(normal == normOUT)]
+  SATinfo$SAT = SATmat[, which(normal == normOUT)]
 
-  export <- list(
+  export = list(
     powthresh = numeric(0),
     bgnthresh = numeric(0),
     normality = list(),
@@ -393,12 +393,12 @@ soundSat <- function(soundpath,
     errors = list()
   )
 
-  export["powthresh"] <- as.numeric(thresholds[1])
-  export["bgnthresh"] <- as.numeric(thresholds[2]) * 100
-  export[["normality"]]["test"] <- normality
-  export[["normality"]]["statistic"] <- normOUT
-  export[["values"]] <- SATinfo
-  export[["errors"]] <- ERRORS
+  export["powthresh"] = as.numeric(thresholds[1])
+  export["bgnthresh"] = as.numeric(thresholds[2]) * 100
+  export[["normality"]]["test"] = normality
+  export[["normality"]]["statistic"] = normOUT
+  export[["values"]] = SATinfo
+  export[["errors"]] = ERRORS
 
   return(export)
 

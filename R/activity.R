@@ -47,15 +47,15 @@
 #' sampleBGN
 #'
 #' # Run the function
-#' sat <- activity(sampleBGN)
+#' sat = activity(sampleBGN)
 #'
 #' # Now we can plot the results for the left channel
-#' satLeft <- sat[,1:3]
-#' satDim <- dim(satLeft)
-#' numericTime <- seq(0, sum(sampleBGN@timeBins), by = sampleBGN@timeBins[1])
-#' labels <- paste0(numericTime[-length(numericTime)], "-", numericTime[-1], "s")
+#' satLeft = sat[,1:3]
+#' satDim = dim(satLeft)
+#' numericTime = seq(0, sum(sampleBGN@timeBins), by = sampleBGN@timeBins[1])
+#' labels = paste0(numericTime[-length(numericTime)], "-", numericTime[-1], "s")
 #'
-#' satDF <- data.frame(BIN = rep(paste0("BIN", seq(satDim[2])), each = satDim[1]),
+#' satDF = data.frame(BIN = rep(paste0("BIN", seq(satDim[2])), each = satDim[1]),
 #'                     WIN = rep(seq(satDim[1]), satDim[2]),
 #'                     ACT = factor(c(sat), levels = c(0,1)))
 #'
@@ -69,7 +69,7 @@
 #'   guides(fill = guide_legend(title = "Activity"))
 #'
 #' }
-activity <- function(soundfile,
+activity = function(soundfile,
                        channel = "stereo",
                        timeBin = 60,
                        dbThreshold = -90,
@@ -86,9 +86,9 @@ activity <- function(soundfile,
     argHandler(FUN = "activity", soundfile, channel, timeBin, dbThreshold, targetSampRate, wl,
                window, overlap, histbreaks, DCfix, powthr, bgnthr, beta)
 
-  halfWl <- round(wl / 2)
+  halfWl = round(wl / 2)
 
-  BGNPOW <- if(is(soundfile, "noise.matrix")) {
+  BGNPOW = if(is(soundfile, "noise.matrix")) {
     soundfile
   } else {
     bgNoise.(
@@ -105,29 +105,29 @@ activity <- function(soundfile,
     )
   }
 
-  nBins <- length(BGNPOW@timeBins)
+  nBins = length(BGNPOW@timeBins)
 
   if (BGNPOW@channel == "stereo") {
-    BGN <- cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
-    names <- paste0(rep(c("left", "right"), each = nBins), seq(nBins))
+    BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
+    names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
   } else {
-    BGN <- BGNPOW@values[[BGNPOW@channel]]$BGN
-    names <- paste0(rep(BGNPOW@channel, nBins), seq(nBins))
+    BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
+    names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
   }
 
   if (BGNPOW@channel == "stereo") {
-    POW <- cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
+    POW = cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
   } else {
-    POW <- BGNPOW@values[[BGNPOW@channel]]$POW
+    POW = BGNPOW@values[[BGNPOW@channel]]$POW
   }
 
   if (beta) {
-    BGNQ <- quantile(unlist(BGN), bgnthr)
+    BGNQ = quantile(unlist(BGN), bgnthr)
 
-    singSat <- BGN > BGNQ | POW > powthr
+    singSat = BGN > BGNQ | POW > powthr
 
   } else {
-    singSat <- sapply(1:ncol(BGN), function(t) {
+    singSat = sapply(1:ncol(BGN), function(t) {
       BGN[, t] > quantile(BGN[, t], bgnthr) | POW[, t] > powthr
 
     })

@@ -1,21 +1,21 @@
-test_that("satBackup can be tricked!", {
+test_that("satBackup can be tricked into working.", {
 
   options(timeout = 500)
 
-  dir <- paste(tempdir(), "forExample", sep = "/")
+  dir = paste(tempdir(), "forExample", sep = "/")
   dir.create(dir)
-  recName <- paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
-  recDir <- paste(dir, recName, sep = "/")
+  recName = paste0("GAL24576_20250401_", sprintf("%06d", seq(0, 200000, by = 50000)),".wav")
+  recDir = paste(dir, recName, sep = "/")
 
   for(rec in recDir) {
     print(rec)
-    url <- paste0("https://zenodo.org/records/17575795/files/", basename(rec), "?download=1")
+    url = paste0("https://zenodo.org/records/17575795/files/", basename(rec), "?download=1")
     download.file(url, destfile = rec, mode = "wb")
   }
 
-  mockupBackup <- list()
+  mockupBackup = list()
 
-  mockupBackup[["ogARGS"]] <- list(
+  mockupBackup[["ogARGS"]] = list(
     channel = "stereo",
     timeBin = 60,
     dbThreshold = -90,
@@ -35,7 +35,7 @@ test_that("satBackup can be tricked!", {
     concluded = 1
   )
 
-  backup <- paste0(dir, "/SATBACKUP.RData")
+  backup = paste0(dir, "/SATBACKUP.RData")
 
   saveRDS(mockupBackup, file = backup)
 

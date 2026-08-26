@@ -54,7 +54,7 @@ setMethod("show", signature(object = "noise.matrix"), function(object) {
 
   if (object@channel == "stereo") {
     if (nBins <= 5) {
-      powDist <- nBins * 10 + 2
+      powDist = nBins * 10 + 2
 
       cat("\n@values$left\n")
 
@@ -93,7 +93,7 @@ setMethod("show", signature(object = "noise.matrix"), function(object) {
           sep = "\n")
 
     } else {
-      powDist <- 38
+      powDist = 38
 
       cat("\n@values$left\n")
 
@@ -134,7 +134,7 @@ setMethod("show", signature(object = "noise.matrix"), function(object) {
     cat("\n@values$", rChannel, "\n", sep = "")
 
     if (nBins <= 5) {
-      powDist <- nBins * 10 + 2
+      powDist = nBins * 10 + 2
 
       out = lapply(object@index, function(ind) {
         capture.output(rbind(head(
@@ -153,7 +153,7 @@ setMethod("show", signature(object = "noise.matrix"), function(object) {
           sep = "\n")
 
     } else {
-      powDist <- 38
+      powDist = 38
 
       out = lapply(object@index, function(ind) {
         capture.output(setNames(cbind(rbind(
@@ -225,13 +225,13 @@ setMethod("plot", signature(x = "noise.matrix"), function(x,
                                                           annotate = TRUE,
                                                           ...) {
   if (!is.null(channel)) {
-    channel <- match.arg(channel, c("stereo", "mono", "left", "right"))
+    channel = match.arg(channel, c("stereo", "mono", "left", "right"))
   } else {
-    channel <- x@channel
+    channel = x@channel
   }
 
   if (is.null(main)) {
-    main <- "channel"
+    main = "channel"
   }
 
   if (is.null(xlab)) {
@@ -241,10 +241,10 @@ setMethod("plot", signature(x = "noise.matrix"), function(x,
                   "ENT" = "Entropy")
   }
 
-  yunit <- match.arg(yunit)
+  yunit = match.arg(yunit)
 
   if (length(x@timeBins) < bin) {
-    bin <- length(x@timeBins)
+    bin = length(x@timeBins)
   }
 
   if (is.null(index)) {

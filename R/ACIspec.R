@@ -61,11 +61,11 @@
 #' ### These audios are originated from the Escutadô Project, a project
 #' ### that records the soundscapes of the brazilian semiarid
 #' # Getting audiofile from the online Zenodo library
-#' dir <- paste(tempdir(), "forExample", sep = "/")
+#' dir = paste(tempdir(), "forExample", sep = "/")
 #' dir.create(dir)
-#' rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0), ".wav")
-#' recDir <- paste(dir, rec , sep = "/")
-#' url <- paste0("https://zenodo.org/records/17575795/files/",
+#' rec = paste0("GAL24576_20250401_", sprintf("%06d", 0), ".wav")
+#' recDir = paste(dir, rec , sep = "/")
+#' url = paste0("https://zenodo.org/records/17575795/files/",
 #'               rec,
 #'               "?download=1")
 #'
@@ -73,7 +73,7 @@
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Running the ACIspec function with all the default arguments
-#' aci <- ACIspec(recDir)
+#' aci = ACIspec(recDir)
 #'
 #' # Here's the result
 #' aci
@@ -95,7 +95,7 @@ ACIspec = function(soundfile,
              window, overlap)
 
   if (!is.null(timeBin)) {
-    j <- if (is.null(j)) timeBin else min(j, timeBin)
+    j = if (is.null(j)) timeBin else min(j, timeBin)
   }
 
   audio = typeof(soundfile)
@@ -135,7 +135,7 @@ ACIspec = function(soundfile,
     attr(soundfile, "sample_rate") = targetSampRate
   }
 
-  ACIexp <- processChannel.ACI(
+  ACIexp = processChannel.ACI(
     soundfile,
     samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
@@ -148,10 +148,10 @@ ACIspec = function(soundfile,
   )
 
   if (ACIexp@channel == "stereo") {
-    ACIexp@wl <- nrow(ACIexp@values$left$ACI)
+    ACIexp@wl = nrow(ACIexp@values$left$ACI)
 
   } else {
-    ACIexp@wl <- nrow(ACIexp@values[[channel]]$ACI)
+    ACIexp@wl = nrow(ACIexp@values[[channel]]$ACI)
 
   }
 

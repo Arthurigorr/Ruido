@@ -46,11 +46,11 @@
 #' ### These audios are originated from the Escutadô Project, a project
 #' ### that records the soundscapes of the brazilian semiarid
 #' # Getting audiofile from the online Zenodo library
-#' dir <- paste(tempdir(), "forExample", sep = "/")
+#' dir = paste(tempdir(), "forExample", sep = "/")
 #' dir.create(dir)
-#' rec <- paste0("GAL24576_20250401_", sprintf("%06d", 0), ".wav")
-#' recDir <- paste(dir, rec , sep = "/")
-#' url <- paste0("https://zenodo.org/records/17575795/files/",
+#' rec = paste0("GAL24576_20250401_", sprintf("%06d", 0), ".wav")
+#' recDir = paste(dir, rec , sep = "/")
+#' url = paste0("https://zenodo.org/records/17575795/files/",
 #'               rec,
 #'               "?download=1")
 #'
@@ -58,7 +58,7 @@
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Running the ENTspec function with all the default arguments
-#' ent <- ENTspec(recDir)
+#' ent = ENTspec(recDir)
 #'
 #' # Here's the result
 #' ent
@@ -115,7 +115,7 @@ ENTspec = function(soundfile,
     attr(soundfile, "sample_rate") = targetSampRate
   }
 
-  ENTexp <- processChannel.ENT(
+  ENTexp = processChannel.ENT(
     soundfile,
     samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
@@ -127,10 +127,10 @@ ENTspec = function(soundfile,
   )
 
   if (ENTexp@channel == "stereo") {
-    ENTexp@wl <- nrow(ENTexp@values$left$ENT)
+    ENTexp@wl = nrow(ENTexp@values$left$ENT)
 
   } else {
-    ENTexp@wl <- nrow(ENTexp@values[[channel]]$ENT)
+    ENTexp@wl = nrow(ENTexp@values[[channel]]$ENT)
 
   }
 
