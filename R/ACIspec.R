@@ -2,7 +2,7 @@
 #'
 #' @description Calculate the Acoustic Complexity Index values of a single audio using the methodology proposed in Pieretti, et al. 2011
 #'
-#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a valid audio file
+#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a `.wav` file
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param j size (in seconds) of the cluster interval. Set to `NULL` to use the entire bin as a single cluster. Defaults to `5`
@@ -45,13 +45,14 @@
 #'
 #' where \eqn{q} is the total number of frequency bins. This final aggregation step is not performed in this package.
 #'
+#' @seealso [ENTspec()] to calculate Spectral Entropy and [bgNoise()] to calculate Background Noise and Soundscape Power.
+#'
 #' @references
 #' Pieretti, N., Farina, A., & Morri, D. (2011). A new methodology to infer the singing activity of an avian community: The Acoustic Complexity Index (ACI). Ecological Indicators, 11(3), 868–873. https://doi.org/10.1016/j.ecolind.2010.11.005
 #'
 #'@export
 #'@importFrom signal specgram
 #'@importFrom tuneR readWave
-#'@importFrom tuneR readMP3
 #'@importFrom tuneR downsample
 #'@importFrom wav read_wav
 #'
@@ -90,12 +91,23 @@ ACIspec = function(soundfile,
                    wl = 512,
                    window = signal::hamming(wl),
                    overlap = ceiling(length(window) / 2)) {
-
-  argHandler(FUN = "ACIspec", soundfile, channel, timeBin, j, targetSampRate, wl,
-             window, overlap)
+  argHandler(
+    FUN = "ACIspec",
+    soundfile = soundfile,
+    channel = channel,
+    timeBin = timeBin,
+    j = j,
+    targetSampRate = targetSampRate,
+    wl = wl,
+    window = window,
+    overlap = overlap
+  )
 
   if (!is.null(timeBin)) {
-    j = if (is.null(j)) timeBin else min(j, timeBin)
+    j = if (is.null(j))
+      timeBin
+    else
+      min(j, timeBin)
   }
 
   audio = typeof(soundfile)
@@ -113,7 +125,7 @@ ACIspec = function(soundfile,
                          nrow = 2,
                          byrow = TRUE)
     } else {
-      soundfile = matrix(soundfile@left)
+      soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
     }
     attr(soundfile, "sample_rate") = tempSamp
   }
@@ -132,7 +144,7 @@ ACIspec = function(soundfile,
   }
   if (!is.null(targetSampRate)) {
     audioLen = length(soundfile[1, ])
-    keepIdx  = seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate)
+    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
     soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
     attr(soundfile, "sample_rate") = targetSampRate
   }

@@ -2,7 +2,7 @@
 #'
 #' @description Calculate the Acoustic Activity Matrix using the methodology proposed in Burivalova 2018
 #'
-#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a valid audio file
+#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a `.wav` file
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
@@ -24,6 +24,8 @@
 #' \deqn{a_{m,f} = \begin{cases} 1, & \text{if } BGN_{m,f} > \theta_1 \ \text{ or } POW_{m,f} > \theta_2 \\ 0, & \text{otherwise} \end{cases}}
 #'
 #' where \eqn{\theta} is a user-defined threshold applied uniformly to both `BGN` and `POW`. We set 1 to active and 0 to inactive frequency windows.
+#'
+#' @seealso [multActivity()] to run this over multiple audio files and [singleSat()] to get the full saturation values this activity matrix is derived from.
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
@@ -70,25 +72,38 @@
 #'
 #' }
 activity = function(soundfile,
-                       channel = "stereo",
-                       timeBin = 60,
-                       dbThreshold = -90,
-                       targetSampRate = NULL,
-                       wl = 512,
-                       window = signal::hamming(wl),
-                       overlap = ceiling(length(window) / 2),
-                       histbreaks = "FD",
-                       DCfix = TRUE,
-                       powthr = 10,
-                       bgnthr = 0.8,
-                       beta = TRUE) {
-
-    argHandler(FUN = "activity", soundfile, channel, timeBin, dbThreshold, targetSampRate, wl,
-               window, overlap, histbreaks, DCfix, powthr, bgnthr, beta)
+                    channel = "stereo",
+                    timeBin = 60,
+                    dbThreshold = -90,
+                    targetSampRate = NULL,
+                    wl = 512,
+                    window = signal::hamming(wl),
+                    overlap = ceiling(length(window) / 2),
+                    histbreaks = "FD",
+                    DCfix = TRUE,
+                    powthr = 10,
+                    bgnthr = 0.8,
+                    beta = TRUE) {
+  argHandler(
+    FUN = "activity",
+    soundfile = soundfile,
+    channel = channel,
+    timeBin = timeBin,
+    dbThreshold = dbThreshold,
+    targetSampRate = targetSampRate,
+    wl = wl,
+    window = window,
+    overlap = overlap,
+    histbreaks = histbreaks,
+    DCfix = DCfix,
+    powthr = powthr,
+    bgnthr = bgnthr,
+    beta = beta
+  )
 
   halfWl = round(wl / 2)
 
-  BGNPOW = if(is(soundfile, "noise.matrix")) {
+  BGNPOW = if (is(soundfile, "noise.matrix")) {
     soundfile
   } else {
     bgNoise.(

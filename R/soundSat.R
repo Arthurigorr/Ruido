@@ -2,7 +2,7 @@
 #'
 #' @description Calculate Soundscape Saturation for a combination of recordings using the methodology proposed in Burivalova 2018.
 #'
-#' @param soundpath single or multiple directories to your audio files
+#' @param soundpath single or multiple directories to your `.wav` audio files
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
@@ -22,7 +22,7 @@
 #' @param beta how BGN thresholds are calculated. If `TRUE`, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to `TRUE`
 #' @param backup path to save the backup. Defaults to `NULL`
 #'
-#' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
+#' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statistics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
 #'
 #' @details  Soundscape Saturation (`SAT`) quantifies the proportion of frequency bins that are acoustically active within a given time bin. It wasproposed by Burivalova et al. (2018) as a metric to evaluate the acoustic niche hypothesis.
 #'
@@ -101,23 +101,38 @@
 #' unlink(dir, recursive = TRUE)
 #' }
 soundSat = function(soundpath,
-                     channel = "stereo",
-                     timeBin = 60,
-                     dbThreshold = -90,
-                     targetSampRate = NULL,
-                     wl = 512,
-                     window = signal::hamming(wl),
-                     overlap = ceiling(length(window) / 2),
-                     histbreaks = "FD",
-                     DCfix = TRUE,
-                     powthr = c(5, 20, 1),
-                     bgnthr = c(0.5, 0.9, 0.05),
-                     normality = "ad.test",
-                     beta = TRUE,
-                     backup = NULL) {
-
-  argHandler(FUN = "soundSat", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
-             window, overlap, histbreaks, DCfix, powthr, bgnthr, normality, beta, backup)
+                    channel = "stereo",
+                    timeBin = 60,
+                    dbThreshold = -90,
+                    targetSampRate = NULL,
+                    wl = 512,
+                    window = signal::hamming(wl),
+                    overlap = ceiling(length(window) / 2),
+                    histbreaks = "FD",
+                    DCfix = TRUE,
+                    powthr = c(5, 20, 1),
+                    bgnthr = c(0.5, 0.9, 0.05),
+                    normality = "ad.test",
+                    beta = TRUE,
+                    backup = NULL) {
+  argHandler(
+    FUN = "soundSat",
+    soundpath = soundpath,
+    channel = channel,
+    timeBin = timeBin,
+    dbThreshold = dbThreshold,
+    targetSampRate = targetSampRate,
+    wl = wl,
+    window = window,
+    overlap = overlap,
+    histbreaks = histbreaks,
+    DCfix = DCfix,
+    powthr = powthr,
+    bgnthr = bgnthr,
+    normality = normality,
+    beta = beta,
+    backup = backup
+  )
 
   normality = normHandler(normality)
 
@@ -126,13 +141,13 @@ soundSat = function(soundpath,
   bgnthreshold = seq(bgnthr[1], bgnthr[2], bgnthr[3])
 
   soundfiles = list.files(soundpath, full.names = TRUE, recursive = TRUE)
-  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
+  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) == "wav"]
 
   if (length(soundfiles) < 3)
     stop("please provide at least 3 recordings!")
 
   thresholdCombinations = setNames(expand.grid(powthreshold, bgnthreshold),
-                                    c("powthreshold", "bgnthreshold"))
+                                   c("powthreshold", "bgnthreshold"))
 
   combinations = paste(thresholdCombinations[, 1], thresholdCombinations[, 2], sep = "/")
 
@@ -182,8 +197,8 @@ soundSat = function(soundpath,
 
     sPath = soundfiles[[soundfile]]
 
-    SATdf[["indexes"]][[soundfile]] = tryCatch(
-      bgNoise.(
+    result = tryCatch(
+      bgNoise..(
         sPath,
         timeBin = timeBin,
         targetSampRate = targetSampRate,
@@ -195,27 +210,30 @@ soundSat = function(soundpath,
         histbreaks = histbreaks,
         DCfix = DCfix
       ),
-      error = function(e)
+      error = function(e) {
+        e$message = paste0(e$message, " (file: ", sPath, ")")
         e
+      }
     )
 
-    SATdf[["indexes"]][[soundfile]]@path = sPath
+    if (!is(result, "error")) result@path = sPath
+    SATdf[["indexes"]][[soundfile]] = result
 
     message(
       "\r(",
       basename(soundfiles[soundfile]),
       ") ",
-      match(soundfiles[soundfile], soundfiles),
+      soundfile,
       " out of ",
-      length(soundfiles),
-      " recordings concluded!",
+      nFiles,
+      " recordings concluded.",
       sep = ""
     )
 
     if (!is.null(backup) && soundfile %% 5 == 1) {
       SATdf$ogARGS$concluded = soundfile
 
-      saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.RData"))
+      saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.rds"))
     }
 
   }
@@ -247,7 +265,7 @@ soundSat = function(soundpath,
     nBins = length(x@timeBins)
     if (x@channel == "stereo") {
       list(
-        rep(x@timeBins, each = 2),
+        rep(x@timeBins, 2),
         rep(x@sampRate, length(x@timeBins) * 2),
         rep(1:length(x@timeBins), 2),
         rep(c("left", "right"), each = nBins)
@@ -287,8 +305,6 @@ soundSat = function(soundpath,
     }))),
     SAT = NA
   )
-
-  dimBGN = dim(BGN)
 
   if (beta) {
     BGNQ = quantile(unlist(BGN), probs = seq(bgnthr[1], bgnthr[2], bgnthr[3])) |>
@@ -380,7 +396,7 @@ soundSat = function(soundpath,
 
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
-    file.remove(paste0(backup, "/SATBACKUP.RData"))
+    file.remove(paste0(backup, "/SATBACKUP.rds"))
   }
 
   SATinfo$SAT = SATmat[, which(normal == normOUT)]

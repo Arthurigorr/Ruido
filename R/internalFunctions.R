@@ -266,6 +266,7 @@ bgNoise. = function(soundfile,
                      overlap = ceiling(length(window) / 2),
                      histbreaks = "FD",
                      DCfix = TRUE) {
+
   audio = typeof(soundfile)
 
   if (audio == "character") {
@@ -289,7 +290,9 @@ bgNoise. = function(soundfile,
   savedAttr = attributes(soundfile)
 
   if (channel == "mono" && savedAttr$dim[1] > 1) {
-    soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
+    sampRate = attr(soundfile, "sample_rate")
+    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
+    attr(soundfile, "sample_rate") = sampRate
     savedAttr$dim = dim(soundfile)
   }
   if (channel == "stereo" && nrow(soundfile) == 1) {
@@ -298,16 +301,14 @@ bgNoise. = function(soundfile,
   }
   if (!is.null(targetSampRate)) {
     audioLen = length(soundfile[1, ])
-    soundfile = soundfile[1:savedAttr$dim[1], seq(1, audioLen, length = targetSampRate * audioLen /
-                                                    savedAttr$sample_rate)]
+    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
+    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
     attr(soundfile, "sample_rate") = targetSampRate
   }
 
-  rm(audio)
-
   BGNexp = processChannel.BGN(
     soundfile,
-    samp.rate = savedAttr$sample_rate,
+    samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
     timeBin = timeBin,
     wl = wl,
@@ -324,7 +325,7 @@ bgNoise. = function(soundfile,
 ## bgNoise
 ## This is another hidden version of the bgNoise function.
 ## This version is used in functions that take a folder as input.
-## It skips mosts checks and reads the audio files directly.
+## It skips checks and reads the audio files directly.
 
 bgNoise.. = function(soundfile,
                       channel = "stereo",
@@ -336,27 +337,35 @@ bgNoise.. = function(soundfile,
                       overlap = ceiling(length(window) / 2),
                       histbreaks = "FD",
                       DCfix = TRUE) {
+
   if (tolower(tools::file_ext(soundfile)) == "wav") {
     soundfile = wav::read_wav(soundfile)
-    samp.rate = attr(soundfile, "sample_rate")
-
-    if (channel == "mono" && nrow(soundfile) > 1) {
-      soundfile = (soundfile[1, ] + soundfile[2, ]) / 2
-      attr(soundfile, "sample_rate") = samp.rate
-    }
-
-    if (channel == "stereo" && nrow(soundfile) == 1) {
-      message("Audio is not stereo, defaulting to left channel.")
-      channel = "mono"
-    }
-
   } else {
     stop("The audio file must be in the WAV format.")
   }
 
+  savedAttr = attributes(soundfile)
+
+  if (channel == "mono" && savedAttr$dim[1] > 1) {
+    sampRate = attr(soundfile, "sample_rate")
+    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
+    attr(soundfile, "sample_rate") = sampRate
+    savedAttr$dim = dim(soundfile)
+  }
+  if (channel == "stereo" && nrow(soundfile) == 1) {
+    message("Audio is not stereo, defaulting to left channel.")
+    channel = "mono"
+  }
+  if (!is.null(targetSampRate)) {
+    audioLen = length(soundfile[1, ])
+    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
+    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
+    attr(soundfile, "sample_rate") = targetSampRate
+  }
+
   BGNexp = processChannel.BGN(
     soundfile,
-    samp.rate,
+    samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
     timeBin = timeBin,
     wl = wl,
@@ -371,25 +380,15 @@ bgNoise.. = function(soundfile,
 }
 
 # argHandler --------------------------------------------------------------
-## Function to check if the inputed arguments are supported.
+## Function to check if the inputted arguments are supported.
 
 argHandler = function(FUN, ...) {
   args = list(...)
 
-  gatherFun = get(FUN)
-  expectedArgs = names(formals(gatherFun))
-
-  names(args) = expectedArgs
-
   #### soundpath ----
   if ("soundpath" %in% names(args)) {
-    if (length(args$soundpath) == 1) {
-      if (!file.exists(args$soundpath))
-        stop("provided soundpath must be valid")
-    } else {
-      if (all(!dir.exists(args$soundpath)))
-        stop("all provided soundpaths must be valid")
-    }
+    if (!all(file.exists(args$soundpath)))
+      stop("all provided soundpaths must be valid")
   }
 
   #### channel ----
@@ -411,7 +410,7 @@ argHandler = function(FUN, ...) {
       paste0(
         'timeBin = ',
         capture.output(dput(args$timeBin)),
-        '\ntimeBin must be NULL or a single single non-negative number'
+        '\ntimeBin must be NULL or a single non-negative number'
       ),
       call. = FALSE
     )
@@ -426,7 +425,7 @@ argHandler = function(FUN, ...) {
         paste0(
           'j = ',
           capture.output(dput(args$j)),
-          '\nj must be NULL or a single single non-negative number'
+          '\nj must be NULL or a single non-negative number'
         ),
         call. = FALSE
       )
@@ -462,7 +461,7 @@ argHandler = function(FUN, ...) {
       paste0(
         'targetSampRate = ',
         capture.output(dput(args$targetSampRate)),
-        '\ntargetSampRate must be NULL or a single single non-negative number'
+        '\ntargetSampRate must be NULL or a single non-negative number'
       ),
       call. = FALSE
     )
@@ -474,7 +473,7 @@ argHandler = function(FUN, ...) {
       paste0(
         'wl = ',
         capture.output(dput(args$wl)),
-        '\nwl must be a single single non-negative number'
+        '\nwl must be a single non-negative number'
       ),
       call. = FALSE
     )
@@ -497,7 +496,7 @@ argHandler = function(FUN, ...) {
       paste0(
         'overlap = ',
         capture.output(dput(args$overlap)),
-        '\noverlap must be a single single non-negative number'
+        '\noverlap must be a single non-negative number'
       ),
       call. = FALSE
     )
@@ -519,7 +518,7 @@ argHandler = function(FUN, ...) {
 
   #### DCfix ----
   if ("DCfix" %in% names(args)) {
-    if (length(args$DCfix) != 1 || !is.logical(args$DCfix)) {
+    if (length(args$DCfix) != 1 || !is.logical(args$DCfix) || is.na(args$DCfix)) {
       stop(paste0(
         'DCfix = ',
         capture.output(dput(args$DCfix)),
@@ -695,7 +694,7 @@ argHandler = function(FUN, ...) {
       )
   }
 
-  return(0)
+  invisible(NULL)
 
 }
 

@@ -36,7 +36,7 @@
 #' # We get the backup file
 #'
 #' list.files(dir)
-#' backupDir = paste(dir, "SATBACKUP.RData", sep = "/")
+#' backupDir = paste(dir, "SATBACKUP.rds", sep = "/")
 #'
 #' # To recall the backup you simply:
 #'
@@ -52,7 +52,7 @@ satBackup = function(backup) {
   list2env(SATdf$ogARGS, envir = environment())
 
   soundfiles = list.files(od, full.names = TRUE, recursive = TRUE)
-  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
+  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) == "wav"]
 
   if (type != "multActivity") {
     powthreshold = seq(powthr[1], powthr[2], powthr[3])
@@ -76,7 +76,7 @@ satBackup = function(backup) {
 
       sPath = soundfiles[[soundfile]]
 
-      SATdf[["indexes"]][[soundfile]] = tryCatch(
+      result = tryCatch(
         bgNoise..(
           sPath,
           timeBin = timeBin,
@@ -89,20 +89,23 @@ satBackup = function(backup) {
           histbreaks = histbreaks,
           DCfix = DCfix
         ),
-        error = function(e)
+        error = function(e) {
+          e$message = paste0(e$message, " (file: ", sPath, ")")
           e
+        }
       )
 
-      SATdf[["indexes"]][[soundfile]]@path = sPath
+      if (!is(result, "error")) result@path = sPath
+      SATdf[["indexes"]][[soundfile]] = result
 
       message(
         "\r(",
         basename(soundfiles[soundfile]),
         ") ",
-        match(soundfiles[soundfile], soundfiles),
+        soundfile,
         " out of ",
-        length(soundfiles),
-        " recordings concluded!",
+        nFiles,
+        " recordings concluded.",
         sep = ""
       )
 

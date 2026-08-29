@@ -1,6 +1,6 @@
 #' @title Single Soundscape Saturation Index
 #'
-#' @param soundfile wav package numeric matrix, tuneR package Wave object, Ruido noise.matrix object or path to a valid audio
+#' @param soundfile wav package numeric matrix, tuneR package Wave object, Ruido noise.matrix object or path to a `.wav` file
 #' @param channel channel where the background noise values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
@@ -96,7 +96,7 @@
 #' sat = singleSat(wave, timeBin = 10)
 #'
 #' # Now we can plot the results
-#' # In the left we have a periodogram and in the right saturaion values
+#' # In the left we have a periodogram and in the right saturation values
 #' # along one minute
 #' par(mfrow = c(1,2))
 #' image(periodogram(wave, width = 8192, normalize = FALSE), xlab = "Time (s)",
@@ -137,25 +137,38 @@
 #' unlink(dir, recursive = TRUE)
 #' }
 singleSat = function(soundfile,
-                      channel = "stereo",
-                      timeBin = 60,
-                      dbThreshold = -90,
-                      targetSampRate = NULL,
-                      wl = 512,
-                      window = signal::hamming(wl),
-                      overlap = ceiling(length(window) / 2),
-                      histbreaks = "FD",
-                      DCfix = TRUE,
-                      powthr = 10,
-                      bgnthr = 0.8,
-                      beta = TRUE) {
-
-  argHandler(FUN = "singleSat", soundfile, channel, timeBin, dbThreshold, targetSampRate, wl,
-             window, overlap, histbreaks, DCfix, powthr, bgnthr, beta)
+                     channel = "stereo",
+                     timeBin = 60,
+                     dbThreshold = -90,
+                     targetSampRate = NULL,
+                     wl = 512,
+                     window = signal::hamming(wl),
+                     overlap = ceiling(length(window) / 2),
+                     histbreaks = "FD",
+                     DCfix = TRUE,
+                     powthr = 10,
+                     bgnthr = 0.8,
+                     beta = TRUE) {
+  argHandler(
+    FUN = "singleSat",
+    soundfile = soundfile,
+    channel = channel,
+    timeBin = timeBin,
+    dbThreshold = dbThreshold,
+    targetSampRate = targetSampRate,
+    wl = wl,
+    window = window,
+    overlap = overlap,
+    histbreaks = histbreaks,
+    DCfix = DCfix,
+    powthr = powthr,
+    bgnthr = bgnthr,
+    beta = beta
+  )
 
   halfWl = round(wl / 2)
 
-  BGNPOW = if(is(soundfile, "noise.matrix")) {
+  BGNPOW = if (is(soundfile, "noise.matrix")) {
     soundfile
   } else {
     bgNoise.(
@@ -205,10 +218,7 @@ singleSat = function(soundfile,
   names(singSat) = names
 
   if (BGNPOW@channel == "stereo") {
-    return(list(
-      left  = singSat[seq(nBins)],
-      right = singSat[seq(nBins + 1, nBins * 2)]
-    ))
+    return(list(left  = singSat[seq(nBins)], right = singSat[seq(nBins + 1, nBins * 2)]))
   } else {
     return(setNames(list(singSat), BGNPOW@channel))
   }

@@ -2,7 +2,7 @@
 #'
 #' @description Calculate the Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
 #'
-#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a valid audio file
+#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a `.wav` file
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
@@ -30,6 +30,8 @@
 #'
 #' where \eqn{\max(dB_{c,f})} is the maximum intensity observed. `POW` can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
 #'
+#' @seealso [ACIspec()] to calculate the Acoustic Complexity Index and [ENTspec()] to calculate Spectral Entropy from a single audio file. Also, check [activity()] and [singleSat()], which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.
+#'
 #' @references
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
 #' <br>Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. IEEE Transactions on Acoustics, Speech, and Signal Processing, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
@@ -37,7 +39,6 @@
 #'@export
 #'@importFrom signal specgram
 #'@importFrom tuneR readWave
-#'@importFrom tuneR readMP3
 #'@importFrom tuneR downsample
 #'@importFrom wav read_wav
 #'@importFrom grDevices nclass.FD
@@ -128,16 +129,16 @@ bgNoise = function(soundfile,
                     DCfix = TRUE) {
   argHandler(
     FUN = "bgNoise",
-    soundfile,
-    channel,
-    timeBin,
-    dbThreshold,
-    targetSampRate,
-    wl,
-    window,
-    overlap,
-    histbreaks,
-    DCfix
+    soundfile = soundfile,
+    channel = channel,
+    timeBin = timeBin,
+    dbThreshold= dbThreshold,
+    targetSampRate = targetSampRate,
+    wl = wl,
+    window = window,
+    overlap = overlap,
+    histbreaks = histbreaks,
+    DCfix = DCfix
   )
 
   audio = typeof(soundfile)

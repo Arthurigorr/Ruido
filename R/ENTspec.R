@@ -2,7 +2,7 @@
 #'
 #' @description Calculate the Temporal Entropy values of a single audio using the methodology proposed in Towsey, et al. 2014
 #'
-#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a valid audio file
+#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a `.wav` file
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
@@ -30,13 +30,14 @@
 #'
 #' The result is a frequency-resolved representation of `ENT` for each time bin, rather than a single scalar value for the entire recording. Values close to `1` indicate energy concentrated in few time steps (e.g. transient calls or pulses), while values close to `0` indicate energy spread evenly across the time bin (e.g. steady background noise).
 #'
+#' @seealso [ACIspec()] to calculate the Acoustic Complexity Index and [bgNoise()] to calculate Background Noise and Soundscape Power.
+#'
 #' @references
 #' Towsey, M., Wimmer, J., Williamson, I., & Roe, P. (2014). The use of acoustic indices to determine avian species richness in audio-recordings of the environment. Ecological Informatics, 21, 110–119. https://doi.org/10.1016/j.ecoinf.2013.11.007
 #'
 #'@export
 #'@importFrom signal specgram
 #'@importFrom tuneR readWave
-#'@importFrom tuneR readMP3
 #'@importFrom tuneR downsample
 #'@importFrom wav read_wav
 #'
@@ -74,9 +75,16 @@ ENTspec = function(soundfile,
                    wl = 512,
                    window = signal::hamming(wl),
                    overlap = ceiling(length(window) / 2)) {
-
-  argHandler(FUN = "ENTspec", soundfile, channel, timeBin, targetSampRate, wl,
-             window, overlap)
+  argHandler(
+    FUN = "ENTspec",
+    soundfile = soundfile,
+    channel = channel,
+    timeBin = timeBin,
+    targetSampRate = targetSampRate,
+    wl = wl,
+    window = window,
+    overlap = overlap
+  )
 
   audio = typeof(soundfile)
 
@@ -93,7 +101,7 @@ ENTspec = function(soundfile,
                          nrow = 2,
                          byrow = TRUE)
     } else {
-      soundfile = matrix(soundfile@left)
+      soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
     }
     attr(soundfile, "sample_rate") = tempSamp
   }
@@ -112,7 +120,7 @@ ENTspec = function(soundfile,
   }
   if (!is.null(targetSampRate)) {
     audioLen = length(soundfile[1, ])
-    keepIdx  = seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate)
+    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
     soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
     attr(soundfile, "sample_rate") = targetSampRate
   }

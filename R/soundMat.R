@@ -2,7 +2,7 @@
 #'
 #' @description Get the Soundscape Saturation matrix with all threshold combinations instead of the combination with the most normal distribution.
 #'
-#' @param soundpath single or multiple directories to your audio files
+#' @param soundpath single or multiple directories to your `.wav` audio files
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 ##' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
@@ -123,35 +123,49 @@
 #' par(oldpar)
 #' }
 soundMat = function(soundpath,
-                     channel = "stereo",
-                     timeBin = 60,
-                     dbThreshold = -90,
-                     targetSampRate = NULL,
-                     wl = 512,
-                     window = signal::hamming(wl),
-                     overlap = ceiling(length(window) / 2),
-                     histbreaks = "FD",
-                     DCfix = TRUE,
-                     powthr = c(5, 20, 1),
-                     bgnthr = c(0.5, 0.9, 0.05),
-                     beta = TRUE,
-                     backup = NULL) {
-
-  argHandler(FUN = "soundMat", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
-             window, overlap, histbreaks, DCfix, powthr, bgnthr, beta, backup)
+                    channel = "stereo",
+                    timeBin = 60,
+                    dbThreshold = -90,
+                    targetSampRate = NULL,
+                    wl = 512,
+                    window = signal::hamming(wl),
+                    overlap = ceiling(length(window) / 2),
+                    histbreaks = "FD",
+                    DCfix = TRUE,
+                    powthr = c(5, 20, 1),
+                    bgnthr = c(0.5, 0.9, 0.05),
+                    beta = TRUE,
+                    backup = NULL) {
+  argHandler(
+    FUN = "soundMat",
+    soundpath = soundpath,
+    channel = channel,
+    timeBin = timeBin,
+    dbThreshold = dbThreshold,
+    targetSampRate = targetSampRate,
+    wl = wl,
+    window = window,
+    overlap = overlap,
+    histbreaks = histbreaks,
+    DCfix = DCfix,
+    powthr = powthr,
+    bgnthr = bgnthr,
+    beta = beta,
+    backup = backup
+  )
 
   powthreshold = seq(powthr[1], powthr[2], powthr[3])
   names(powthreshold) = powthreshold
   bgnthreshold = seq(bgnthr[1], bgnthr[2], bgnthr[3])
 
   soundfiles = list.files(soundpath, full.names = TRUE, recursive = TRUE)
-  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
+  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) == "wav"]
 
   if (length(soundfiles) < 3)
     stop("please provide at least 3 recordings!")
 
   thresholdCombinations = setNames(expand.grid(powthreshold, bgnthreshold),
-                                    c("powthreshold", "bgnthreshold"))
+                                   c("powthreshold", "bgnthreshold"))
 
   combinations = paste(thresholdCombinations[, 1], thresholdCombinations[, 2], sep = "/")
 
@@ -200,7 +214,7 @@ soundMat = function(soundpath,
 
     sPath = soundfiles[[soundfile]]
 
-    SATdf[["indexes"]][[soundfile]] = tryCatch(
+    result = tryCatch(
       bgNoise..(
         sPath,
         timeBin = timeBin,
@@ -213,19 +227,22 @@ soundMat = function(soundpath,
         histbreaks = histbreaks,
         DCfix = DCfix
       ),
-      error = function(e)
+      error = function(e) {
+        e$message = paste0(e$message, " (file: ", sPath, ")")
         e
+      }
     )
 
-    SATdf[["indexes"]][[soundfile]]@path = sPath
+    if (!is(result, "error")) result@path = sPath
+    SATdf[["indexes"]][[soundfile]] = result
 
     message(
       "\r(",
       basename(soundfiles[soundfile]),
       ") ",
-      match(soundfiles[soundfile], soundfiles),
+      soundfile,
       " out of ",
-      length(soundfiles),
+      nFiles,
       " recordings concluded!",
       sep = ""
     )
@@ -233,7 +250,7 @@ soundMat = function(soundpath,
     if (!is.null(backup) && soundfile %% 5 == 1) {
       SATdf$ogARGS$concluded = soundfile
 
-      saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.RData"))
+      saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.rds"))
 
     }
 
@@ -345,12 +362,12 @@ soundMat = function(soundpath,
 
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
-    file.remove(paste0(backup, "/SATBACKUP.RData"))
+    file.remove(paste0(backup, "/SATBACKUP.rds"))
   }
 
   export = list(info = data.frame(),
-                 values = matrix(),
-                 errors = list())
+                values = matrix(),
+                errors = list())
 
   export[["info"]] = SATinfo
   export[["values"]] = SATmat

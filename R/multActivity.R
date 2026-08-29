@@ -2,7 +2,7 @@
 #'
 #' @description Calculate the Acoustic Activity Matrix used in the the calculation of Soundscape Saturation using Burivalova 2018 methodology for a set of recordings
 #'
-#' @param soundpath single or multiple directories to your audio files
+#' @param soundpath single or multiple directories to your `.wav` audio files
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
@@ -26,11 +26,11 @@
 #'
 #' where \eqn{\theta} is a user-defined threshold applied uniformly to both `BGN` and `POW`. We set 1 to active and 0 to inactive frequency windows.
 #'
-#' If `backup` is set to a valid directory, a file named `"SATBACKUP.RData"` is automatically saved after every batch of five processed files. This file stores the current processing state and allows interrupted runs (e.g., due to manual termination, session crashes, or system shutdowns) to be resumed using [satBackup()].
+#' If `backup` is set to a valid directory, a file named `"SATBACKUP.rds"` is automatically saved after every batch of five processed files. This file stores the current processing state and allows interrupted runs (e.g., due to manual termination, session crashes, or system shutdowns) to be resumed using [satBackup()].
 #'
-#' To resume processing, pass the saved file (e.g., `"path/SATBACKUP.RData"`) to [satBackup()]. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved `.RData` object.
+#' To resume processing, pass the saved file (e.g., `"path/SATBACKUP.rds"`) to [satBackup()]. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved `.RData` object.
 #'
-#' @seealso [soundSat()] and [soundMat()] to get saturation values. Also, check [satBackup()] if you are working with larger datasets and want some safety.
+#' @seealso [activity()] to run this on a single audio file, [soundSat()] and [soundMat()] to get saturation values instead. Also, check [satBackup()] if you are working with larger datasets and want some safety.
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
@@ -128,25 +128,39 @@
 #'   }
 #' }
 multActivity = function(soundpath,
-                         channel = "stereo",
-                         timeBin = 60,
-                         dbThreshold = -90,
-                         targetSampRate = NULL,
-                         wl = 512,
-                         window = signal::hamming(wl),
-                         overlap = ceiling(length(window) / 2),
-                         histbreaks = "FD",
-                         DCfix = TRUE,
-                         powthr = 10,
-                         bgnthr = 0.8,
-                         beta = TRUE,
-                         backup = NULL) {
-
-  argHandler(FUN = "multActivity", soundpath, channel, timeBin, dbThreshold, targetSampRate, wl,
-             window, overlap, histbreaks, DCfix, powthr, bgnthr, beta, backup)
+                        channel = "stereo",
+                        timeBin = 60,
+                        dbThreshold = -90,
+                        targetSampRate = NULL,
+                        wl = 512,
+                        window = signal::hamming(wl),
+                        overlap = ceiling(length(window) / 2),
+                        histbreaks = "FD",
+                        DCfix = TRUE,
+                        powthr = 10,
+                        bgnthr = 0.8,
+                        beta = TRUE,
+                        backup = NULL) {
+  argHandler(
+    FUN = "multActivity",
+    soundpath = soundpath,
+    channel = channel,
+    timeBin = timeBin,
+    dbThreshold = dbThreshold,
+    targetSampRate = targetSampRate,
+    wl = wl,
+    window = window,
+    overlap = overlap,
+    histbreaks = histbreaks,
+    DCfix = DCfix,
+    powthr = powthr,
+    bgnthr = bgnthr,
+    beta = beta,
+    backup = backup
+  )
 
   soundfiles = list.files(soundpath, full.names = TRUE, recursive = TRUE)
-  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) %in% c("mp3", "wav")]
+  soundfiles = soundfiles[tolower(tools::file_ext(soundfiles)) == "wav"]
 
   halfWl = round(wl / 2)
 
@@ -181,7 +195,7 @@ multActivity = function(soundpath,
 
     sPath = soundfiles[[soundfile]]
 
-    SATdf[["indexes"]][[soundfile]] = tryCatch(
+    result = tryCatch(
       bgNoise..(
         sPath,
         timeBin = timeBin,
@@ -194,19 +208,22 @@ multActivity = function(soundpath,
         histbreaks = histbreaks,
         DCfix = DCfix
       ),
-      error = function(e)
+      error = function(e) {
+        e$message = paste0(e$message, " (file: ", sPath, ")")
         e
+      }
     )
 
-    SATdf[["indexes"]][[soundfile]]@path = sPath
+    if (!is(result, "error")) result@path = sPath
+    SATdf[["indexes"]][[soundfile]] = result
 
     message(
       "\r(",
       basename(soundfiles[soundfile]),
       ") ",
-      match(soundfiles[soundfile], soundfiles),
+      soundfile,
       " out of ",
-      length(soundfiles),
+      nFiles,
       " recordings concluded!",
       sep = ""
     )
@@ -214,7 +231,7 @@ multActivity = function(soundpath,
     if (!is.null(backup) && soundfile %% 5 == 1) {
       SATdf$ogARGS$concluded = soundfile
 
-      saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.RData"))
+      saveRDS(SATdf, file = paste0(backup, "/SATBACKUP.rds"))
     }
 
   }
@@ -304,7 +321,7 @@ multActivity = function(soundpath,
 
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
-    file.remove(paste0(backup, "/SATBACKUP.RData"))
+    file.remove(paste0(backup, "/SATBACKUP.rds"))
   }
 
   export = list(
