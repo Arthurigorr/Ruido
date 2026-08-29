@@ -42,7 +42,6 @@ importFrom(stats,
 )
 importFrom(tuneR,
   downsample,
-  readMP3,
   readWave
 )
 importFrom(utils,
