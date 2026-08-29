@@ -15,7 +15,7 @@ ENTspec(
 )
 }
 \arguments{
-\item{soundfile}{wav package numeric matrix, tuneR package Wave object or path to a valid audio file}
+\item{soundfile}{wav package numeric matrix, tuneR package Wave object or path to a \code{.wav} file}
 
 \item{channel}{channel where the metric values will be extracted from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}}
 
@@ -60,11 +60,11 @@ The result is a frequency-resolved representation of \code{ENT} for each time bi
 ### These audios are originated from the Escutadô Project, a project
 ### that records the soundscapes of the brazilian semiarid
 # Getting audiofile from the online Zenodo library
-dir <- paste(tempdir(), "forExample", sep = "/")
+dir = paste(tempdir(), "forExample", sep = "/")
 dir.create(dir)
-rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0), ".wav")
-recDir <- paste(dir, rec , sep = "/")
-url <- paste0("https://zenodo.org/records/17575795/files/",
+rec = paste0("GAL24576_20250401_", sprintf("\%06d", 0), ".wav")
+recDir = paste(dir, rec , sep = "/")
+url = paste0("https://zenodo.org/records/17575795/files/",
               rec,
               "?download=1")
 
@@ -72,7 +72,7 @@ url <- paste0("https://zenodo.org/records/17575795/files/",
 download.file(url, destfile = recDir, mode = "wb")
 
 # Running the ENTspec function with all the default arguments
-ent <- ENTspec(recDir)
+ent = ENTspec(recDir)
 
 # Here's the result
 ent
@@ -84,4 +84,7 @@ plot(ent)
 }
 \references{
 Towsey, M., Wimmer, J., Williamson, I., & Roe, P. (2014). The use of acoustic indices to determine avian species richness in audio-recordings of the environment. Ecological Informatics, 21, 110–119. https://doi.org/10.1016/j.ecoinf.2013.11.007
+}
+\seealso{
+\code{\link[=ACIspec]{ACIspec()}} to calculate the Acoustic Complexity Index and \code{\link[=bgNoise]{bgNoise()}} to calculate Background Noise and Soundscape Power.
 }

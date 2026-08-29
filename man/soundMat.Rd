@@ -22,7 +22,7 @@ soundMat(
 )
 }
 \arguments{
-\item{soundpath}{single or multiple directories to your audio files}
+\item{soundpath}{single or multiple directories to your \code{.wav} audio files}
 
 \item{channel}{channel where the saturation values will be extracted from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
@@ -64,31 +64,31 @@ Check \code{\link[=soundSat]{soundSat()}} to see how the indices are calculated.
 }
 \examples{
 \donttest{
-oldpar <- par(no.readonly = TRUE)
+oldpar = par(no.readonly = TRUE)
 ### Downloading audiofiles from public Zenodo library
-dir <- paste(tempdir(), "forExample", sep = "/")
+dir = paste(tempdir(), "forExample", sep = "/")
 dir.create(dir)
-recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 200000, by = 50000)), ".wav")
-recDir <- paste(dir, recName, sep = "/")
+recName = paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 200000, by = 50000)), ".wav")
+recDir = paste(dir, recName, sep = "/")
 
 for (rec in recName) {
   print(rec)
-  url <- paste0("https://zenodo.org/records/17575795/files/",
+  url = paste0("https://zenodo.org/records/17575795/files/",
                 rec,
                 "?download=1")
   download.file(url, destfile = paste(dir, rec, sep = "/"), mode = "wb")
 }
 
 ### Running the function
-sat <- soundMat(dir)
+sat = soundMat(dir)
 
 ### Plotting results
-sides <- sat$info$CHANNEL
+sides = sat$info$CHANNEL
 
-thresholds <- colnames(sat$values)
-split <- strsplit(thresholds, "/")
+thresholds = colnames(sat$values)
+split = strsplit(thresholds, "/")
 
-shapNorm <- apply(sat$values, 2, function(x)
+shapNorm = apply(sat$values, 2, function(x)
 
   if (var(x) == 0) {
     0
@@ -96,7 +96,7 @@ shapNorm <- apply(sat$values, 2, function(x)
     shapiro.test(x)$statistic
   })
 
-shapPos <- which.max(shapNorm)
+shapPos = which.max(shapNorm)
 
 par(mfrow = c(3, 2))
 

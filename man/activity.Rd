@@ -21,7 +21,7 @@ activity(
 )
 }
 \arguments{
-\item{soundfile}{wav package numeric matrix, tuneR package Wave object or path to a valid audio file}
+\item{soundfile}{wav package numeric matrix, tuneR package Wave object or path to a \code{.wav} file}
 
 \item{channel}{channel where the saturation values will be extracted from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
@@ -72,15 +72,15 @@ data("sampleBGN")
 sampleBGN
 
 # Run the function
-sat <- activity(sampleBGN)
+sat = activity(sampleBGN)
 
 # Now we can plot the results for the left channel
-satLeft <- sat[,1:3]
-satDim <- dim(satLeft)
-numericTime <- seq(0, sum(sampleBGN@timeBins), by = sampleBGN@timeBins[1])
-labels <- paste0(numericTime[-length(numericTime)], "-", numericTime[-1], "s")
+satLeft = sat[,1:3]
+satDim = dim(satLeft)
+numericTime = seq(0, sum(sampleBGN@timeBins), by = sampleBGN@timeBins[1])
+labels = paste0(numericTime[-length(numericTime)], "-", numericTime[-1], "s")
 
-satDF <- data.frame(BIN = rep(paste0("BIN", seq(satDim[2])), each = satDim[1]),
+satDF = data.frame(BIN = rep(paste0("BIN", seq(satDim[2])), each = satDim[1]),
                     WIN = rep(seq(satDim[1]), satDim[2]),
                     ACT = factor(c(sat), levels = c(0,1)))
 
@@ -97,4 +97,7 @@ ggplot(satDF, aes(x = BIN, y = WIN, fill = ACT)) +
 }
 \references{
 Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
+}
+\seealso{
+\code{\link[=multActivity]{multActivity()}} to run this over multiple audio files and \code{\link[=singleSat]{singleSat()}} to get the full saturation values this activity matrix is derived from.
 }

@@ -21,7 +21,7 @@ singleSat(
 )
 }
 \arguments{
-\item{soundfile}{wav package numeric matrix, tuneR package Wave object, Ruido noise.matrix object or path to a valid audio}
+\item{soundfile}{wav package numeric matrix, tuneR package Wave object, Ruido noise.matrix object or path to a \code{.wav} file}
 
 \item{channel}{channel where the background noise values will be extracted from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
@@ -79,14 +79,14 @@ data("sampleBGN")
 sampleBGN
 
 # Run the function
-SAT <- singleSat(sampleBGN)
+SAT = singleSat(sampleBGN)
 
 # View the results
 SAT
 
 # Now lets plot our results to see the dynamics of soundscape saturation by minute
-maxV <- max(unlist(SAT))
-minV <- min(unlist(SAT))
+maxV = max(unlist(SAT))
+minV = min(unlist(SAT))
 
 plot(x = c(1, 3), y = c(minV, maxV), type = "n",
      xlab = "Minute", ylab = "Soundscape Saturation (\%)", xaxt = "n")
@@ -102,35 +102,35 @@ legend("topright", legend = c("Left", "Right"), col = c("#1ECBE1", "#E1341E"), l
 
 library(tuneR)
 
-oldpar <- par(no.readonly = TRUE)
+oldpar = par(no.readonly = TRUE)
 
 # Define parameters for the artificial audio
-samprate <- 12050
-dur <- 59
-n <- samprate * dur
+samprate = 12050
+dur = 59
+n = samprate * dur
 
 # White noise
 set.seed(413)
-noise <- rnorm(n)
+noise = rnorm(n)
 
 # Linear fade-out envelope
-fade <- seq(1, 0, length.out = n)
+fade = seq(1, 0, length.out = n)
 
 # Apply fade
-signal <- noise * fade
+signal = noise * fade
 
 # Create Wave object
-wave <- Wave(
+wave = Wave(
   left = signal,
   samp.rate = samprate,
   bit = 16
 )
 
 # Running singleSat() on the artificial audio
-sat <- singleSat(wave, timeBin = 10)
+sat = singleSat(wave, timeBin = 10)
 
 # Now we can plot the results
-# In the left we have a periodogram and in the right saturaion values
+# In the left we have a periodogram and in the right saturation values
 # along one minute
 par(mfrow = c(1,2))
 image(periodogram(wave, width = 8192, normalize = FALSE), xlab = "Time (s)",
@@ -150,17 +150,17 @@ par(oldpar)
 # Lets begin by loading an audio from the online Zenodo library and
 # read it directly with the function
 # Getting audiofile from the online Zenodo library
-dir <- paste(tempdir(), "forExample", sep = "/")
+dir = paste(tempdir(), "forExample", sep = "/")
 dir.create(dir)
-rec <- paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
-recDir <- paste(dir,rec , sep = "/")
-url <- paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
+rec = paste0("GAL24576_20250401_", sprintf("\%06d", 0),".wav")
+recDir = paste(dir,rec , sep = "/")
+url = paste0("https://zenodo.org/records/17575795/files/", rec, "?download=1")
 
 # Downloading the file, might take some time denpending on your internet
 download.file(url, destfile = recDir, mode = "wb")
 
 # Now we calculate soundscape saturation for both sides of the recording
-sat <- singleSat(recDir)
+sat = singleSat(recDir)
 
 # Printing the results
 print(sat)

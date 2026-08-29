@@ -23,7 +23,7 @@ soundSat(
 )
 }
 \arguments{
-\item{soundpath}{single or multiple directories to your audio files}
+\item{soundpath}{single or multiple directories to your \code{.wav} audio files}
 
 \item{channel}{channel where the saturation values will be extracted from. Available channels are: \code{"stereo"}, \code{"mono"}, \code{"left"} or \code{"right"}. Defaults to \code{"stereo"}.}
 
@@ -58,7 +58,7 @@ soundSat(
 \item{backup}{path to save the backup. Defaults to \code{NULL}}
 }
 \value{
-A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statitics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
+A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statistics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
 }
 \description{
 Calculate Soundscape Saturation for a combination of recordings using the methodology proposed in Burivalova 2018.
@@ -87,32 +87,32 @@ To resume processing, pass the saved file (e.g., \code{"path/SATBACKUP.RData"}) 
 \examples{
 \donttest{
 ### Downloading audiofiles from public Zenodo library
-dir <- paste(tempdir(), "forExample", sep = "/")
+dir = paste(tempdir(), "forExample", sep = "/")
 dir.create(dir)
-recName <- paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 200000, by = 50000)),".wav")
-recDir <- paste(dir, recName, sep = "/")
+recName = paste0("GAL24576_20250401_", sprintf("\%06d", seq(0, 200000, by = 50000)),".wav")
+recDir = paste(dir, recName, sep = "/")
 
 for(rec in recDir) {
  print(rec)
- url <- paste0("https://zenodo.org/records/17575795/files/", basename(rec), "?download=1")
+ url = paste0("https://zenodo.org/records/17575795/files/", basename(rec), "?download=1")
  download.file(url, destfile = rec, mode = "wb")
 }
 
 ### Running the function
-sat <- soundSat(dir)
+sat = soundSat(dir)
 
 ### Preparing the plot
-timeSplit <- strsplit(sat$values$AUDIO, "_")
-sides <- sat$values$CHANNEL
-date <- sapply(timeSplit, function(x)
+timeSplit = strsplit(sat$values$AUDIO, "_")
+sides = sat$values$CHANNEL
+date = sapply(timeSplit, function(x)
   x[2])
-time <- sapply(timeSplit, function(x)
+time = sapply(timeSplit, function(x)
   substr(x[3],1,6))
-datePos <- paste(substr(date,1,4), substr(date,5,6), substr(date,7,8), sep = "-")
-timePos <- paste(substr(time,1,2), substr(time,3,4), substr(time,5,6), sep = ":")
-dateTime <- as.POSIXct(paste(datePos, timePos), format = "\%Y-\%m-\%d \%H:\%M:\%OS")
-leftEar <- data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = dateTime[sides == "left"])
-rightEar <- data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = dateTime[sides == "right"])
+datePos = paste(substr(date,1,4), substr(date,5,6), substr(date,7,8), sep = "-")
+timePos = paste(substr(time,1,2), substr(time,3,4), substr(time,5,6), sep = ":")
+dateTime = as.POSIXct(paste(datePos, timePos), format = "\%Y-\%m-\%d \%H:\%M:\%OS")
+leftEar = data.frame(SAT = sat$values$SAT[sides == "left"], HOUR = dateTime[sides == "left"])
+rightEar = data.frame(SAT = sat$values$SAT[sides == "right"], HOUR = dateTime[sides == "right"])
 
 ### Plotting results
 
