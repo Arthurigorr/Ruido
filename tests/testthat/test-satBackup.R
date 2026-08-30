@@ -1,4 +1,4 @@
-test_that("satBackup can be tricked into working.", {
+test_that("satBackup can be tricked into running", {
 
   options(timeout = 500)
 

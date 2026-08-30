@@ -1,4 +1,4 @@
-test_that("ACIspec reads audio files directly and can pass down arugments to argHandler()", {
+test_that("ACIspec() reads audio files directly and can pass down arguments to argHandler()", {
 
   dir = paste(tempdir(), "forExample", sep = "/")
   dir.create(dir)
