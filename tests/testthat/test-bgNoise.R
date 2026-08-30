@@ -67,7 +67,7 @@ test_that("bgNoise() reads tuneR Wave objects", {
                           overlap = ceiling(length(256)/2),
                           histbreaks = "scott",
                           DCfix = FALSE), "noise.matrix")
-  expect_s4_class(bgNoise(wave2, channel = "stereo"))
+  expect_s4_class(bgNoise(wave2, channel = "stereo"), "noise.matrix")
 
 })
 
