@@ -13,3 +13,4 @@
 ^cran-comments.md$
 ^data-raw$
 tests
+^cran-comments\.md$
