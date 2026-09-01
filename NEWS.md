@@ -1,5 +1,19 @@
 # Ruido 1.1.0
 
+- Updated package sub-title and description to better reflect current and future development focus
+- Added two new acoustic index functions:
+  - `ACIspec()` for Spectral Acoustic Complexity Index
+  - `ENTspec()` for Spectral Temporal Entropy Index
+- Removed native `.mp3` file support. Users can convert `.mp3` to `.wav` or load as `tuneR` Wave objects beforehand
+- Migrated primary WAV file reading from `tuneR::readWave()` to `wav::read_wav()` for improved performance
+  - Full backward compatibility maintained: `tuneR` Wave objects continue to work as input
+- Improved error handling across all functions for clearer user feedback
+- Fixed logical errors in channel handling for stereo/mono audio processing
+- Removed redundant code and unused variables
+- Cleaned up batch processing functions (removed explicit `gc()` calls since R manages memory by itself)
+- Enhanced internal helper functions to support new and future acoustic indices
+- Updated documentation throughout
+  
 # Ruido 1.0.3
 
 - Added `noise.matrix` object and associated methods to improve function output handling
