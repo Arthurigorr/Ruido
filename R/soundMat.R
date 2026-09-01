@@ -4,7 +4,7 @@
 #'
 #' @param soundpath single or multiple directories to your `.wav` audio files
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
-##' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
+#' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
@@ -272,7 +272,7 @@ soundMat = function(soundpath,
   }))
 
   POW = do.call(cbind, sapply(indexes, function(x) {
-    if (x@channel == "mono") {
+    if (x@channel == "stereo") {
       cbind(x@values$left$POW, x@values$right$POW)
     } else {
       x@values[[x@channel]]$POW
@@ -362,7 +362,8 @@ soundMat = function(soundpath,
 
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
-    file.remove(paste0(backup, "/SATBACKUP.rds"))
+    backFile = paste0(backup, "/SATBACKUP.rds")
+    if (file.exists(backFile)) file.remove(backFile)
   }
 
   export = list(info = data.frame(),
