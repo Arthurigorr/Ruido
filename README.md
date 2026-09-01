@@ -8,9 +8,10 @@
 
 ### Currently, the package implements methods to estimate:
 
+-   **Background Noise (BGN)** and **Soundscape Power (POW)**, following Towsey et al. 2017
+-   **Soundscape Saturation (SAT)**, following Burivalova et al. 2018
 -   **Spectral Acoustic Complexity Index (ACI)**, following Pieretti, et al. 2011
--   **Background Noise (BGN)** and **Soundscape Power (POW)**, following Towsey et al. (2017)
--   **Soundscape Saturation (SAT)**, following Burivalova et al. (2018)
+-   **Spectral Temporal Entropy Index (ENT)**, following Towsei et al. 2017
 
 These metrics can be used to explore acoustic complexity, biotic activity, and environmental disturbance, making `Ruido` useful for ecological monitoring, bioacoustic surveys, or experimental soundscape studies.
 
