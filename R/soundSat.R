@@ -396,7 +396,8 @@ soundSat = function(soundpath,
 
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
-    file.remove(paste0(backup, "/SATBACKUP.rds"))
+    backFile = paste0(backup, "/SATBACKUP.rds")
+    if (file.exists(backFile)) file.remove(backFile)
   }
 
   SATinfo$SAT = SATmat[, which(normal == normOUT)]
