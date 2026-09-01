@@ -1,6 +1,6 @@
 #' @title Spectral Temporal Entropy Index
 #'
-#' @description Calculate the Temporal Entropy values of a single audio using the methodology proposed in Towsey, et al. 2014
+#' @description Calculate the Temporal Entropy values of a single audio using the methodology proposed in Towsey, et al. 2017
 #'
 #' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a `.wav` file
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
@@ -33,7 +33,7 @@
 #' @seealso [ACIspec()] to calculate the Acoustic Complexity Index and [bgNoise()] to calculate Background Noise and Soundscape Power.
 #'
 #' @references
-#' Towsey, M., Wimmer, J., Williamson, I., & Roe, P. (2014). The use of acoustic indices to determine avian species richness in audio-recordings of the environment. Ecological Informatics, 21, 110–119. https://doi.org/10.1016/j.ecoinf.2013.11.007
+#' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
 #'
 #'@export
 #'@importFrom signal specgram
