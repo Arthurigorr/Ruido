@@ -189,16 +189,12 @@ singleSat = function(soundfile,
 
   if (BGNPOW@channel == "stereo") {
     BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
+    POW = cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
     names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
   } else {
     BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
-    names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
-  }
-
-  if (BGNPOW@channel == "stereo") {
-    POW = cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
-  } else {
     POW = BGNPOW@values[[BGNPOW@channel]]$POW
+    names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
   }
 
   if (beta) {
