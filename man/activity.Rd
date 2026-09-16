@@ -75,14 +75,14 @@ sampleBGN
 sat = activity(sampleBGN)
 
 # Now we can plot the results for the left channel
-satLeft = sat[,1:3]
+satLeft = sat@values$left$ACT
 satDim = dim(satLeft)
 numericTime = seq(0, sum(sampleBGN@timeBins), by = sampleBGN@timeBins[1])
 labels = paste0(numericTime[-length(numericTime)], "-", numericTime[-1], "s")
 
 satDF = data.frame(BIN = rep(paste0("BIN", seq(satDim[2])), each = satDim[1]),
                     WIN = rep(seq(satDim[1]), satDim[2]),
-                    ACT = factor(c(sat), levels = c(0,1)))
+                    ACT = factor(unlist(satLeft), levels = c(0, 1)))
 
 ggplot(satDF, aes(x = BIN, y = WIN, fill = ACT)) +
   geom_tile() +
