@@ -149,6 +149,7 @@ par(oldpar)
 ## You can use a noise.matrix with activity values to calculate saturation.
 
 data("sampleBGN")
+sampleBGN
 singleSat(activity(sampleBGN))
 
 \donttest{
