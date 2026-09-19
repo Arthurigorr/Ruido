@@ -1,6 +1,7 @@
 test_that("singleSat() reads noise.matrix objects", {
 
   expect_type(singleSat(sampleBGN), "list")
+  expect_type(singleSat(activity(sampleBGN)), "list")
 
 })
 
