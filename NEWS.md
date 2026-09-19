@@ -1,3 +1,5 @@
+# Ruido 1.1.1
+
 # Ruido 1.1.0
 
 - Updated package sub-title and description to better reflect current and future development focus
