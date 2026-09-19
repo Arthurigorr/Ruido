@@ -111,8 +111,14 @@
 #'
 #' par(oldpar)
 #'
+#' # Third example: Calculating activity beforehand
+#' ## You can use a noise.matrix with activity values to calculate saturation.
+#'
+#' data("sampleBGN")
+#' singleSat(activity(sampleBGN))
+#'
 #' \donttest{
-#' # Third example: Reading a file directly
+#' # Fourth example: Reading a file directly
 #' # Lets begin by loading an audio from the online Zenodo library and
 #' # read it directly with the function
 #' # Getting audiofile from the online Zenodo library
@@ -187,28 +193,40 @@ singleSat = function(soundfile,
 
   nBins = length(BGNPOW@timeBins)
 
-  if (BGNPOW@channel == "stereo") {
-    BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
-    POW = cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
-    names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
-  } else {
-    BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
-    POW = BGNPOW@values[[BGNPOW@channel]]$POW
-    names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
-  }
-
-  if (beta) {
-    BGNQ = quantile(unlist(BGN), bgnthr)
-
-    singSat = colMeans(BGN > BGNQ | POW > powthr)
+  if (length(sampleBGN@index) == 1) {
+    if (BGNPOW@channel == "stereo") {
+      names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
+      singSat = c(colMeans(BGNPOW@values$left$ACT),
+                  colMeans(BGNPOW@values$right$ACT))
+    } else {
+      names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
+      singSat = colMeans(BGNPOW@values[[BGNPOW@channel]]$ACT)
+    }
 
   } else {
-    singSat = sapply(1:ncol(BGN), function(t) {
-      sum(BGN[, t] > quantile(BGN[, t], bgnthr) |
-            POW[, t] > powthr) / halfWl
+    if (BGNPOW@channel == "stereo") {
+      BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
+      POW = cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
+      names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
+    } else {
+      BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
+      POW = BGNPOW@values[[BGNPOW@channel]]$POW
+      names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
+    }
 
-    })
+    if (beta) {
+      BGNQ = quantile(unlist(BGN), bgnthr)
 
+      singSat = colMeans(BGN > BGNQ | POW > powthr)
+
+    } else {
+      singSat = sapply(1:ncol(BGN), function(t) {
+        sum(BGN[, t] > quantile(BGN[, t], bgnthr) |
+              POW[, t] > powthr) / halfWl
+
+      })
+
+    }
   }
 
   names(singSat) = names
