@@ -267,7 +267,7 @@ setMethod("plot", signature(x = "noise.matrix"), function(x,
     draw0 = draw0,
     box = box,
     axes = axes,
-    annotate = TRUE,
+    annotate = annotate,
     ...
   )
 
