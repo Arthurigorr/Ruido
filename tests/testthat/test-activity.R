@@ -1,6 +1,6 @@
-test_that("activity() can read noise.matrix objects and produces a matrix correctly", {
+test_that("activity() can read noise.matrix objects and produces another noise.matrix object correctly", {
 
-  expect_type(activity(sampleBGN), "double")
+  expect_s4_class(activity(sampleBGN), "noise.matrix")
 
 })
 
@@ -24,6 +24,6 @@ test_that("activity() can read tuneR Wave class objects", {
     bit = 16
   )
 
-  expect_type(activity(wave), "double")
+  expect_s4_class(activity(wave), "noise.matrix")
 
 })
