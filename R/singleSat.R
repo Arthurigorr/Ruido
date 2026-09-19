@@ -115,6 +115,7 @@
 #' ## You can use a noise.matrix with activity values to calculate saturation.
 #'
 #' data("sampleBGN")
+#' sampleBGN
 #' singleSat(activity(sampleBGN))
 #'
 #' \donttest{
@@ -193,7 +194,7 @@ singleSat = function(soundfile,
 
   nBins = length(BGNPOW@timeBins)
 
-  if (length(sampleBGN@index) == 1) {
+  if (length(BGNPOW@index) == 1) {
     if (BGNPOW@channel == "stereo") {
       names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
       singSat = c(colMeans(BGNPOW@values$left$ACT),
