@@ -1,5 +1,10 @@
 # Ruido 1.1.1
 
+- Updated `activity()` to output a `noise.matrix` object
+- Updated `singleSat()` to accept `noise.matrix` objects produced by `activity()`
+- Added examples and documentation clarifying the use of `activity()` together with `singleSat()`
+- Fixed a bug in the `plot()` method for `noise.matrix` objects, where the `annotate` argument was being ignored
+
 # Ruido 1.1.0
 
 - Updated package sub-title and description to better reflect current and future development focus
