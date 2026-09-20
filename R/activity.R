@@ -71,7 +71,7 @@
 #'   guides(fill = guide_legend(title = "Activity"))
 #'
 #' }
-activity <- function(
+activity = function(
   soundfile,
   channel = "stereo",
   timeBin = 60,
@@ -103,9 +103,9 @@ activity <- function(
     beta = beta
   )
 
-  halfWl <- round(wl / 2)
+  halfWl = round(wl / 2)
 
-  BGNPOW <- if (is(soundfile, "noise.matrix")) {
+  BGNPOW = if (is(soundfile, "noise.matrix")) {
     soundfile
   } else {
     bgNoise.(
@@ -123,18 +123,18 @@ activity <- function(
     )
   }
 
-  nBins <- length(BGNPOW@timeBins)
+  nBins = length(BGNPOW@timeBins)
 
   # The purpose of the "* 1" is to convert the values from logical to numerical (0 = FALSE and 1 = TRUE)
   if (BGNPOW@channel == "stereo") {
-    BGN <- cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
+    BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
   } else {
-    BGN <- BGNPOW@values[[BGNPOW@channel]]$BGN
+    BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
   }
 
-  BGNPOW@values <- lapply(BGNPOW@values, function(ch) {
+  BGNPOW@values = lapply(BGNPOW@values, function(ch) {
     if (beta) {
-      BGNQ <- quantile(unlist(BGN), bgnthr)
+      BGNQ = quantile(unlist(BGN), bgnthr)
       result = (ch$BGN > BGNQ | ch$POW > powthr) * 1
     } else {
       result = sapply(1:nBins, function(t) {
@@ -145,7 +145,7 @@ activity <- function(
     list("ACT" = as.data.frame(result))
   })
 
-  BGNPOW@index <- "ACT"
+  BGNPOW@index = "ACT"
   if (BGNPOW@channel == "stereo") {
     BGNPOW@wl = nrow(BGNPOW@values$left$ACT)
 
