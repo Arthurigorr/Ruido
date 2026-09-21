@@ -9,7 +9,7 @@
 This is the development branch of **Ruido**. Its main purpose is to test new features and changes before they are merged into the `main` branch, helping prevent untested or broken code from affecting the stable version of the package.
 
 ### Current Goals:
-- [ ] Create functions to calculate summarized versions of Background Noise and Soundscape Power — **0%**
+- [x] Create functions to calculate summarized versions of Background Noise and Soundscape Power — **100%**
 - [ ] Create functions for the remaining spectral indices — **0%**
   - [ ] Events per Second — **0%**
   - [ ] Spectral Peaks — **0%**
