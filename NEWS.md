@@ -1,3 +1,5 @@
+# Ruido (development version)
+
 # Ruido 1.1.1
 
 - Updated `activity()` to output a `noise.matrix` object
