@@ -4,16 +4,16 @@
 ## This should not be seen or used by the user, as it is only intended for internal use by other functions.
 
 processChannel.BGN = function(channelData,
-                               samp.rate,
-                               channel,
-                               timeBin,
-                               wl,
-                               overlap,
-                               dbThreshold,
-                               window,
-                               histbreaks,
-                               DCfix,
-                               noiseOBJ) {
+                              samp.rate,
+                              channel,
+                              timeBin,
+                              wl,
+                              overlap,
+                              dbThreshold,
+                              window,
+                              histbreaks,
+                              DCfix,
+                              noiseOBJ) {
   allSamples = if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData[1, ]))
   } else {
@@ -21,6 +21,8 @@ processChannel.BGN = function(channelData,
   }
 
   frameBin = nrow(allSamples)
+
+  hBreak = hBreaks(histbreaks)
 
   channelData = switch(
     channel,
@@ -58,21 +60,13 @@ processChannel.BGN = function(channelData,
         dbMax = max(z)
         dbMin = min(z)
 
-        num_bins = if (is.numeric(histbreaks)) {
-          histbreaks
-        } else {
-          switch(
-            histbreaks,
-            "FD"      = nclass.FD(z),
-            "Sturges" = nclass.Sturges(z),
-            "scott"   = nclass.scott(z)
-          )
-        }
+        num_bins = hBreak(z)
+
         breaks   = seq(dbMin, dbMax, length.out = num_bins + 1)
         modalBin = which.max(tabulate(findInterval(x = z, vec = breaks)))
-        modal_intensity = dbMin + modalBin * (breaks[2] - breaks[1])
+        modalIntensity = dbMin + modalBin * (breaks[2] - breaks[1])
 
-        c(BGN = modal_intensity, POW = dbMax - modal_intensity)
+        c(BGN = modalIntensity, POW = dbMax - modalIntensity)
       })
 
     }), function(x)
@@ -102,14 +96,14 @@ processChannel.BGN = function(channelData,
 ## This should not be seen or used by the user, as it is only intended for internal use by other functions.
 
 processChannel.ACI = function(channelData,
-                               samp.rate,
-                               channel,
-                               timeBin,
-                               j,
-                               wl,
-                               overlap,
-                               window,
-                               noiseOBJ) {
+                              samp.rate,
+                              channel,
+                              timeBin,
+                              j,
+                              wl,
+                              overlap,
+                              window,
+                              noiseOBJ) {
   allSamples = if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData[1, ]))
   } else {
@@ -188,13 +182,13 @@ processChannel.ACI = function(channelData,
 ## This should not be seen or used by the user, as it is only intended for internal use by other functions.
 
 processChannel.ENT = function(channelData,
-                               samp.rate,
-                               channel,
-                               timeBin,
-                               wl,
-                               overlap,
-                               window,
-                               noiseOBJ) {
+                              samp.rate,
+                              channel,
+                              timeBin,
+                              wl,
+                              overlap,
+                              window,
+                              noiseOBJ) {
   allSamples = if (is.null(timeBin)) {
     data.frame(b = 1, e = length(channelData[1, ]))
   } else {
@@ -257,17 +251,16 @@ processChannel.ENT = function(channelData,
 ## by a higher function.
 
 bgNoise. = function(soundfile,
-                     channel = "stereo",
-                     timeBin = 60,
-                     dbThreshold = -90,
-                     targetSampRate = NULL,
-                     wl = 512,
-                     window = signal::hamming(wl),
-                     overlap = ceiling(length(window) / 2),
-                     histbreaks = "FD",
-                     DCfix = TRUE,
-                     noiseOBJ = new("noise.matrix.internal")) {
-
+                    channel = "stereo",
+                    timeBin = 60,
+                    dbThreshold = -90,
+                    targetSampRate = NULL,
+                    wl = 512,
+                    window = signal::hamming(wl),
+                    overlap = ceiling(length(window) / 2),
+                    histbreaks = "FD",
+                    DCfix = TRUE,
+                    noiseOBJ = new("noise.matrix.internal")) {
   audio = typeof(soundfile)
 
   if (audio == "character") {
@@ -329,16 +322,15 @@ bgNoise. = function(soundfile,
 ## It skips checks and reads the audio files directly.
 
 bgNoise.. = function(soundfile,
-                      channel = "stereo",
-                      timeBin = 60,
-                      dbThreshold = -90,
-                      targetSampRate = NULL,
-                      wl = 512,
-                      window = signal::hamming(wl),
-                      overlap = ceiling(length(window) / 2),
-                      histbreaks = "FD",
-                      DCfix = TRUE) {
-
+                     channel = "stereo",
+                     timeBin = 60,
+                     dbThreshold = -90,
+                     targetSampRate = NULL,
+                     wl = 512,
+                     window = signal::hamming(wl),
+                     overlap = ceiling(length(window) / 2),
+                     histbreaks = "FD",
+                     DCfix = TRUE) {
   if (tolower(tools::file_ext(soundfile)) == "wav") {
     soundfile = wav::read_wav(soundfile)
   } else {
@@ -470,14 +462,12 @@ argHandler = function(FUN, ...) {
 
   #### wl ----
   if (!is.numeric(args$wl) || length(args$wl) != 1 || args$wl < 0)
-    stop(
-      paste0(
-        'wl = ',
-        capture.output(dput(args$wl)),
-        '\nwl must be a single non-negative number'
-      ),
-      call. = FALSE
-    )
+    stop(paste0(
+      'wl = ',
+      capture.output(dput(args$wl)),
+      '\nwl must be a single non-negative number'
+    ),
+    call. = FALSE)
 
   #### window ----
   if (!is.numeric(args$window) ||
@@ -519,7 +509,8 @@ argHandler = function(FUN, ...) {
 
   #### DCfix ----
   if ("DCfix" %in% names(args)) {
-    if (length(args$DCfix) != 1 || !is.logical(args$DCfix) || is.na(args$DCfix)) {
+    if (length(args$DCfix) != 1 ||
+        !is.logical(args$DCfix) || is.na(args$DCfix)) {
       stop(paste0(
         'DCfix = ',
         capture.output(dput(args$DCfix)),
@@ -754,6 +745,33 @@ normHandler = function(normality) {
 
 }
 
+
+# hBreaks ----------------------------------------------------------------
+hBreaks = function(histbreaks) {
+  if (is.numeric(histbreaks)) {
+    function(z) {
+      z + 1
+    }
+  } else {
+    switch(
+      histbreaks,
+      "FD"      = function(z) {
+        nclass.FD(z)
+      }
+      ,
+      "Sturges" = function(z) {
+        nclass.Sturges(z)
+      }
+      ,
+      "scott"   = function(z)
+      {
+        nclass.scott(z)
+      }
+    )
+
+  }
+}
+
 # getSampleBins -----------------------------------------------------------
 ## This is a helper function to dynamically transform seconds to samples
 
@@ -766,6 +784,8 @@ getSampleBins = function(samples, samp.rate, binSize) {
 
 }
 
+
+# plotNOISE --------------------------------------------------------------
 #' Plot noise.matrix objects
 #'
 #' @param x an `noise.matrix` object
@@ -799,21 +819,21 @@ getSampleBins = function(samples, samp.rate, binSize) {
 #' @importFrom utils head
 #'
 plotNOISE = function(x,
-                      channel,
-                      bin,
-                      index,
-                      nbreaks,
-                      yunit,
-                      main,
-                      xlab,
-                      ylab,
-                      col,
-                      type,
-                      draw0,
-                      box,
-                      axes,
-                      annotate,
-                      ...) {
+                     channel,
+                     bin,
+                     index,
+                     nbreaks,
+                     yunit,
+                     main,
+                     xlab,
+                     ylab,
+                     col,
+                     type,
+                     draw0,
+                     box,
+                     axes,
+                     annotate,
+                     ...) {
   channels = if (channel == "stereo") {
     c("left", "right")
   } else {
