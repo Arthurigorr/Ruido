@@ -75,13 +75,13 @@
 #' wave
 #'
 #' # Running the bgNoise function with all the default arguments
-#' bgn = bgNoise(wave)
+#' BGN = bgNoise(wave)
 #'
 #' # See the results
-#' bgn
+#' BGN
 #'
 #' # Plot background noise and soundscape power
-#' plot(bgn)
+#' plot(BGN)
 #'
 #'\donttest{
 #' ### This is a secondary example using audio from a real soundscape
