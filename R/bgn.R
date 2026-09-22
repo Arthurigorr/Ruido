@@ -47,6 +47,41 @@
 #'@importFrom grDevices nclass.FD
 #'@importFrom grDevices nclass.Sturges
 #'@importFrom grDevices nclass.scott
+#'
+#' @examples
+#' ### For our main example we'll create an artificial audio with
+#' ### white noise to test its Background Noise
+#' # We'll use the package tuneR
+#' library(tuneR)
+#'
+#' # Define the audio sample rate, duration and number of samples
+#' samprate = 12050
+#' dur = 60
+#' n = samprate * dur
+#'
+#' # Then we generate white noise
+#' set.seed(413)
+#' noise = rnorm(n)
+#'
+#' # Linear fade-out envelope
+#' fade = seq(1, 0, length.out = n)
+#'
+#' # Apply fade
+#' signal = noise * fade
+#'
+#' wave = Wave(left = signal, right = signal,
+#'             samp.rate = samprate,
+#'             bit = 16)
+#'
+#' # Heres our artificial audio
+#'
+#' wave
+#'
+#' # Running the bgNoise function with all the default arguments
+#' BGN = bgn(wave)
+#'
+#' # See the results
+#' bgn
 bgn = function(soundfile,
                channel = "stereo",
                timeBin = 60,
@@ -55,15 +90,16 @@ bgn = function(soundfile,
                wl = 512,
                histbreaks = "FD",
                DCfix = TRUE) {
-  # argHandler(
-  #   FUN = "bgn",
-  #   soundfile = soundfile,
-  #   channel = channel,
-  #   timeBin = timeBin,
-  #   dbThreshold = dbThreshold,
-  #   histbreaks = histbreaks,
-  #   DCfix = DCfix
-  # )
+  argHandler(
+    FUN = "bgn",
+    soundfile = soundfile,
+    channel = channel,
+    timeBin = timeBin,
+    wl = wl,
+    dbThreshold = dbThreshold,
+    histbreaks = histbreaks,
+    DCfix = DCfix
+  )
 
   audio = typeof(soundfile)
 
