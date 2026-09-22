@@ -469,27 +469,31 @@ argHandler = function(FUN, ...) {
     call. = FALSE)
 
   #### window ----
-  if (!is.numeric(args$window) ||
-      length(args$window) != args$wl) {
-    stop(
-      paste0(
-        "On window = ... \nPlease set window to signal::hamming(wl) or signal::hanning(wl)"
-      ),
-      call. = FALSE
-    )
+  if ("window" %in% names(args)) {
+    if (!is.numeric(args$window) ||
+        length(args$window) != args$wl) {
+      stop(
+        paste0(
+          "On window = ... \nPlease set window to signal::hamming(wl) or signal::hanning(wl)"
+        ),
+        call. = FALSE
+      )
+    }
   }
 
   #### overlap ----
-  if (!is.numeric(args$overlap) ||
-      length(args$overlap) != 1 || args$overlap < 0)
-    stop(
-      paste0(
-        'overlap = ',
-        capture.output(dput(args$overlap)),
-        '\noverlap must be a single non-negative number'
-      ),
-      call. = FALSE
-    )
+  if ("overlap" %in% names(args)) {
+    if (!is.numeric(args$overlap) ||
+        length(args$overlap) != 1 || args$overlap < 0)
+      stop(
+        paste0(
+          'overlap = ',
+          capture.output(dput(args$overlap)),
+          '\noverlap must be a single non-negative number'
+        ),
+        call. = FALSE
+      )
+  }
 
   #### histbreaks ----
   if ("histbreaks" %in% names(args)) {
