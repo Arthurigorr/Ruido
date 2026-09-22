@@ -1,6 +1,6 @@
-#' @title Background Noise and Soundscape Power Index
+#' @title Spectral Background Noise and Soundscape Power Index
 #'
-#' @description Calculate the Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
+#' @description Calculate the spectral Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
 #'
 #' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a `.wav` file
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
