@@ -55,15 +55,15 @@ bgn = function(soundfile,
                wl = 512,
                histbreaks = "FD",
                DCfix = TRUE) {
-  argHandler(
-    FUN = "bgn",
-    soundfile = soundfile,
-    channel = channel,
-    timeBin = timeBin,
-    dbThreshold = dbThreshold,
-    histbreaks = histbreaks,
-    DCfix = DCfix
-  )
+  # argHandler(
+  #   FUN = "bgn",
+  #   soundfile = soundfile,
+  #   channel = channel,
+  #   timeBin = timeBin,
+  #   dbThreshold = dbThreshold,
+  #   histbreaks = histbreaks,
+  #   DCfix = DCfix
+  # )
 
   audio = typeof(soundfile)
 
@@ -104,8 +104,6 @@ bgn = function(soundfile,
     attr(soundfile, "sample_rate") = targetSampRate
   }
 
-  soundfile = abs(soundfile)
-
   allSamples = if (is.null(timeBin)) {
     data.frame(b = 1, e = length(soundfile[1, ]))
   } else {
@@ -128,6 +126,7 @@ bgn = function(soundfile,
     if (DCfix) {
       x = x - mean(x)
     }
+    x = abs(x)
     apply(allSamples, 1, function(y) {
       samples = x[y[1]:y[2]]
       mat = matrix(samples[seq_len(floor(length(samples) / wl) * wl)],
