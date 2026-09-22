@@ -1,3 +1,52 @@
+#' @title Summarized Background Noise and Soundscape Power Index
+#'
+#' @description Calculate the summarized Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
+#'
+#' @param soundfile wav package numeric matrix, tuneR package Wave object or path to a `.wav` file
+#' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
+#' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
+#' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
+#' @param wl length of each waveform frame in samples. The waveform is divided into non-overlapping frames of this length before the envelope is calculated. Defaults to `512`
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
+#' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
+#' @param DCfix if the DC offset should be removed before the metrics are calculated. Defaults to `TRUE`
+#'
+#' @returns A list containing the `BGN` and `POW` values calculated for each time bin and selected channel.
+#'
+#' @details Background Noise (`BGN`) is an acoustic metric that estimates the dominant background sound level within a time bin from the waveform amplitude envelope. Following the approach described by Towsey (2017), each time bin is divided into non-overlapping waveform frames, and the maximum absolute amplitude of each frame is used to construct the waveform envelope.
+#'
+#' For each waveform frame \eqn{i}, the envelope amplitude \eqn{A_i} is converted to decibels as:
+#'
+#' \deqn{dB_i = 10 \log_{10}(A_i)}
+#'
+#' where \eqn{A_i} is the maximum absolute amplitude within the frame. Incomplete frames at the end of a time bin are discarded.
+#'
+#' The resulting dB values are grouped into histogram bins, and `BGN` is estimated from the modal histogram bin, representing the most frequently occurring sound level within the time bin:
+#'
+#' \deqn{BGN = \mathrm{mode}(dB_i)}
+#'
+#' `BGN` therefore represents an estimate of the dominant background level of the recording segment, rather than the background level of a particular frequency band.
+#'
+#' Soundscape Power (`POW`) quantifies the difference between the maximum observed sound level and the estimated background level within the same time bin. It is defined as:
+#'
+#' \deqn{POW = \max(dB_i) - BGN}
+#'
+#' Higher `POW` values indicate a greater difference between the strongest acoustic event and the estimated background level.
+#'
+#' @seealso [bgNoise()] to calculate Spectral Background Noise and Soundscape Power.
+#'
+#' @references
+#' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
+#' <br>Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. IEEE Transactions on Acoustics, Speech, and Signal Processing, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
+#'
+#'@export
+#'@importFrom tuneR readWave
+#'@importFrom tuneR downsample
+#'@importFrom wav read_wav
+#'@importFrom grDevices nclass.FD
+#'@importFrom grDevices nclass.Sturges
+#'@importFrom grDevices nclass.scott
 bgn = function(soundfile,
                channel = "stereo",
                timeBin = 60,
@@ -76,6 +125,9 @@ bgn = function(soundfile,
   hBreak = hBreaks(histbreaks)
 
   lapply(channelData, function(x) {
+    if (DCfix) {
+      x = x - mean(x)
+    }
     apply(allSamples, 1, function(y) {
       samples = x[y[1]:y[2]]
       mat = matrix(samples[seq_len(floor(length(samples) / wl) * wl)],
