@@ -30,7 +30,7 @@
 #'
 #' where \eqn{\max(dB_{c,f})} is the maximum intensity observed. `POW` can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
 #'
-#' @seealso [ACIspec()] to calculate the Acoustic Complexity Index and [ENTspec()] to calculate Spectral Entropy from a single audio file. Also, check [activity()] and [singleSat()], which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.
+#' @seealso [bgn()] to calculate the summarized Background Noise and Soundscape Power. [ACIspec()] to calculate the Acoustic Complexity Index and [ENTspec()] to calculate Spectral Entropy from a single audio file. Also, check [activity()] and [singleSat()], which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.
 #'
 #' @references
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
