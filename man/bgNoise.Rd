@@ -2,7 +2,7 @@
 % Please edit documentation in R/bgNoise.R
 \name{bgNoise}
 \alias{bgNoise}
-\title{Background Noise and Soundscape Power Index}
+\title{Spectral Background Noise and Soundscape Power Index}
 \usage{
 bgNoise(
   soundfile,
@@ -43,7 +43,7 @@ bgNoise(
 This function returns a \link[=noise.matrix-class]{noise.matrix} object
 }
 \description{
-Calculate the Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
+Calculate the spectral Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
 }
 \details{
 Background Noise (\code{BGN}) is an acoustic metric that estimates the dominant baseline level of acoustic energy within a frequency window and time bin. It was described by Towsey (2017) based on the approach of Lamel et al. (1981).
