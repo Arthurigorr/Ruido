@@ -47,7 +47,7 @@ processChannel.BGN = function(channelData,
       )$S)
     })
 
-    BGNPOWdf = data.frame(do.call(cbind, lapply(lapply(tempHolder, function(singleBin) {
+    BGNPOWdf = lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin[[1]])
 
       spectS = 10 * log10(spectS / max(spectS))
@@ -69,13 +69,12 @@ processChannel.BGN = function(channelData,
         c(BGN = modalIntensity, POW = dbMax - modalIntensity)
       })
 
-    }), function(x)
-      data.frame(t(x)))))
+    })
 
-    colnames(BGNPOWdf) = paste0(rep(c("BGN", "POW"), frameBin), rep(1:frameBin, each = 2))
-
-    BGN = data.frame(BGNPOWdf[, grepl("BGN", colnames(BGNPOWdf)), drop = FALSE])
-    POW = data.frame(BGNPOWdf[, grepl("POW", colnames(BGNPOWdf)), drop = FALSE])
+    BGN = data.frame(lapply(BGNPOWdf, function(df) df[1,])) |>
+      setNames(paste0(rep("BGN", frameBin), 1:frameBin))
+    POW = data.frame(lapply(BGNPOWdf, function(df) df[2,])) |>
+      setNames(paste0(rep("POW", frameBin), 1:frameBin))
 
     return(list(BGN = BGN, POW = POW))
 
@@ -756,16 +755,16 @@ hBreaks = function(histbreaks) {
     switch(
       histbreaks,
       "FD"      = function(z) {
-        nclass.FD(z)
+        nclass.FD(z) + 1
       }
       ,
       "Sturges" = function(z) {
-        nclass.Sturges(z)
+        nclass.Sturges(z) + 1
       }
       ,
       "scott"   = function(z)
       {
-        nclass.scott(z)
+        nclass.scott(z) + 1
       }
     )
 
