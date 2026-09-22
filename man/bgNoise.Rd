@@ -90,13 +90,13 @@ wave = Wave(left = signal, right = signal,
 wave
 
 # Running the bgNoise function with all the default arguments
-bgn = bgNoise(wave)
+BGN = bgNoise(wave)
 
 # See the results
-bgn
+BGN
 
 # Plot background noise and soundscape power
-plot(bgn)
+plot(BGN)
 
 \donttest{
 ### This is a secondary example using audio from a real soundscape
@@ -138,5 +138,5 @@ Towsey, M. W. (2017). The calculation of acoustic indices derived from long-dura
 \if{html}{\out{<br>}}Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. IEEE Transactions on Acoustics, Speech, and Signal Processing, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
 }
 \seealso{
-\code{\link[=ACIspec]{ACIspec()}} to calculate the Acoustic Complexity Index and \code{\link[=ENTspec]{ENTspec()}} to calculate Spectral Entropy from a single audio file. Also, check \code{\link[=activity]{activity()}} and \code{\link[=singleSat]{singleSat()}}, which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.
+\code{\link[=bgn]{bgn()}} to calculate the summarized Background Noise and Soundscape Power. \code{\link[=ACIspec]{ACIspec()}} to calculate the Acoustic Complexity Index and \code{\link[=ENTspec]{ENTspec()}} to calculate Spectral Entropy from a single audio file. Also, check \code{\link[=activity]{activity()}} and \code{\link[=singleSat]{singleSat()}}, which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.
 }
