@@ -71,9 +71,11 @@ processChannel.BGN = function(channelData,
 
     })
 
-    BGN = data.frame(lapply(BGNPOWdf, function(df) df[1,])) |>
+    BGN = data.frame(lapply(BGNPOWdf, function(df)
+      df[1, ])) |>
       setNames(paste0(rep("BGN", frameBin), 1:frameBin))
-    POW = data.frame(lapply(BGNPOWdf, function(df) df[2,])) |>
+    POW = data.frame(lapply(BGNPOWdf, function(df)
+      df[2, ])) |>
       setNames(paste0(rep("POW", frameBin), 1:frameBin))
 
     return(list(BGN = BGN, POW = POW))
@@ -748,13 +750,13 @@ normHandler = function(normality) {
 
 }
 
-
 # hBreaks ----------------------------------------------------------------
+# Function factory made to prevent checks for histbreaks every loop on processChannel.bgn
 hBreaks = function(histbreaks) {
   if (is.numeric(histbreaks)) {
-    function(z) {
-      z + 1
-    }
+      function(x) {
+        histbreaks + 1
+      }
   } else {
     switch(
       histbreaks,
