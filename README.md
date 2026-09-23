@@ -2,7 +2,7 @@
 
 <img src="man/figures/ruidoIconDEV.png" alt="Icon of Ruido Development Branch" align="right" height="300"/>
 
-[![R-CMD-check](https://github.com/Arthurigorr/Ruido/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Arthurigorr/Ruido/actions/workflows/R-CMD-check.yaml) ![lastGitCommit](https://img.shields.io/github/last-commit/Arthurigorr/Ruido) [![Codecov test coverage](https://codecov.io/gh/Arthurigorr/Ruido/graph/badge.svg)](https://app.codecov.io/gh/Arthurigorr/Ruido)
+[![R-CMD-check](https://github.com/Arthurigorr/Ruido/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Arthurigorr/Ruido/actions/workflows/R-CMD-check.yaml) ![lastGitCommit](https://img.shields.io/github/last-commit/Arthurigorr/Ruido) [![codecov](https://codecov.io/gh/Arthurigorr/Ruido/branch/dev/graph/badge.svg?token=QT8GPOPEDN)](https://codecov.io/gh/Arthurigorr/Ruido)
 
 > **⚠️ Development version:** Code in this branch may be incomplete, experimental, or broken. Use the `main` branch for the stable version of Ruido!
 
