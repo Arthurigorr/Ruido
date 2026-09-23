@@ -35,6 +35,6 @@ test_that("ACIspec() reads audio files directly and from tuneR Wave objects. It 
   expect_s4_class(ACIspec(wave2), "noise.matrix")
   expect_error(ACIspec(recDir, j = "five"))
   expect_error(ACIspec(recDir, wl = -100))
-  expect_error(ACIspec("completely-made-up-for-example.png", j = "five"))
+  expect_error(ACIspec("completely-made-up-for-example.png"))
 
 })
