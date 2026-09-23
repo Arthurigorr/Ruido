@@ -53,6 +53,7 @@ test_that("bgNoise() reads tuneR Wave objects", {
   expect_s4_class(bgNoise(wave1, histbreaks = 100), "noise.matrix")
   expect_s4_class(bgNoise(wave1, histbreaks = "Sturges"), "noise.matrix")
   expect_s4_class(bgNoise(wave1, DCfix = FALSE), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, timeBin = NULL), "noise.matrix")
   expect_s4_class(bgNoise(wave1, wl = 256), "noise.matrix")
   expect_s4_class(bgNoise(wave1, dbThreshold = -60), "noise.matrix")
   expect_s4_class(bgNoise(wave1, overlap = 128), "noise.matrix")

@@ -53,11 +53,13 @@ test_that("singleSat() can pass down arguments to argHandler()",
             expect_error(singleSat(sampleBGN, powthr = c(1, 5, "three")))
             expect_error(singleSat(sampleBGN, powthr = c(-5, -1, -2)))
             expect_error(singleSat(sampleBGN, powthr = c(4, 6)))
+            expect_error(singleSat(sampleBGN, powthr = -1))
             expect_error(singleSat(sampleBGN, bgnthr = "three"))
             expect_error(singleSat(sampleBGN, bgnthr = c(10, 2, 1)))
             expect_error(singleSat(sampleBGN, bgnthr = c(1, 5, "three")))
             expect_error(singleSat(sampleBGN, bgnthr = c(-5, -1, -2)))
             expect_error(singleSat(sampleBGN, bgnthr = c(4, 6)))
+            expect_error(singleSat(sampleBGN, bgnthr = -1))
             expect_error(singleSat(sampleBGN, beta = 5))
             expect_error(singleSat("empty.wav"))
 

@@ -12,4 +12,16 @@ test_that("soundSat() exports a list correctly", {
   }
 
   expect_type(soundSat(dir), "list")
+  expect_error(soundSat(dir, powthr = "three"))
+  expect_error(soundSat(dir, powthr = c(10, 2, 1)))
+  expect_error(soundSat(dir, powthr = c(1, 5, "three")))
+  expect_error(soundSat(dir, powthr = c(-5, -1, -2)))
+  expect_error(soundSat(dir, powthr = c(4, 6)))
+  expect_error(soundSat(dir, bgnthr = "three"))
+  expect_error(soundSat(dir, bgnthr = c(10, 2, 1)))
+  expect_error(soundSat(dir, bgnthr = c(1, 5, "three")))
+  expect_error(soundSat(dir, bgnthr = c(-5, -1, -2)))
+  expect_error(soundSat(dir, bgnthr = c(4, 6)))
+  expect_error(soundSat(dir, beta = 5))
+
 })
