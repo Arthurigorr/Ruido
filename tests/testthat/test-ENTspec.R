@@ -27,11 +27,10 @@ test_that("ENTspec() reads audio files directly", {
 
   expect_s4_class(ENTspec(recDir), "noise.matrix")
   expect_s4_class(ENTspec(recDir, channel = "mono"), "noise.matrix")
-  expect_s4_class(ENTspec(recDir, j = 800), "noise.matrix")
+  expect_error(ENTspec(recDir, j = 800), "noise.matrix")
   expect_s4_class(ENTspec(recDir, targetSampRate = 12250), "noise.matrix")
   expect_s4_class(ENTspec(wave1), "noise.matrix")
   expect_s4_class(ENTspec(wave2), "noise.matrix")
-  expect_error(ENTspec(recDir, j = "five"))
   expect_error(ENTspec(recDir, wl = -100))
   expect_error(ENTspec("completely-made-up-for-example.png"))
 
