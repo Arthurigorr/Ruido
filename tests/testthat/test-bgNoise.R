@@ -31,11 +31,13 @@ test_that("bgNoise() reads tuneR Wave objects", {
   bgn2 = bgNoise(wave2, channel = "mono")
   bgn3 = bgNoise(wave1, timeBin = 10)
   bgn4 = bgNoise(wave1, timeBin = 30)
+  bgn5 = bgNoise(wave2, timeBin = 10)
 
   show(bgn1)
   show(bgn2)
   show(bgn3)
   show(bgn4)
+  show(bgn5)
 
   plot(bgn1, yunit = "khz")
   plot(bgn2)
@@ -46,6 +48,7 @@ test_that("bgNoise() reads tuneR Wave objects", {
   expect_s4_class(bgn2, "noise.matrix")
   expect_s4_class(bgn3, "noise.matrix")
   expect_s4_class(bgn4, "noise.matrix")
+  expect_s4_class(bgNoise(wave1, timeBin = 30, channel = "left"), "noise.matrix")
   expect_s4_class(bgNoise(wave1, timeBin = 30, channel = "left"), "noise.matrix")
   expect_s4_class(bgNoise(wave1, timeBin = 30, channel = "right"), "noise.matrix")
   expect_s4_class(bgNoise(wave1, targetSampRate = 6650), "noise.matrix")

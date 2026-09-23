@@ -14,5 +14,11 @@ test_that("soundMat() exports a list and can pass arguments down to argHandler()
     download.file(url, destfile = paste(dir, rec, sep = "/"), mode = "wb")
   }
 
-  expect_type(soundMat(dir, beta = TRUE), "list")
+  expect_type(soundMat(dir, beta = FALSE), "list")
+  expect_type(soundMat(dir, channel = "mono"), "list")
+
+  paste0(dir, "/void.wav")
+
+  expect_type(soundMat(dir), "list")
+
 })
