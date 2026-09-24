@@ -9,7 +9,7 @@ Authors@R: c(
     )
 Description: Accessible and flexible implementation of spectral ecoacoustic indices. The functions were design to accommodate a variety of sampling designs. Users can tailor calculations by specifying spectrogram time bin size, amplitude thresholds and normality tests. By simplifying computation and standardizing reproducible methods, the package aims to support ecoacoustics studies.
 Depends: R(>= 4.3.0)
-Imports: methods, tuneR, signal, nortest, wav
+Imports: methods, tuneR, matrixStats, nortest, wav
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
