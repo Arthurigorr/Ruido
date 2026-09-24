@@ -20,3 +20,19 @@ This is the development branch of **Ruido**. Its main purpose is to test new fea
   - [ ] Spectral Peaks — **0%**
 - [ ] Create a function to calculate and plot false-color spectrograms — **0%**
 - [ ] Improve processing speed for `bgNoise()` — **3%**
+
+### Current bottleneck and optimization targets in `bgNoise()`:
+```text
+processChannel.BGN
+│
+├── Spectrogram generation ⚠️ ........ ~31%
+│   ├── .spect .................... ~31% total
+│   └── mvfft ...................... ~7%
+│
+├── Histogram bin calculation ⚠️ ..... ~23%
+│   └── Freedman–Diaconis
+│       ├── IQR / quantile ........ ~19%
+│       └── sorting ............... ~8%
+│
+└── Other operations .............. ~46%
+```
