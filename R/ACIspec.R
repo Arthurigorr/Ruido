@@ -8,7 +8,7 @@
 #' @param j size (in seconds) of the cluster interval. Set to `NULL` to use the entire bin as a single cluster. Defaults to `5`
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
-#' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hamming(wl)`
+#' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
 #'
 #' @returns This function returns a [noise.matrix-class] object.
@@ -51,7 +51,6 @@
 #' Pieretti, N., Farina, A., & Morri, D. (2011). A new methodology to infer the singing activity of an avian community: The Acoustic Complexity Index (ACI). Ecological Indicators, 11(3), 868–873. https://doi.org/10.1016/j.ecolind.2010.11.005
 #'
 #'@export
-#'@importFrom signal specgram
 #'@importFrom tuneR readWave
 #'@importFrom tuneR downsample
 #'@importFrom wav read_wav
@@ -89,7 +88,7 @@ ACIspec = function(soundfile,
                    j = 5,
                    targetSampRate = NULL,
                    wl = 512,
-                   window = signal::hamming(wl),
+                   window = hamming(wl),
                    overlap = ceiling(length(window) / 2)) {
   argHandler(
     FUN = "ACIspec",

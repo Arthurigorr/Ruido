@@ -6,7 +6,7 @@
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
 #' @param targetSampRate sample rate of the audios. Defaults to `NULL` to not change the sample rate. This argument is only used to down sample the audio.
 #' @param wl window length of the spectrogram. Defaults to `512`.
-#' @param window window used to smooth the spectrogram. Defaults to `signal::hamming(wl)`. Switch to `signal::hanning(wl)` if to use hanning instead.
+#' @param window window used to smooth the spectrogram. Defaults to `hamming(wl)`. Switch to `hanning(wl)` if to use hanning instead.
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
 #' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
 #' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
@@ -149,7 +149,7 @@ singleSat = function(soundfile,
                      dbThreshold = -90,
                      targetSampRate = NULL,
                      wl = 512,
-                     window = signal::hamming(wl),
+                     window = hamming(wl),
                      overlap = ceiling(length(window) / 2),
                      histbreaks = "FD",
                      DCfix = TRUE,

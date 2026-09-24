@@ -7,7 +7,7 @@
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
-#' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hamming(wl)`
+#' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
 #'
 #' @returns This function returns a [noise.matrix-class] object.
@@ -36,7 +36,6 @@
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
 #'
 #'@export
-#'@importFrom signal specgram
 #'@importFrom tuneR readWave
 #'@importFrom tuneR downsample
 #'@importFrom wav read_wav
@@ -73,7 +72,7 @@ ENTspec = function(soundfile,
                    timeBin = 60,
                    targetSampRate = NULL,
                    wl = 512,
-                   window = signal::hamming(wl),
+                   window = hamming(wl),
                    overlap = ceiling(length(window) / 2)) {
   argHandler(
     FUN = "ENTspec",
