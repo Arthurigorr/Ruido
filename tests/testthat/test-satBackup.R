@@ -21,7 +21,7 @@ test_that("satBackup can be tricked into running", {
     dbThreshold = -90,
     targetSampRate = NULL,
     wl = 512,
-    window = signal::hamming(512),
+    window = hamming(512),
     overlap = 256,
     histbreaks = "FD",
     DCfix = TRUE,
