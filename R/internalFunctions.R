@@ -38,13 +38,12 @@ processChannel.BGN = function(channelData,
     }
 
     tempHolder = apply(allSamples, 1, function(y) {
-      list(signal::specgram(
+      list(.spect(
         x = x[y[1]:y[2]],
         n = wl,
-        Fs = samp.rate,
         window = window,
         overlap = overlap
-      )$S)
+      ))
     })
 
     BGNPOWdf = lapply(tempHolder, function(singleBin) {
@@ -56,29 +55,29 @@ processChannel.BGN = function(channelData,
         spectS[spectS < dbThreshold] = dbThreshold
       }
 
-      apply(spectS, 1, function(z) {
-        dbMax = max(z)
-        dbMin = min(z)
-
-        num_bins = hBreak(z)
-
-        breaks   = seq(dbMin, dbMax, length.out = num_bins + 1)
-        modalBin = which.max(tabulate(findInterval(x = z, vec = breaks)))
-        modalIntensity = dbMin + modalBin * (breaks[2] - breaks[1])
-
-        c(BGN = modalIntensity, POW = dbMax - modalIntensity)
+      dbMax = matrixStats::rowMaxs(spectS)
+      dbMin = matrixStats::rowMins(spectS)
+      numBins = apply(spectS, 1, function(z) {
+        hBreak(z)
       })
+      binWidth = (dbMax - dbMin) / numBins
+      modalBin <- vapply(seq_len(wl / 2), function(i) {
+        bins <- floor((spectS[i, ] - dbMin[i]) / binWidth[i]) + 1L
+        which.max(tabulate(bins, nbins = numBins[i]))
+      }, integer(1))
+      modalIntensity = dbMin + modalBin * binWidth
+      rbind(BGN = modalIntensity, POW = dbMax - modalIntensity)
 
     })
 
-    BGN = data.frame(lapply(BGNPOWdf, function(df)
-      df[1, ])) |>
-      setNames(paste0(rep("BGN", frameBin), 1:frameBin))
-    POW = data.frame(lapply(BGNPOWdf, function(df)
-      df[2, ])) |>
-      setNames(paste0(rep("POW", frameBin), 1:frameBin))
-
-    return(list(BGN = BGN, POW = POW))
+    return(list(
+      BGN = data.frame(lapply(BGNPOWdf, function(df)
+        df[1, ])) |>
+        setNames(paste0(rep("BGN", frameBin), 1:frameBin)),
+      POW = data.frame(lapply(BGNPOWdf, function(df)
+        df[2, ])) |>
+        setNames(paste0(rep("POW", frameBin), 1:frameBin))
+    ))
 
   })
 
@@ -123,13 +122,12 @@ processChannel.ACI = function(channelData,
 
   noiseOBJ@values = lapply(channelData, function(x) {
     tempHolder = apply(allSamples, 1, function(y) {
-      list(signal::specgram(
+      list(.spect(
         x = x[y[1]:y[2]],
         n = wl,
-        Fs = samp.rate,
         window = window,
         overlap = overlap
-      )$S)
+      ))
     })
 
     ACIdf = data.frame(do.call(cbind, lapply(tempHolder, function(singleBin) {
@@ -208,13 +206,12 @@ processChannel.ENT = function(channelData,
 
   noiseOBJ@values = lapply(channelData, function(x) {
     tempHolder = apply(allSamples, 1, function(y) {
-      list(signal::specgram(
+      list(.spect(
         x = x[y[1]:y[2]],
         n = wl,
-        Fs = samp.rate,
         window = window,
         overlap = overlap
-      )$S)
+      ))
     })
 
     ENTdf = data.frame(do.call(cbind, lapply(tempHolder, function(singleBin) {
@@ -257,7 +254,7 @@ bgNoise. = function(soundfile,
                     dbThreshold = -90,
                     targetSampRate = NULL,
                     wl = 512,
-                    window = signal::hamming(wl),
+                    window = hamming(wl),
                     overlap = ceiling(length(window) / 2),
                     histbreaks = "FD",
                     DCfix = TRUE,
@@ -273,9 +270,7 @@ bgNoise. = function(soundfile,
   } else if (audio == "S4") {
     tempSamp = soundfile@samp.rate
     if (soundfile@stereo) {
-      soundfile = matrix(c(soundfile@left, soundfile@right),
-                         nrow = 2,
-                         byrow = TRUE)
+      soundfile = rbind(soundfile@left, soundfile@right)
     } else {
       soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
     }
@@ -317,7 +312,7 @@ bgNoise. = function(soundfile,
 
 }
 
-## bgNoise
+## bgNoise..
 ## This is another hidden version of the bgNoise function.
 ## This version is used in functions that take a folder as input.
 ## It skips checks and reads the audio files directly.
@@ -328,7 +323,7 @@ bgNoise.. = function(soundfile,
                      dbThreshold = -90,
                      targetSampRate = NULL,
                      wl = 512,
-                     window = signal::hamming(wl),
+                     window = hamming(wl),
                      overlap = ceiling(length(window) / 2),
                      histbreaks = "FD",
                      DCfix = TRUE) {
@@ -476,7 +471,7 @@ argHandler = function(FUN, ...) {
         length(args$window) != args$wl) {
       stop(
         paste0(
-          "On window = ... \nPlease set window to signal::hamming(wl) or signal::hanning(wl)"
+          "On window = ... \nPlease set window to hamming(wl) or hanning(wl)"
         ),
         call. = FALSE
       )
@@ -693,6 +688,42 @@ argHandler = function(FUN, ...) {
 
   invisible(NULL)
 
+}
+
+
+# .spect -----------------------------------------------------
+.spect <- function(x, n, window, overlap) {
+
+  win_size <- length(window)
+
+  step <- win_size - overlap
+
+  if (length(x) > win_size) {
+    offset <- seq.int(
+      1,
+      length(x) - win_size,
+      by = step
+    )
+  } else {
+    offset <- 1L
+  }
+
+  S <- matrix(0, n, length(offset))
+
+  for (i in seq_along(offset)) {
+    S[1:win_size, i] <-
+      x[offset[i]:(offset[i] + win_size - 1)] * window
+  }
+
+  S <- mvfft(S)
+
+  ret_n <- if (n %% 2 == 1) {
+    (n + 1) / 2
+  } else {
+    n / 2
+  }
+
+  S[1:ret_n, , drop = FALSE]
 }
 
 # normHandler -------------------------------------------------------------
