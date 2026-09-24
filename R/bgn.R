@@ -38,7 +38,7 @@
 #'
 #' @references
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
-#' <br>Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. IEEE Transactions on Acoustics, Speech, and Signal Processing, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
+#' <br>Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. \emph{IEEE Transactions on Acoustics, Speech, and Signal Processing}, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
 #'
 #'@export
 #'@importFrom tuneR readWave
@@ -47,6 +47,7 @@
 #'@importFrom grDevices nclass.FD
 #'@importFrom grDevices nclass.Sturges
 #'@importFrom grDevices nclass.scott
+#'@importFrom matrixStats colMaxs
 #'
 #' @examples
 #' ### For our main example we'll create an artificial audio with
@@ -112,9 +113,7 @@ bgn = function(soundfile,
   } else if (audio == "S4") {
     tempSamp = soundfile@samp.rate
     if (soundfile@stereo) {
-      soundfile = matrix(c(soundfile@left, soundfile@right),
-                         nrow = 2,
-                         byrow = TRUE)
+      soundfile = rbind(soundfile@left, soundfile@right)
     } else {
       soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
     }
@@ -167,7 +166,7 @@ bgn = function(soundfile,
       samples = x[y[1]:y[2]]
       mat = matrix(samples[seq_len(floor(length(samples) / wl) * wl)],
                    nrow = wl)
-      db = 10 * log10(apply(mat, 2, max))
+      db = 10 * log10(matrixStats::colMaxs(mat))
 
       if (!is.null(dbThreshold)) {
         db[db < dbThreshold] = dbThreshold
@@ -175,12 +174,13 @@ bgn = function(soundfile,
 
       dbMin = min(db)
       dbMax = max(db)
-      num_bins = hBreak(db)
-      breaks = seq(dbMin, dbMax, length.out = num_bins + 1)
+      numBins = hBreak(db)
+      breaks = seq(dbMin, dbMax, length.out = numBins + 1)
       modalBin = which.max(tabulate(findInterval(x = db, vec = breaks)))
       modalIntensity = dbMin + modalBin * (breaks[2] - breaks[1])
       c(BGN = modalIntensity, POW = dbMax - modalIntensity)
     })
+
   })
 
 }
