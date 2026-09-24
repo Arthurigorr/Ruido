@@ -11,7 +11,7 @@ singleSat(
   dbThreshold = -90,
   targetSampRate = NULL,
   wl = 512,
-  window = signal::hamming(wl),
+  window = hamming(wl),
   overlap = ceiling(length(window)/2),
   histbreaks = "FD",
   DCfix = TRUE,
@@ -33,7 +33,7 @@ singleSat(
 
 \item{wl}{window length of the spectrogram. Defaults to \code{512}.}
 
-\item{window}{window used to smooth the spectrogram. Defaults to \code{signal::hamming(wl)}. Switch to \code{signal::hanning(wl)} if to use hanning instead.}
+\item{window}{window used to smooth the spectrogram. Defaults to \code{hamming(wl)}. Switch to \code{hanning(wl)} if to use hanning instead.}
 
 \item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 

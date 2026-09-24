@@ -11,7 +11,7 @@ bgNoise(
   dbThreshold = -90,
   targetSampRate = NULL,
   wl = 512,
-  window = signal::hamming(wl),
+  window = hamming(wl),
   overlap = ceiling(length(window)/2),
   histbreaks = "FD",
   DCfix = TRUE
@@ -30,7 +30,7 @@ bgNoise(
 
 \item{wl}{window length of the spectrogram. Defaults to \code{512}}
 
-\item{window}{window used to smooth the spectrogram. Switch to \code{signal::hanning(wl)} to use hanning instead. Defaults to \code{signal::hamming(wl)}}
+\item{window}{window used to smooth the spectrogram. Switch to \code{hanning(wl)} to use hanning instead. Defaults to \code{hamming(wl)}}
 
 \item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 
@@ -135,7 +135,7 @@ abline(lm(bgn@values$left$BGN$BGN1~bgn@values$left$POW$POW1), col = "red")
 }
 \references{
 Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
-\if{html}{\out{<br>}}Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. IEEE Transactions on Acoustics, Speech, and Signal Processing, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
+\if{html}{\out{<br>}}Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. \emph{IEEE Transactions on Acoustics, Speech, and Signal Processing}, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
 }
 \seealso{
 \code{\link[=bgn]{bgn()}} to calculate the summarized Background Noise and Soundscape Power. \code{\link[=ACIspec]{ACIspec()}} to calculate the Acoustic Complexity Index and \code{\link[=ENTspec]{ENTspec()}} to calculate Spectral Entropy from a single audio file. Also, check \code{\link[=activity]{activity()}} and \code{\link[=singleSat]{singleSat()}}, which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.

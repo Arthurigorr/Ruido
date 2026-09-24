@@ -11,7 +11,7 @@ activity(
   dbThreshold = -90,
   targetSampRate = NULL,
   wl = 512,
-  window = signal::hamming(wl),
+  window = hamming(wl),
   overlap = ceiling(length(window)/2),
   histbreaks = "FD",
   DCfix = TRUE,
@@ -33,7 +33,7 @@ activity(
 
 \item{wl}{window length of the spectrogram. Defaults to \code{512}}
 
-\item{window}{window used to smooth the spectrogram. Switch to \code{signal::hanning(wl)} to use hanning instead. Defaults to \code{signal::hamming(wl)}}
+\item{window}{window used to smooth the spectrogram. Switch to \code{hanning(wl)} to use hanning instead. Defaults to \code{hamming(wl)}}
 
 \item{overlap}{overlap between the spectrogram windows. Defaults to \code{wl/2} (half the window length)}
 
