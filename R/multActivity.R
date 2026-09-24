@@ -8,7 +8,7 @@
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
-#' @param window window used to smooth the spectrogram. Switch to `signal::hanning(wl)` to use hanning instead. Defaults to `signal::hamming(wl)`
+#' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
 #' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
 #' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
@@ -133,7 +133,7 @@ multActivity = function(soundpath,
                         dbThreshold = -90,
                         targetSampRate = NULL,
                         wl = 512,
-                        window = signal::hamming(wl),
+                        window = hamming(wl),
                         overlap = ceiling(length(window) / 2),
                         histbreaks = "FD",
                         DCfix = TRUE,
