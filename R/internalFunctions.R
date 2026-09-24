@@ -61,8 +61,8 @@ processChannel.BGN = function(channelData,
         hBreak(z)
       })
       binWidth = (dbMax - dbMin) / numBins
-      modalBin <- vapply(seq_len(wl / 2), function(i) {
-        bins <- floor((spectS[i, ] - dbMin[i]) / binWidth[i]) + 1L
+      modalBin = vapply(seq_len(wl / 2), function(i) {
+        bins = floor((spectS[i, ] - dbMin[i]) / binWidth[i]) + 1L
         which.max(tabulate(bins, nbins = numBins[i]))
       }, integer(1))
       modalIntensity = dbMin + modalBin * binWidth
@@ -692,38 +692,36 @@ argHandler = function(FUN, ...) {
 
 
 # .spect -----------------------------------------------------
-.spect <- function(x, n, window, overlap) {
+.spect = function(x, n, window, overlap) {
+  winSize = length(window)
+  step = winSize - overlap
 
-  win_size <- length(window)
-
-  step <- win_size - overlap
-
-  if (length(x) > win_size) {
-    offset <- seq.int(
+  if (length(x) > winSize) {
+    offset = seq.int(
       1,
-      length(x) - win_size,
+      length(x) - winSize,
       by = step
     )
   } else {
-    offset <- 1L
+    offset = 1L
   }
 
-  S <- matrix(0, n, length(offset))
+  S = matrix(0, n, length(offset))
 
   for (i in seq_along(offset)) {
-    S[1:win_size, i] <-
-      x[offset[i]:(offset[i] + win_size - 1)] * window
+    S[1:winSize, i] =
+      x[offset[i]:(offset[i] + winSize - 1)] * window
   }
 
-  S <- mvfft(S)
+  S = mvfft(S)
 
-  ret_n <- if (n %% 2 == 1) {
+  keepThese = if (n %% 2 == 1) {
     (n + 1) / 2
   } else {
     n / 2
   }
 
-  S[1:ret_n, , drop = FALSE]
+  S[1:keepThese, , drop = FALSE]
 }
 
 # normHandler -------------------------------------------------------------
