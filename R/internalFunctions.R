@@ -45,7 +45,6 @@ processChannel.BGN = function(channelData,
         overlap = overlap
       ))
     })
-
     BGNPOWdf = lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin[[1]])
 
@@ -130,7 +129,7 @@ processChannel.ACI = function(channelData,
       ))
     })
 
-    ACIdf = data.frame(do.call(cbind, lapply(tempHolder, function(singleBin) {
+    ACIdf = lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin[[1]])
 
       specDim = dim(spectS)
@@ -156,12 +155,14 @@ processChannel.ACI = function(channelData,
 
       }
 
-      return(ACIvect)
+      ACIvect
 
-    })))
+    })
 
-    colnames(ACIdf) = paste0("ACI", rep(1:frameBin))
-    return(list(ACI = ACIdf))
+    return(list(ACI = data.frame(ACIdf) |>
+                  setNames(paste0(
+                    rep("ACI", frameBin) , 1:frameBin
+                  ))))
 
   })
 
@@ -214,7 +215,7 @@ processChannel.ENT = function(channelData,
       ))
     })
 
-    ENTdf = data.frame(do.call(cbind, lapply(tempHolder, function(singleBin) {
+    ENTdf = lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin[[1]])
       amp2    = spectS ** 2
 
@@ -226,10 +227,13 @@ processChannel.ENT = function(channelData,
       H = -rowSums(term) / log2(dim(amp2)[2])
 
       return(1 - H)
-    })))
+    })
 
-    colnames(ENTdf) = paste0("ENT", rep(1:frameBin))
-    return(list(ENT = ENTdf))
+
+    return(list(ENT = data.frame(ENTdf) |>
+                  setNames(paste0(
+                    rep("ENT", frameBin) , 1:frameBin
+                  ))))
 
   })
 
@@ -469,12 +473,10 @@ argHandler = function(FUN, ...) {
   if ("window" %in% names(args)) {
     if (!is.numeric(args$window) ||
         length(args$window) != args$wl) {
-      stop(
-        paste0(
-          "On window = ... \nPlease set window to hamming(wl) or hanning(wl)"
-        ),
-        call. = FALSE
-      )
+      stop(paste0(
+        "On window = ... \nPlease set window to hamming(wl) or hanning(wl)"
+      ),
+      call. = FALSE)
     }
   }
 
@@ -690,18 +692,13 @@ argHandler = function(FUN, ...) {
 
 }
 
-
 # .spect -----------------------------------------------------
+
 .spect = function(x, n, window, overlap) {
   winSize = length(window)
-  step = winSize - overlap
 
   if (length(x) > winSize) {
-    offset = seq.int(
-      1,
-      length(x) - winSize,
-      by = step
-    )
+    offset = seq.int(1, length(x) - winSize, by = (winSize - overlap))
   } else {
     offset = 1L
   }
@@ -783,9 +780,9 @@ normHandler = function(normality) {
 # Function factory made to prevent checks for histbreaks every loop on processChannel.bgn
 hBreaks = function(histbreaks) {
   if (is.numeric(histbreaks)) {
-      function(x) {
-        histbreaks + 1
-      }
+    function(x) {
+      histbreaks + 1
+    }
   } else {
     switch(
       histbreaks,
