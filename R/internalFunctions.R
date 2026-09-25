@@ -22,7 +22,7 @@ processChannel.BGN = function(channelData,
 
   frameBin = nrow(allSamples)
 
-  hBreak = hBreaks(histbreaks)
+  hBreak = hBreaks.MAT(histbreaks)
 
   channelData = switch(
     channel,
@@ -60,9 +60,8 @@ processChannel.BGN = function(channelData,
 
       dbMax = matrixStats::rowMaxs(spectS)
       dbMin = matrixStats::rowMins(spectS)
-      numBins = apply(spectS, 1, function(z) {
-        hBreak(z)
-      })
+
+      numBins = hBreak(spectS)
       binWidth = (dbMax - dbMin) / numBins
       modalBin = vapply(seq_len(wl / 2), function(i) {
         bins = floor((spectS[i, ] - dbMin[i]) / binWidth[i]) + 1L
@@ -784,6 +783,31 @@ normHandler = function(normality) {
 
 # hBreaks ----------------------------------------------------------------
 # Function factory made to prevent checks for histbreaks every loop on processChannel.bgn
+hBreaks.MAT = function(histbreaks) {
+  if (is.numeric(histbreaks)) {
+    function(z) {
+      rowsNumeric(z, n = histbreaks)
+    }
+  } else {
+    switch(
+      histbreaks,
+      "FD"      = function(z) {
+        rowsFD(z, digits = 5)
+      }
+      ,
+      "Sturges" = function(z) {
+        rowsSturges(z)
+      }
+      ,
+      "scott"   = function(z)
+      {
+        rowsscott(z)
+      }
+    )
+
+  }
+}
+
 hBreaks = function(histbreaks) {
   if (is.numeric(histbreaks)) {
     function(x) {
@@ -820,7 +844,6 @@ getSampleBins = function(samples, samp.rate, binSize) {
   data.frame(b, e)[keepThese, ]
 
 }
-
 
 # plotNOISE --------------------------------------------------------------
 #' Plot noise.matrix objects
