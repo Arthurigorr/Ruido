@@ -37,16 +37,20 @@ processChannel.BGN = function(channelData,
       x = x - mean(x)
     }
 
-    tempHolder = apply(allSamples, 1, function(y) {
-      list(.spect(
-        x = x[y[1]:y[2]],
+    bVec = allSamples$b
+    eVec = allSamples$e
+
+    tempHolder = lapply(seq_along(bVec), function(i) {
+      .spect(
+        x = x[bVec[i]:eVec[i]],
         n = wl,
         window = window,
         overlap = overlap
-      ))
+      )
     })
+
     BGNPOWdf = lapply(tempHolder, function(singleBin) {
-      spectS = abs(singleBin[[1]])
+      spectS = abs(singleBin)
 
       spectS = 10 * log10(spectS / max(spectS))
 
@@ -70,12 +74,12 @@ processChannel.BGN = function(channelData,
     })
 
     return(list(
-      BGN = data.frame(lapply(BGNPOWdf, function(df)
-        df[1, ])) |>
-        setNames(paste0(rep("BGN", frameBin), 1:frameBin)),
-      POW = data.frame(lapply(BGNPOWdf, function(df)
-        df[2, ])) |>
-        setNames(paste0(rep("POW", frameBin), 1:frameBin))
+      BGN = as.data.frame(do.call(cbind, lapply(BGNPOWdf, function(df)
+        df[1, ]))) |>
+        setNames(paste0("BGN", 1:frameBin)),
+      POW = as.data.frame(do.call(cbind, lapply(BGNPOWdf, function(df)
+        df[2, ]))) |>
+        setNames(paste0("POW", 1:frameBin))
     ))
 
   })
@@ -692,35 +696,6 @@ argHandler = function(FUN, ...) {
 
 }
 
-# .spect -----------------------------------------------------
-
-.spect = function(x, n, window, overlap) {
-  winSize = length(window)
-
-  if (length(x) > winSize) {
-    offset = seq.int(1, length(x) - winSize, by = (winSize - overlap))
-  } else {
-    offset = 1L
-  }
-
-  S = matrix(0, n, length(offset))
-
-  for (i in seq_along(offset)) {
-    S[1:winSize, i] =
-      x[offset[i]:(offset[i] + winSize - 1)] * window
-  }
-
-  S = mvfft(S)
-
-  keepThese = if (n %% 2 == 1) {
-    (n + 1) / 2
-  } else {
-    n / 2
-  }
-
-  S[1:keepThese, , drop = FALSE]
-}
-
 # normHandler -------------------------------------------------------------
 ## This function deals with the normality tests
 
@@ -774,6 +749,37 @@ normHandler = function(normality) {
 
   return(normality)
 
+}
+
+# .spect -----------------------------------------------------
+
+.spect = function(x, n, window, overlap) {
+  winSize = length(window)
+
+  if (length(x) > winSize) {
+    offset = seq.int(1, length(x) - winSize, by = (winSize - overlap))
+  } else {
+    offset = 1
+  }
+
+  S = .Call(
+    "spectMat",
+    as.numeric(x),
+    as.integer(n),
+    as.numeric(window),
+    as.integer(offset),
+    PACKAGE = "Ruido"
+  )
+
+  S = mvfft(S)
+
+  keepThese = if (n %% 2 == 1) {
+    (n + 1) / 2
+  } else {
+    n / 2
+  }
+
+  S[1:keepThese, , drop = FALSE]
 }
 
 # hBreaks ----------------------------------------------------------------

@@ -44,6 +44,7 @@
 #'@importFrom grDevices nclass.Sturges
 #'@importFrom grDevices nclass.scott
 #'@importFrom stats mvfft
+#'@useDynLib Ruido, .registration = TRUE
 #'
 #' @examples
 #' ### For our main example we'll create an artificial audio with
@@ -179,7 +180,7 @@ bgNoise = function(soundfile,
   }
 
   BGNexp = processChannel.BGN(
-    soundfile,
+    channelData = soundfile,
     samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
     timeBin = timeBin,
