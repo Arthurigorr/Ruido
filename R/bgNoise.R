@@ -40,9 +40,6 @@
 #'@importFrom tuneR readWave
 #'@importFrom tuneR downsample
 #'@importFrom wav read_wav
-#'@importFrom grDevices nclass.FD
-#'@importFrom grDevices nclass.Sturges
-#'@importFrom grDevices nclass.scott
 #'@importFrom stats mvfft
 #'@useDynLib Ruido, .registration = TRUE
 #'
