@@ -9,39 +9,44 @@
 This is the development branch of **Ruido**. Its main purpose is to test new features and changes before they are merged into the `main` branch, helping prevent untested or broken code from affecting the stable version of the package.
 
 ### Current Goals:
-- [x] Create functions to calculate summarized versions of Background Noise and Soundscape Power — **90%**
+- [x] Create functions to calculate summarized versions of Background Noise and Soundscape Power — **100%**
   - [x] Function
   - [x] Documentation
   - [x] Examples
   - [x] Tests
-  - [ ] Optimize
+  - [x] Optimize
 - [ ] Create functions for the remaining spectral indices — **0%**
   - [ ] Events per Second — **0%**
   - [ ] Spectral Peaks — **0%**
 - [ ] Create a function to calculate and plot false-color spectrograms — **0%**
-- [ ] Improve processing speed for `bgNoise()` — **10%**
+- [ ] Improve processing speed for `bgNoise()` — **11%**
 
 ### Current bottleneck and optimization targets in `bgNoise()`:
 ```text
 BGN optimization status
 │
-├── Spectrogram / FFT ............. ~29%  ← main bottleneck ⚠️
-│   ├── .spect .................... ~29%
-│   └── mvfft ..................... ~16%
+├── FD histogram bin calculation ...... ~41%  ← main bottleneck ⚠️
+│   ├── rowQuantiles / rowIQRs ........ ~39%
+│   └── sorting ....................... ~12%
 │
-├── apply() / iteration ........... ~27%
-├── Matrix rearrangement .......... ~10%
-│   └── aperm() ................... ~10%
-├── Signal transformations ........ ~14%
-│   ├── abs() ..................... ~7%
-│   └── log10() ................... ~7%
-├── C-level operations ............ ~3%
-├── WAV reading ................... ~2%
-└── Other operations .............. ~15%
-
-Overall benchmark
+├── Spectrogram / FFT ................. ~24%
+│   ├── .spect ........................ ~24%
+│   └── mvfft ......................... ~11%
 │
-├── dev branch bgNoise() ................. 2.816 s mean
-├── main branch bgNoise() ................ 3.128 s mean
-└── Improvement .......................... ~10% faster
+├── vapply / iteration ................ ~14%
+├── Matrix subsetting ................. ~10%
+├── log10() ........................... ~7%
+├── abs() ............................. ~5%
+├── C-level operations ................ ~3%
+├── Histogram tabulation .............. ~2%
+├── WAV reading ....................... ~2%
+└── Other operations .................. ~5%
+```
+```
+Overall benchmark (50 iterations each and default arguments)
+│
+├── dev branch bgNoise() ................. 3.697 s mean
+├── main branch bgNoise() ................ 4.180 s mean
+├── Mean Improvement ..................... ~11.6% faster
+└── Median Improvement ................... ~11.3% faster
 ```
