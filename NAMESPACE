@@ -53,3 +53,4 @@ importFrom(utils,
   head
 )
 importFrom(wav,read_wav)
+useDynLib(Ruido, .registration = TRUE)
