@@ -149,7 +149,7 @@ ACIspec = function(soundfile,
   }
 
   ACIexp = processChannel.ACI(
-    soundfile,
+    channelData = soundfile,
     samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
     timeBin = timeBin,

@@ -125,7 +125,7 @@ ENTspec = function(soundfile,
   }
 
   ENTexp = processChannel.ENT(
-    soundfile,
+    channelData = soundfile,
     samp.rate = attr(soundfile, "sample_rate"),
     channel = channel,
     timeBin = timeBin,
