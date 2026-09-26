@@ -26,28 +26,50 @@ test_that("bgNoise() reads tuneR Wave objects", {
     samp.rate = samprate,
     bit = 16
   )
+  wave3 = tuneR::Wave(
+    left = rep(c(1, 0), length.out = samprate * dur),
+    right = rep(c(0, 1), length.out = samprate * dur),
+    samp.rate = samprate,
+    bit = 16
+  )
+  wave4 = tuneR::Wave(
+    left = signal,
+    right = rev(signal),
+    samp.rate = samprate,
+    bit = 8
+  )
 
   bgn1 = bgNoise(wave1)
   bgn2 = bgNoise(wave2, channel = "mono")
   bgn3 = bgNoise(wave1, timeBin = 10)
   bgn4 = bgNoise(wave1, timeBin = 30)
   bgn5 = bgNoise(wave2, timeBin = 10)
+  bgn6 = bgNoise(wave3)
+  bgn7 = bgNoise(wave4)
 
   show(bgn1)
   show(bgn2)
   show(bgn3)
   show(bgn4)
   show(bgn5)
+  show(bgn6)
+  show(bgn7)
 
   plot(bgn1, yunit = "khz")
   plot(bgn2)
   plot(bgn3, index = "POW")
   plot(bgn4, channel = "left")
+  plot(bgn5)
+  plot(bgn6)
+  plot(bgn7)
 
   expect_s4_class(bgn1, "noise.matrix")
   expect_s4_class(bgn2, "noise.matrix")
   expect_s4_class(bgn3, "noise.matrix")
   expect_s4_class(bgn4, "noise.matrix")
+  expect_s4_class(bgn5, "noise.matrix")
+  expect_s4_class(bgn6, "noise.matrix")
+  expect_s4_class(bgn7, "noise.matrix")
   expect_s4_class(bgNoise(wave1, timeBin = 30, channel = "left"), "noise.matrix")
   expect_s4_class(bgNoise(wave1, timeBin = 30, channel = "left"), "noise.matrix")
   expect_s4_class(bgNoise(wave1, timeBin = 30, channel = "right"), "noise.matrix")
