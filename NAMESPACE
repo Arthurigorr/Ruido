@@ -2,6 +2,7 @@
 
 export(ACIspec)
 export(ENTspec)
+export(EVNspec)
 export(activity)
 export(bgNoise)
 export(bgn)

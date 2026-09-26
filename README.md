@@ -15,8 +15,13 @@ This is the development branch of **Ruido**. Its main purpose is to test new fea
   - [x] Examples
   - [x] Tests
   - [x] Optimize
-- [ ] Create functions for the remaining spectral indices — **0%**
-  - [ ] Events per Second — **0%**
+- [ ] Create functions for the remaining spectral indices — **30%**
+  - [ ] Events per Second — **60%**
+    - [x] Function
+    - [x] Documentation
+    - [x] Examples
+    - [ ] Tests
+    - [ ] Optimize
   - [ ] Spectral Peaks — **0%**
 - [ ] Create a function to calculate and plot false-color spectrograms — **0%**
 - [ ] Improve processing speed for `bgNoise()` — **11%**

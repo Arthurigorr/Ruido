@@ -1,259 +1,3 @@
-# processChannel.BGN ----------------------------------------------------------
-## This version of processChannel handles the calculation of the BGN and POW index.
-## This is called by bgNoise and bgNoise.
-## This should not be seen or used by the user, as it is only intended for internal use by other functions.
-
-processChannel.BGN = function(channelData,
-                              samp.rate,
-                              channel,
-                              timeBin,
-                              wl,
-                              overlap,
-                              dbThreshold,
-                              window,
-                              histbreaks,
-                              DCfix,
-                              noiseOBJ) {
-  allSamples = if (is.null(timeBin)) {
-    data.frame(b = 1, e = length(channelData[1, ]))
-  } else {
-    getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
-  }
-
-  frameBin = nrow(allSamples)
-
-  hBreak = hBreaks.MAT(histbreaks)
-
-  channelData = switch(
-    channel,
-    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
-    "mono"   = list(mono  = channelData[1, ]),
-    "left"   = list(left  = channelData[1, ]),
-    "right"  = list(right = channelData[2, ])
-  )
-
-  noiseOBJ@values = lapply(channelData, function(x) {
-    if (DCfix) {
-      x = x - mean(x)
-    }
-
-    bVec = allSamples$b
-    eVec = allSamples$e
-
-    tempHolder = lapply(seq_along(bVec), function(i) {
-      .spect(
-        x = x[bVec[i]:eVec[i]],
-        n = wl,
-        window = window,
-        overlap = overlap
-      )
-    })
-
-    BGNPOWdf = lapply(tempHolder, function(singleBin) {
-      spectS = abs(singleBin)
-
-      spectS = 10 * log10(spectS / max(spectS))
-
-      if (!is.null(dbThreshold)) {
-        spectS[spectS < dbThreshold] = dbThreshold
-      }
-
-      dbMax = matrixStats::rowMaxs(spectS)
-      dbMin = matrixStats::rowMins(spectS)
-
-      numBins = hBreak(spectS)
-      binWidth = (dbMax - dbMin) / numBins
-
-      modalBin = vapply(seq_len(wl / 2), function(i) {
-        bins = floor((spectS[i, ] - dbMin[i]) / binWidth[i]) + 1L
-        which.max(tabulate(bins, nbins = numBins[i]))
-      }, integer(1))
-      modalIntensity = dbMin + modalBin * binWidth
-      rbind(BGN = modalIntensity, POW = dbMax - modalIntensity)
-
-    })
-
-    return(list(
-      BGN = as.data.frame(do.call(
-        cbind, lapply(BGNPOWdf, function(df)
-          df[1, ])
-      )) |>
-        setNames(paste0("BGN", 1:frameBin)),
-      POW = as.data.frame(do.call(
-        cbind, lapply(BGNPOWdf, function(df)
-          df[2, ])
-      )) |>
-        setNames(paste0("POW", 1:frameBin))
-    ))
-
-  })
-
-  noiseOBJ@index = c("BGN", "POW")
-  noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
-  noiseOBJ@sampRate = samp.rate
-  noiseOBJ@channel = channel
-
-  return(noiseOBJ)
-
-}
-
-# processChannel.ACI ----------------------------------------------------------
-## This version of processChannel handles the calculation of the ACI index.
-## This is called by ACIspec()
-## This should not be seen or used by the user, as it is only intended for internal use by other functions.
-
-processChannel.ACI = function(channelData,
-                              samp.rate,
-                              channel,
-                              timeBin,
-                              j,
-                              wl,
-                              overlap,
-                              window,
-                              noiseOBJ) {
-  allSamples = if (is.null(timeBin)) {
-    data.frame(b = 1, e = length(channelData[1, ]))
-  } else {
-    getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
-  }
-
-  frameBin = nrow(allSamples)
-
-  channelData = switch(
-    channel,
-    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
-    "mono"   = list(mono  = channelData[1, ]),
-    "left"   = list(left  = channelData[1, ]),
-    "right"  = list(right = channelData[2, ])
-  )
-
-  noiseOBJ@values = lapply(channelData, function(x) {
-    tempHolder = apply(allSamples, 1, function(y) {
-      list(.spect(
-        x = x[y[1]:y[2]],
-        n = wl,
-        window = window,
-        overlap = overlap
-      ))
-    })
-
-    ACIdf = lapply(tempHolder, function(singleBin) {
-      spectS = abs(singleBin[[1]])
-
-      specDim = dim(spectS)
-      duration = length(spectS) / samp.rate
-
-      jump = as.integer(j / (duration / specDim[2]))
-      forJ = ceiling(specDim[2] / jump)
-
-      ACIvals = vector("numeric", forJ)
-      ACIvect = vector("numeric", specDim[1])
-
-      for (s in 1:specDim[1]) {
-        for (t in 1:forJ) {
-          timeMin = (t - 1) * jump + 1
-          timeMax = min(t * jump, specDim[2])
-
-          D = sum(abs(diff(spectS[s, timeMin:(timeMax)])))
-
-          ACIvals[t] = D / sum(spectS[s, timeMin:timeMax])
-        }
-
-        ACIvect[s] = sum(ACIvals)
-
-      }
-
-      ACIvect
-
-    })
-
-    return(list(ACI = data.frame(ACIdf) |>
-                  setNames(paste0(
-                    rep("ACI", frameBin) , 1:frameBin
-                  ))))
-
-  })
-
-  noiseOBJ@index = "ACI"
-  noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
-  noiseOBJ@sampRate = samp.rate
-  noiseOBJ@channel = channel
-
-  return(noiseOBJ)
-
-}
-
-
-# processChannel.ENT ------------------------------------------------------
-## This version of processChannel handles the calculation of the ENT index.
-## This is called by ENTspec()
-## This should not be seen or used by the user, as it is only intended for internal use by other functions.
-
-processChannel.ENT = function(channelData,
-                              samp.rate,
-                              channel,
-                              timeBin,
-                              wl,
-                              overlap,
-                              window,
-                              noiseOBJ) {
-  allSamples = if (is.null(timeBin)) {
-    data.frame(b = 1, e = length(channelData[1, ]))
-  } else {
-    getSampleBins(length(channelData[1, ]), samp.rate, timeBin)
-  }
-
-  frameBin = nrow(allSamples)
-
-  channelData = switch(
-    channel,
-    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
-    "mono"   = list(mono  = channelData[1, ]),
-    "left"   = list(left  = channelData[1, ]),
-    "right"  = list(right = channelData[2, ])
-  )
-
-  noiseOBJ@values = lapply(channelData, function(x) {
-    tempHolder = apply(allSamples, 1, function(y) {
-      list(.spect(
-        x = x[y[1]:y[2]],
-        n = wl,
-        window = window,
-        overlap = overlap
-      ))
-    })
-
-    ENTdf = lapply(tempHolder, function(singleBin) {
-      spectS = abs(singleBin[[1]])
-      amp2    = spectS ** 2
-
-      rowTot = rowSums(amp2)
-      rowTot[rowTot == 0] = 1 ## Safeguard!
-      pmf = amp2 / rowTot
-
-      term = ifelse(pmf > 0, pmf * log2(pmf), 0)
-      H = -rowSums(term) / log2(dim(amp2)[2])
-
-      return(1 - H)
-    })
-
-
-    return(list(ENT = data.frame(ENTdf) |>
-                  setNames(paste0(
-                    rep("ENT", frameBin) , 1:frameBin
-                  ))))
-
-  })
-
-  noiseOBJ@index = "ENT"
-  noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
-  noiseOBJ@sampRate = samp.rate
-  noiseOBJ@channel = channel
-
-  return(noiseOBJ)
-
-}
-
 # bgnoise alts ------------------------------------------------------------
 ## bgNoise
 ## This is a hidden version of the bgNoise function.
@@ -1020,4 +764,51 @@ plotNOISE = function(x,
 
   }
 
+}
+
+rowsFD = function(z, digits = 5) {
+  h = 2 * matrixStats::rowIQRs(z. <- signif(z, digits = digits))
+
+  if (any(h == 0)) {
+    who = which(h == 0)
+
+    al = 1 / 4
+    alMin = 1 / 512
+
+    while (length(who) > 0 &&
+           (al = al / 2) >= alMin) {
+      q = matrixStats::rowQuantiles(z.[who, , drop = FALSE], probs = c(al, 1 - al)
+                                    , drop = FALSE)
+      h[who] = (q[, 2] - q[, 1]) / (1 - 2 * al)
+      who = who[h[who] == 0]
+    }
+  }
+
+  if (any(h == 0)) {
+    who = which(h == 0)
+    h[who] = 3.5 * matrixStats::rowSds(z.[who, , drop = FALSE])
+  }
+
+  out = ceiling(matrixStats::rowDiffs(matrixStats::rowRanges(z)) / h  * ncol(z)^(1 / 3)) + 1
+  out[h < 1] = 1
+
+  return(c(out))
+}
+
+rowsSturges = function(z) {
+  rep(ceiling(log(ncol(z), base = 2) + 1), nrow(z))
+}
+
+rowsscott = function(z) {
+  h = 3.5 * sqrt(matrixStats::rowVars(z)) * ncol(z)^(-1 / 3)
+  positive = which(h > 0)
+  negative = which(h < 0)
+  h[negative] = 1
+  h[positive] = pmax(1, ceiling(matrixStats::rowDiffs(matrixStats::rowRanges(z)) / h)) + 1
+
+  return(h)
+}
+
+rowsNumeric = function(z, n) {
+  rep(n + 1, nrow(z))
 }

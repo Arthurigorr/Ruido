@@ -242,7 +242,8 @@ setMethod("plot", signature(x = "noise.matrix"), function(x,
       paste(sort(x@index), collapse = "+"),
       "BGN+POW" = "dB",
       "ACI" = "Amplitude",
-      "ENT" = "Entropy"
+      "ENT" = "Entropy",
+      "EVN" = "Events Per Time"
     )
   }
 
