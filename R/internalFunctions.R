@@ -63,6 +63,7 @@ processChannel.BGN = function(channelData,
 
       numBins = hBreak(spectS)
       binWidth = (dbMax - dbMin) / numBins
+
       modalBin = vapply(seq_len(wl / 2), function(i) {
         bins = floor((spectS[i, ] - dbMin[i]) / binWidth[i]) + 1L
         which.max(tabulate(bins, nbins = numBins[i]))
@@ -73,11 +74,15 @@ processChannel.BGN = function(channelData,
     })
 
     return(list(
-      BGN = as.data.frame(do.call(cbind, lapply(BGNPOWdf, function(df)
-        df[1, ]))) |>
+      BGN = as.data.frame(do.call(
+        cbind, lapply(BGNPOWdf, function(df)
+          df[1, ])
+      )) |>
         setNames(paste0("BGN", 1:frameBin)),
-      POW = as.data.frame(do.call(cbind, lapply(BGNPOWdf, function(df)
-        df[2, ]))) |>
+      POW = as.data.frame(do.call(
+        cbind, lapply(BGNPOWdf, function(df)
+          df[2, ])
+      )) |>
         setNames(paste0("POW", 1:frameBin))
     ))
 
