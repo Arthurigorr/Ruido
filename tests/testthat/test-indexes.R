@@ -69,13 +69,12 @@ test_that("acoustic indices functions works correctly", {
     concluded = 1
   )
 
-  expect_s4_class(ACIspec(recDir), "noise.matrix")
-  expect_s4_class(ACIspec(recDir, channel = "mono"), "noise.matrix")
-  expect_s4_class(ACIspec(recDir, j = 800), "noise.matrix")
-  expect_s4_class(ACIspec(recDir, targetSampRate = 12250), "noise.matrix")
+  expect_s4_class(ACIspec(recDir[1]), "noise.matrix")
+  expect_s4_class(ACIspec(recDir[1], channel = "mono"), "noise.matrix")
+  expect_s4_class(ACIspec(recDir[1], j = 800), "noise.matrix")
+  expect_s4_class(ACIspec(recDir[1], targetSampRate = 12250), "noise.matrix")
   expect_s4_class(ACIspec(wave1), "noise.matrix")
   expect_s4_class(ACIspec(wave2), "noise.matrix")
-  expect_s4_class(ACIspec(recDir[1]), "noise.matrix")
   expect_error(ACIspec(recDir, j = "five"))
   expect_error(ACIspec(recDir, wl = -100))
   expect_error(ACIspec("completely-made-up-for-example.png"))
