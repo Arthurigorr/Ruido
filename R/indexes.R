@@ -245,21 +245,19 @@ ACIspec = function(soundfile,
 #'   guides(fill = guide_legend(title = "Activity"))
 #'
 #' }
-activity = function(
-    soundfile,
-    channel = "stereo",
-    timeBin = 60,
-    dbThreshold = -90,
-    targetSampRate = NULL,
-    wl = 512,
-    window = hamming(wl),
-    overlap = ceiling(length(window) / 2),
-    histbreaks = "FD",
-    DCfix = TRUE,
-    powthr = 10,
-    bgnthr = 0.8,
-    beta = TRUE
-) {
+activity = function(soundfile,
+                    channel = "stereo",
+                    timeBin = 60,
+                    dbThreshold = -90,
+                    targetSampRate = NULL,
+                    wl = 512,
+                    window = hamming(wl),
+                    overlap = ceiling(length(window) / 2),
+                    histbreaks = "FD",
+                    DCfix = TRUE,
+                    powthr = 10,
+                    bgnthr = 0.8,
+                    beta = TRUE) {
   argHandler(
     FUN = "activity",
     soundfile = soundfile,
@@ -276,8 +274,6 @@ activity = function(
     bgnthr = bgnthr,
     beta = beta
   )
-
-  halfWl = round(wl / 2)
 
   BGNPOW = if (is(soundfile, "noise.matrix")) {
     soundfile
@@ -312,7 +308,8 @@ activity = function(
       result = (ch$BGN > BGNQ | ch$POW > powthr) * 1
     } else {
       result = sapply(1:nBins, function(t) {
-        (ch$BGN[, t] > quantile(ch$BGN[, t], bgnthr) | ch$POW[, t] > powthr) * 1
+        (ch$BGN[, t] > quantile(ch$BGN[, t], bgnthr) |
+           ch$POW[, t] > powthr) * 1
       })
     }
     colnames(result) = paste0("ACT", 1:nBins)
@@ -322,9 +319,8 @@ activity = function(
   BGNPOW@index = "ACT"
   if (BGNPOW@channel == "stereo") {
     BGNPOW@wl = nrow(BGNPOW@values$left$ACT)
-
   } else {
-    BGNPOW@wl = nrow(BGNPOW@values[[channel]]$ACT1)
+    BGNPOW@wl = nrow(BGNPOW@values[[channel]]$ACT)
   }
 
   return(BGNPOW)
@@ -493,8 +489,7 @@ bgn = function(soundfile,
     x = abs(x)
     apply(allSamples, 1, function(y) {
       samples = x[y[1]:y[2]]
-      mat = matrix(samples[seq_len(floor(length(samples) / wl) * wl)],
-                   nrow = wl)
+      mat = matrix(samples[seq_len(floor(length(samples) / wl) * wl)], nrow = wl)
       db = 10 * log10(matrixStats::colMaxs(mat))
 
       if (!is.null(dbThreshold)) {
@@ -643,7 +638,7 @@ bgNoise = function(soundfile,
     soundfile = soundfile,
     channel = channel,
     timeBin = timeBin,
-    dbThreshold= dbThreshold,
+    dbThreshold = dbThreshold,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
@@ -849,7 +844,6 @@ ENTspec = function(soundfile,
 
   if (ENTexp@channel == "stereo") {
     ENTexp@wl = nrow(ENTexp@values$left$ENT)
-
   } else {
     ENTexp@wl = nrow(ENTexp@values[[channel]]$ENT)
 
@@ -941,7 +935,7 @@ EVNspec = function(soundfile,
     soundfile = soundfile,
     channel = channel,
     timeBin = timeBin,
-    dbThreshold= dbThreshold,
+    dbThreshold = dbThreshold,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
