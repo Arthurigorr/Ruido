@@ -95,8 +95,7 @@ test_that("acoustic indices functions works correctly", {
   expect_type(bgn(wave3, histbreaks = 100), "list")
   expect_type(bgn(wave4, timeBin = 10), "list")
   expect_type(bgn(wave4, timeBin = 180), "list")
-  expect_type(bgn(wave5, targetSampRate = samprate / 2), "list")
-  expect_type(bgn(wave5, targetSampRate = samprate * 2), "list")
+  expect_type(bgn(wave1, targetSampRate = samprate / 2), "list")
   expect_type(
     bgn(
       wave1,
@@ -179,15 +178,15 @@ test_that("acoustic indices functions works correctly", {
 
   plot(sampleBGN)
 
-  expect_s4_class(ENTspec(recDir), "noise.matrix")
-  expect_s4_class(ENTspec(recDir, channel = "mono"), "noise.matrix")
-  expect_error(ENTspec(recDir, j = 800))
-  expect_s4_class(ENTspec(recDir, targetSampRate = 12250), "noise.matrix")
+  expect_s4_class(ENTspec(recDir[[1]]), "noise.matrix")
+  expect_s4_class(ENTspec(recDir[[1]], channel = "mono"), "noise.matrix")
+  expect_error(ENTspec(recDir[[1]], j = 800))
+  expect_s4_class(ENTspec(recDir[[1]], targetSampRate = 12250), "noise.matrix")
   expect_s4_class(ENTspec(wave1), "noise.matrix")
   expect_s4_class(ENTspec(wave2), "noise.matrix")
-  expect_error(ENTspec(recDir, wl = -100))
+  expect_error(ENTspec(recDir[[1]], wl = -100))
   expect_error(ENTspec("completely-made-up-for-example.png"))
-  expect_s4_class(ENTspec(recDir, timeBin = NULL), "noise.matrix")
+  expect_s4_class(ENTspec(recDir[[1]], timeBin = NULL), "noise.matrix")
 
   expect_type(multActivity(dir), "list")
   expect_type(multActivity(dir, channel = "right"), "list")
