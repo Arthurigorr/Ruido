@@ -17,7 +17,7 @@ soundSat(
   DCfix = TRUE,
   powthr = c(5, 20, 1),
   bgnthr = c(0.5, 0.9, 0.05),
-  normality = "ad.test",
+  normality = "auto",
   beta = TRUE,
   backup = NULL
 )
@@ -50,8 +50,8 @@ soundSat(
 \item{bgnthr}{numeric vector of length three containing the the range of thresholds used to evaluate the Background Noise of the  Activity Matrix (in \%). The values correspond to the minimum threshold, maximum threshold and step size respectively.
 \if{html}{\out{<br>}} Defaults to \code{c(0.5, 0.9, 0.05)}, which evaluates thresholds from 50\% to 90\% in increments of 5\%}
 
-\item{normality}{character string containing the normality test used to determine which threshold combination has the most normal distribution of values. We recommend to pick any test from the \code{nortest} package. Defaults to \code{"ad.test"}.
-\if{html}{\out{<br>}}\code{"ks.test"} is not available. \code{"shapiro.test"} can be used, however we recommend using only when analyzing very few recordings}
+\item{normality}{character string with the normality test used to determine which threshold combination has the most normal distribution of values. One of \code{"auto"}, \code{"shapiro.test"}, \code{"sf.test"}, \code{"lillie.test"}, \code{"ad.test"}, \code{"cvm.test"} or \code{"pearson.test"}. Defaults to \code{"auto"}.
+\if{html}{\out{<br>}}\code{"ks.test"} is not available. Check description for more information.}
 
 \item{beta}{how BGN thresholds are calculated. If \code{TRUE}, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to \code{TRUE}}
 
@@ -83,6 +83,8 @@ After computing \eqn{S_m}, the function evaluates all tested threshold values an
 If \code{backup} is set to a valid directory, a file named \code{"SATBACKUP.RData"} is automatically saved after every batch of five processed files. This file stores the current processing state and allows interrupted runs (e.g., due to manual termination, session crashes, or system shutdowns) to be resumed using \code{\link[=satBackup]{satBackup()}}.
 
 To resume processing, pass the saved file (e.g., \code{"path/SATBACKUP.RData"}) to \code{\link[=satBackup]{satBackup()}}. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved \code{.RData} object.
+
+For the \code{normality} argument, each test only works within a range of sample sizes (3-5000 for \verb{"shapiro.test}", 5-5000 for \code{"sf.test"}, 5 or more for \code{"lillie.test"}, 8 or more for \code{"ad.test"} and \code{"cvm.test"}, 2 or more for \code{"pearson.test"}). If the chosen test does not fit the number of values, a warning is issued and \code{"shapiro.test"} is used (or \code{"ad.test"} if there are more than 5000 values). With \code{"auto"}, \code{"shapiro.test"} is used for up to 5000 values and \code{"ad.test"} for more.
 }
 \examples{
 \donttest{
