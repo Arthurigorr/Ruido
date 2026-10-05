@@ -188,6 +188,16 @@ test_that("acoustic indices functions works correctly", {
   expect_error(ENTspec("completely-made-up-for-example.png"))
   expect_s4_class(ENTspec(recDir[[1]], timeBin = NULL), "noise.matrix")
 
+  expect_s4_class(EVNspec(recDir[[1]]), "noise.matrix")
+  expect_s4_class(EVNspec(recDir[[1]], channel = "mono"), "noise.matrix")
+  expect_error(EVNspec(recDir[[1]], j = 800))
+  expect_s4_class(EVNspec(recDir[[1]], targetSampRate = 12250), "noise.matrix")
+  expect_s4_class(EVNspec(wave1), "noise.matrix")
+  expect_s4_class(EVNspec(wave2), "noise.matrix")
+  expect_error(EVNspec(recDir[[1]], wl = -100))
+  expect_error(EVNspec("completely-made-up-for-example.png"))
+  expect_s4_class(EVNspec(recDir[[1]], timeBin = NULL), "noise.matrix")
+
   expect_type(multActivity(dir), "list")
   expect_type(multActivity(dir, channel = "right"), "list")
   expect_type(multActivity(dir, backup = dir), "list")
