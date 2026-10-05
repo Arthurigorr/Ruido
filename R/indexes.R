@@ -320,7 +320,7 @@ activity = function(soundfile,
   if (BGNPOW@channel == "stereo") {
     BGNPOW@wl = nrow(BGNPOW@values$left$ACT)
   } else {
-    BGNPOW@wl = nrow(BGNPOW@values[[channel]]$ACT)
+    BGNPOW@wl = nrow(BGNPOW@values[[BGNPOW@channel]]$ACT)
   }
 
   return(BGNPOW)
