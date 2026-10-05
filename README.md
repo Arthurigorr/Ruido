@@ -15,7 +15,7 @@ This is the development branch of **Ruido**. Its main purpose is to test new fea
   - [x] Examples
   - [x] Tests
   - [x] Optimize
-- [ ] Create functions for the remaining spectral indices — **30%**
+- [ ] Create functions for the remaining spectral indices — **40%**
   - [ ] Events per Second — **80%**
     - [x] Function
     - [x] Documentation
