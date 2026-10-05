@@ -447,56 +447,44 @@ argHandler = function(FUN, ...) {
 # normHandler -------------------------------------------------------------
 ## This function deals with the normality tests
 
-normHandler = function(normality) {
-  if (normality == "shapiro.test") {
-    answernorm = readline(
-      "
-      If you are working with a large dataset, then shapiro.test will most likely result in an error.
-      Do you wish to use Anderson-Darling test instead? (Y/N).
-      "
-    )
+normHandler = function(normality, SIZE) {
+  minN = c(
+    shapiro.test = 3,
+    sf.test = 5,
+    lillie.test = 5,
+    ad.test = 8,
+    cvm.test = 8,
+    pearson.test = 2
+  )
+  maxN = c(
+    shapiro.test = 5000,
+    sf.test = 5000,
+    lillie.test = Inf,
+    ad.test = Inf,
+    cvm.test = Inf,
+    pearson.test = Inf
+  )
 
-    if (answernorm == "Y") {
-      normality = "ad.test"
-    } else if (answernorm == "N") {
-      message("Using shapiro.test to test normality.")
-    } else {
-      stop("Please answer with Y or N next time.", call. = FALSE)
-    }
+  default = if (SIZE > 5000)
+    "ad.test"
+  else
+    "shapiro.test"
 
-  } else if (normality == "ks.test") {
-    answernorm = readline(
-      "ks.test is not supported since many combinations may have identifical values.
-      Type N to ignore this warning.
-      However, we recommend choosing one of these tests:
-      a ad.test
-      b cvm.test
-      c lillie.test
-      d pearson.test
-      e sf.test
-      (Type the letter to choose)
-      "
-    )
+  if (normality == "auto")
+    return(default)
 
-    normality = switch(
-      answernorm,
-      "a" = "ad.test",
-      "b" = "cvm.test",
-      "c" = "lillie.test",
-      "d" = "pearson.test",
-      "e" = "sf.test",
-      "N" = "ks.test",
-      "STOP"
-    )
+  if (isTRUE(SIZE >= minN[normality] &&
+             SIZE <= maxN[normality]))
+    return(normality)
 
-    if (normality == "STOP") {
-      stop("Please pick a letter next time.", call. = FALSE)
-    }
-
-  }
-
-  return(normality)
-
+  warning("'",
+          normality,
+          "' doesn't fit n = ",
+          SIZE,
+          ". Using '",
+          default,
+          "' instead.")
+  default
 }
 
 # .spect -----------------------------------------------------
