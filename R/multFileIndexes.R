@@ -17,8 +17,8 @@
 #' <br> Defaults to `c(5, 20, 1)`, which evaluates thresholds from 5 dB to 20 dB in increments of 1 dB
 #' @param bgnthr numeric vector of length three containing the the range of thresholds used to evaluate the Background Noise of the  Activity Matrix (in %). The values correspond to the minimum threshold, maximum threshold and step size respectively.
 #' <br> Defaults to `c(0.5, 0.9, 0.05)`, which evaluates thresholds from 50% to 90% in increments of 5%
-#' @param normality character string containing the normality test used to determine which threshold combination has the most normal distribution of values. We recommend to pick any test from the `nortest` package. Defaults to `"ad.test"`.
-#' <br>`"ks.test"` is not available. `"shapiro.test"` can be used, however we recommend using only when analyzing very few recordings
+#' @param normality character string with the normality test used to determine which threshold combination has the most normal distribution of values. One of `"auto"`, `"shapiro.test"`, `"sf.test"`, `"lillie.test"`, `"ad.test"`, `"cvm.test"` or `"pearson.test"`. Defaults to `"auto"`.
+#' <br>`"ks.test"` is not available. Check details for more information.
 #' @param beta how BGN thresholds are calculated. If `TRUE`, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to `TRUE`
 #' @param backup path to save the backup. Defaults to `NULL`
 #'
@@ -43,6 +43,8 @@
 #' If `backup` is set to a valid directory, a file named `"SATBACKUP.RData"` is automatically saved after every batch of five processed files. This file stores the current processing state and allows interrupted runs (e.g., due to manual termination, session crashes, or system shutdowns) to be resumed using [satBackup()].
 #'
 #' To resume processing, pass the saved file (e.g., `"path/SATBACKUP.RData"`) to [satBackup()]. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved `.RData` object.
+#'
+#' For the `normality` argument, each test only works within a range of sample sizes (3-5000 for `"shapiro.test`", 5-5000 for `"sf.test"`, 5 or more for `"lillie.test"`, 8 or more for `"ad.test"` and `"cvm.test"`, 2 or more for `"pearson.test"`). If the chosen test does not fit the number of values, a warning is issued and `"shapiro.test"` is used (or `"ad.test"` if there are more than 5000 values). With `"auto"`, `"shapiro.test"` is used for up to 5000 values and `"ad.test"` for more.
 #'
 #' @seealso [soundMat()] to get saturation for ALL thresholds and [multActivity()] to get only activity values. Also, check [satBackup()] if you are working with bigger datasets.
 #'
@@ -112,7 +114,7 @@ soundSat = function(soundpath,
                     DCfix = TRUE,
                     powthr = c(5, 20, 1),
                     bgnthr = c(0.5, 0.9, 0.05),
-                    normality = "ad.test",
+                    normality = "auto",
                     beta = TRUE,
                     backup = NULL) {
   argHandler(
@@ -133,8 +135,6 @@ soundSat = function(soundpath,
     beta = beta,
     backup = backup
   )
-
-  normality = normHandler(normality)
 
   powthreshold = seq(powthr[1], powthr[2], powthr[3])
   names(powthreshold) = powthreshold
@@ -216,7 +216,8 @@ soundSat = function(soundpath,
       }
     )
 
-    if (!is(result, "error")) result@path = sPath
+    if (!is(result, "error"))
+      result@path = sPath
     SATdf[["indexes"]][[soundfile]] = result
 
     message(
@@ -341,6 +342,8 @@ soundSat = function(soundpath,
 
   colnames(SATmat) = combinations
 
+  normality = normHandler(normality, SIZE = nrow(SATmat))
+
   normal = apply(SATmat, 2, function(Q) {
     if (length(unique(Q)) != 1) {
       do.call(normality, list(Q))$statistic
@@ -397,7 +400,8 @@ soundSat = function(soundpath,
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
     backFile = paste0(backup, "/SATBACKUP.rds")
-    if (file.exists(backFile)) file.remove(backFile)
+    if (file.exists(backFile))
+      file.remove(backFile)
   }
 
   SATinfo$SAT = SATmat[, which(normal == normOUT)]
@@ -656,7 +660,8 @@ soundMat = function(soundpath,
       }
     )
 
-    if (!is(result, "error")) result@path = sPath
+    if (!is(result, "error"))
+      result@path = sPath
     SATdf[["indexes"]][[soundfile]] = result
 
     message(
@@ -786,7 +791,8 @@ soundMat = function(soundpath,
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
     backFile = paste0(backup, "/SATBACKUP.rds")
-    if (file.exists(backFile)) file.remove(backFile)
+    if (file.exists(backFile))
+      file.remove(backFile)
   }
 
   export = list(info = data.frame(),
@@ -898,7 +904,8 @@ satBackup = function(backup) {
         }
       )
 
-      if (!is(result, "error")) result@path = sPath
+      if (!is(result, "error"))
+        result@path = sPath
       SATdf[["indexes"]][[soundfile]] = result
 
       message(
@@ -1131,7 +1138,6 @@ satBackup = function(backup) {
     return(export)
 
   } else if (type == "multActivity") {
-
     export = list(
       powthresh = numeric(0),
       bgnthresh = numeric(0),
@@ -1372,7 +1378,8 @@ multActivity = function(soundpath,
       }
     )
 
-    if (!is(result, "error")) result@path = sPath
+    if (!is(result, "error"))
+      result@path = sPath
     SATdf[["indexes"]][[soundfile]] = result
 
     message(
@@ -1480,7 +1487,8 @@ multActivity = function(soundpath,
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
     backFile = paste0(backup, "/SATBACKUP.rds")
-    if (file.exists(backFile)) file.remove(backFile)
+    if (file.exists(backFile))
+      file.remove(backFile)
   }
 
   export = list(
@@ -1500,4 +1508,3 @@ multActivity = function(soundpath,
   return(export)
 
 }
-
