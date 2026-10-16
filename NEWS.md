@@ -16,7 +16,7 @@
 - Updated and expanded function documentation, including:
   - Adding the decibel conversion formula to `bgNoise()`.
   - Specifying "Spectral" in the titles of relevant spectral acoustic indices
-  - Documenting the `normality` tests accepted by the `normality` argument
+  - Documenting the normality tests accepted by the `normality` argument
 
 # Ruido 1.1.1
 
