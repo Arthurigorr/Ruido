@@ -1,4 +1,4 @@
-# Ruido (development version)
+# Ruido 1.2.0
 
 # Ruido 1.1.1
 
