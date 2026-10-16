@@ -53,6 +53,7 @@ test_that("acoustic indices functions works correctly", {
     channel = "stereo",
     timeBin = 60,
     dbThreshold = -90,
+    dbRef = 10,
     targetSampRate = NULL,
     wl = 512,
     window = hamming(512),
@@ -75,6 +76,7 @@ test_that("acoustic indices functions works correctly", {
   expect_s4_class(ACIspec(recDir[1], targetSampRate = 12250), "noise.matrix")
   expect_s4_class(ACIspec(wave1), "noise.matrix")
   expect_s4_class(ACIspec(wave2), "noise.matrix")
+  expect_s4_class(ACIspec(wave3), "noise.matrix")
   expect_error(ACIspec(recDir, j = "five"))
   expect_error(ACIspec(recDir, wl = -100))
   expect_error(ACIspec("completely-made-up-for-example.png"))
@@ -136,6 +138,7 @@ test_that("acoustic indices functions works correctly", {
   plot(bgn5)
   plot(bgn6)
   plot(bgn7)
+  plot(bgn8)
 
   expect_s4_class(bgn1, "noise.matrix")
   expect_s4_class(bgn2, "noise.matrix")
@@ -158,6 +161,7 @@ test_that("acoustic indices functions works correctly", {
   expect_s4_class(bgNoise(wave1, DCfix = FALSE), "noise.matrix")
   expect_s4_class(bgNoise(wave1, timeBin = NULL), "noise.matrix")
   expect_s4_class(bgNoise(wave1, wl = 256), "noise.matrix")
+  expect_s4_class(bgNoise(wave1, dbRef = 20), "noise.matrix")
   expect_s4_class(bgNoise(wave1, dbThreshold = -60), "noise.matrix")
   expect_s4_class(bgNoise(wave1, overlap = 128), "noise.matrix")
   expect_s4_class(bgNoise(wave1, channel = "mono", targetSampRate = 6650), "noise.matrix")
