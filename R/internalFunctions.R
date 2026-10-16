@@ -8,6 +8,7 @@ bgNoise. = function(soundfile,
                     channel = "stereo",
                     timeBin = 60,
                     dbThreshold = -90,
+                    dbRef = 10,
                     targetSampRate = NULL,
                     wl = 512,
                     window = hamming(wl),
@@ -60,6 +61,7 @@ bgNoise. = function(soundfile,
     wl = wl,
     overlap = overlap,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     window = window,
     histbreaks = histbreaks,
     DCfix = DCfix,
@@ -77,6 +79,7 @@ bgNoise.. = function(soundfile,
                      channel = "stereo",
                      timeBin = 60,
                      dbThreshold = -90,
+                     dbRef = 10,
                      targetSampRate = NULL,
                      wl = 512,
                      window = hamming(wl),
@@ -116,6 +119,7 @@ bgNoise.. = function(soundfile,
     wl = wl,
     overlap = overlap,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     window = window,
     histbreaks = histbreaks,
     DCfix = DCfix,
@@ -193,6 +197,20 @@ argHandler = function(FUN, ...) {
         call. = FALSE
       )
     }
+  }
+
+  #### dbRef ----
+  if ("dbRef" %in% names(args)) {
+    if (!is.numeric(args$dbRef) ||
+        length(args$dbRef) != 1 || args$dbRef < 0)
+      stop(
+        paste0(
+          'dbRef = ',
+          capture.output(dput(args$dbRef)),
+          '\ndbRef must be a single non-negative number'
+        ),
+        call. = FALSE
+      )
   }
 
   #### targetSampRate ----

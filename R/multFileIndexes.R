@@ -6,6 +6,7 @@
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param dbRef reference value used to compute decibel values from the spectrogram.
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
@@ -106,6 +107,7 @@ soundSat = function(soundpath,
                     channel = "stereo",
                     timeBin = 60,
                     dbThreshold = -90,
+                    dbRef = 10,
                     targetSampRate = NULL,
                     wl = 512,
                     window = hamming(wl),
@@ -123,6 +125,7 @@ soundSat = function(soundpath,
     channel = channel,
     timeBin = timeBin,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
@@ -170,6 +173,7 @@ soundSat = function(soundpath,
       channel = channel,
       timeBin = timeBin,
       dbThreshold = dbThreshold,
+      dbRef = dbRef,
       targetSampRate = targetSampRate,
       wl = wl,
       window = window,
@@ -206,6 +210,7 @@ soundSat = function(soundpath,
         overlap = overlap,
         channel = channel,
         dbThreshold = dbThreshold,
+        dbRef = dbRef,
         wl = wl,
         histbreaks = histbreaks,
         DCfix = DCfix
@@ -433,6 +438,7 @@ soundSat = function(soundpath,
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param dbRef reference value used to compute decibel values from the spectrogram.
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
@@ -553,6 +559,7 @@ soundMat = function(soundpath,
                     channel = "stereo",
                     timeBin = 60,
                     dbThreshold = -90,
+                    dbRef = 10,
                     targetSampRate = NULL,
                     wl = 512,
                     window = hamming(wl),
@@ -569,6 +576,7 @@ soundMat = function(soundpath,
     channel = channel,
     timeBin = timeBin,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
@@ -615,6 +623,7 @@ soundMat = function(soundpath,
       channel = channel,
       timeBin = timeBin,
       dbThreshold = dbThreshold,
+      dbRef = dbRef,
       targetSampRate = targetSampRate,
       wl = wl,
       window = window,
@@ -650,6 +659,7 @@ soundMat = function(soundpath,
         overlap = overlap,
         channel = channel,
         dbThreshold = dbThreshold,
+        dbRef = dbRef,
         wl = wl,
         histbreaks = histbreaks,
         DCfix = DCfix
@@ -894,6 +904,7 @@ satBackup = function(backup) {
           overlap = overlap,
           channel = channel,
           dbThreshold = dbThreshold,
+          dbRef = dbRef,
           wl = wl,
           histbreaks = histbreaks,
           DCfix = DCfix
@@ -1170,6 +1181,7 @@ satBackup = function(backup) {
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param dbRef reference value used to compute decibel values from the spectrogram.
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
@@ -1295,6 +1307,7 @@ multActivity = function(soundpath,
                         channel = "stereo",
                         timeBin = 60,
                         dbThreshold = -90,
+                        dbRef = 10,
                         targetSampRate = NULL,
                         wl = 512,
                         window = hamming(wl),
@@ -1311,6 +1324,7 @@ multActivity = function(soundpath,
     channel = channel,
     timeBin = timeBin,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
@@ -1335,6 +1349,7 @@ multActivity = function(soundpath,
       channel = channel,
       timeBin = timeBin,
       dbThreshold = dbThreshold,
+      dbRef = dbRef,
       targetSampRate = targetSampRate,
       wl = wl,
       window = window,
@@ -1368,6 +1383,7 @@ multActivity = function(soundpath,
         overlap = overlap,
         channel = channel,
         dbThreshold = dbThreshold,
+        dbRef = dbRef,
         wl = wl,
         histbreaks = histbreaks,
         DCfix = DCfix

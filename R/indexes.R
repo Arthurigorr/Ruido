@@ -180,6 +180,7 @@ ACIspec = function(soundfile,
 #' @param channel channel where the saturation values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param dbRef reference value used to compute decibel values from the spectrogram. Defaults to `10`
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
@@ -249,6 +250,7 @@ activity = function(soundfile,
                     channel = "stereo",
                     timeBin = 60,
                     dbThreshold = -90,
+                    dbRef = 10,
                     targetSampRate = NULL,
                     wl = 512,
                     window = hamming(wl),
@@ -264,6 +266,7 @@ activity = function(soundfile,
     channel = channel,
     timeBin = timeBin,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
@@ -286,6 +289,7 @@ activity = function(soundfile,
       overlap = overlap,
       channel = channel,
       dbThreshold = dbThreshold,
+      dbRef = dbRef,
       wl = wl,
       histbreaks = histbreaks,
       DCfix = DCfix,
@@ -295,7 +299,6 @@ activity = function(soundfile,
 
   nBins = length(BGNPOW@timeBins)
 
-  # The purpose of the "* 1" is to convert the values from logical to numerical (0 = FALSE and 1 = TRUE)
   if (BGNPOW@channel == "stereo") {
     BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
   } else {
@@ -334,6 +337,7 @@ activity = function(soundfile,
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param dbRef reference value used to compute decibel values from the spectrogram. Defaults to `10`
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl length of each waveform frame in samples. The waveform is divided into non-overlapping frames of this length before the envelope is calculated. Defaults to `512`
 #' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
@@ -346,7 +350,7 @@ activity = function(soundfile,
 #'
 #' For each waveform frame \eqn{i}, the envelope amplitude \eqn{A_i} is converted to decibels as:
 #'
-#' \deqn{dB_i = 10 \log_{10}(A_i)}
+#' \deqn{dB_i = dbRef . \log_{10}(A_i)}
 #'
 #' where \eqn{A_i} is the maximum absolute amplitude within the frame. Incomplete frames at the end of a time bin are discarded.
 #'
@@ -412,6 +416,7 @@ bgn = function(soundfile,
                channel = "stereo",
                timeBin = 60,
                dbThreshold = -90,
+               dbRef = 10,
                targetSampRate = NULL,
                wl = 512,
                histbreaks = "FD",
@@ -423,6 +428,7 @@ bgn = function(soundfile,
     timeBin = timeBin,
     wl = wl,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     histbreaks = histbreaks,
     DCfix = DCfix
   )
@@ -517,6 +523,7 @@ bgn = function(soundfile,
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param dbRef coefficient used to convert spectrogram amplitude values to decibels. Defaults to `10`
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
@@ -528,6 +535,12 @@ bgn = function(soundfile,
 #' @returns This function returns a [noise.matrix-class] object
 #'
 #' @details Background Noise (`BGN`) is an acoustic metric that estimates the dominant baseline level of acoustic energy within a frequency window and time bin. It was described by Towsey (2017) based on the approach of Lamel et al. (1981).
+#'
+#' Spectrogram amplitude values are converted to decibels according to:
+#'
+#' \deqn{dB_i = dbRef . \log_{10}(A_i)}
+#'
+#' where \eqn{A_i} is the amplitude of the \eqn{i}-th spectrogram value and \eqn{dbRef} is the coefficient used for the conversion. By default, \eqn{dbRef = 10}.
 #'
 #' For each frequency window \eqn{f} and time bin \eqn{c}, `BGN` is defined as the modal value of the intensity distribution (in dB), representing the most frequently occurring sound level:
 #'
@@ -627,6 +640,7 @@ bgNoise = function(soundfile,
                    channel = "stereo",
                    timeBin = 60,
                    dbThreshold = -90,
+                   dbRef = 10,
                    targetSampRate = NULL,
                    wl = 512,
                    window = hamming(wl),
@@ -639,6 +653,7 @@ bgNoise = function(soundfile,
     channel = channel,
     timeBin = timeBin,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
@@ -692,6 +707,7 @@ bgNoise = function(soundfile,
     wl = wl,
     overlap = overlap,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     window = window,
     histbreaks = histbreaks,
     DCfix = DCfix,
@@ -861,6 +877,7 @@ ENTspec = function(soundfile,
 #' @param channel channel where the metric values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param dbRef reference value used to compute decibel values from the spectrogram. Defaults to `10`
 #' @param targetSampRate desired sample rate of the audios.  This argument is only used to down sample the audio. If `NULL`, then audio's sample rate remains the same. Defaults to `NULL`
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
@@ -894,10 +911,10 @@ ENTspec = function(soundfile,
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
 #' <br>Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. \emph{IEEE Transactions on Acoustics, Speech, and Signal Processing}, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
 #'
-#'@export
+#' @export
 #'
 #' @examples
-#' ### This is an secondary example using audio from a real soundscape
+#' \donttest{
 #' ### These audios are originated from the Escutadô Project, a project
 #' ### that records the soundscapes of the brazilian semiarid
 #' # Getting audiofile from the online Zenodo library
@@ -920,10 +937,12 @@ ENTspec = function(soundfile,
 #'
 #' # Plot EVN values
 #' plot(evn)
+#' }
 EVNspec = function(soundfile,
                    channel = "stereo",
                    timeBin = 60,
                    dbThreshold = -90,
+                   dbRef = 10,
                    targetSampRate = NULL,
                    wl = 512,
                    window = hamming(wl),
@@ -936,6 +955,7 @@ EVNspec = function(soundfile,
     channel = channel,
     timeBin = timeBin,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
@@ -989,6 +1009,7 @@ EVNspec = function(soundfile,
     wl = wl,
     overlap = overlap,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     window = window,
     histbreaks = histbreaks,
     DCfix = DCfix,
@@ -1011,6 +1032,7 @@ EVNspec = function(soundfile,
 #' @param channel channel where the background noise values will be extracted from. Available channels are: `"stereo"`, `"mono"`, `"left"` or `"right"`. Defaults to `"stereo"`.
 #' @param timeBin size (in seconds) of the time bin. Set to `NULL` to use the entire audio as a single bin. Defaults to `60`
 #' @param dbThreshold minimum allowed value of dB for the spectrograms. Set to `NULL` to leave db values unrestricted Defaults to `-90`, as set by Towsey 2017
+#' @param dbRef reference value used to compute decibel values from the spectrogram.
 #' @param targetSampRate sample rate of the audios. Defaults to `NULL` to not change the sample rate. This argument is only used to down sample the audio.
 #' @param wl window length of the spectrogram. Defaults to `512`.
 #' @param window window used to smooth the spectrogram. Defaults to `hamming(wl)`. Switch to `hanning(wl)` if to use hanning instead.
@@ -1154,6 +1176,7 @@ singleSat = function(soundfile,
                      channel = "stereo",
                      timeBin = 60,
                      dbThreshold = -90,
+                     dbRef = 10,
                      targetSampRate = NULL,
                      wl = 512,
                      window = hamming(wl),
@@ -1169,6 +1192,7 @@ singleSat = function(soundfile,
     channel = channel,
     timeBin = timeBin,
     dbThreshold = dbThreshold,
+    dbRef = dbRef,
     targetSampRate = targetSampRate,
     wl = wl,
     window = window,
@@ -1193,6 +1217,7 @@ singleSat = function(soundfile,
       overlap = overlap,
       channel = channel,
       dbThreshold = dbThreshold,
+      dbRef = dbRef,
       wl = wl,
       histbreaks = histbreaks,
       DCfix

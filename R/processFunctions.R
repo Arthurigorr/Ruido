@@ -5,6 +5,7 @@ processChannel.BGN = function(channelData,
                               wl,
                               overlap,
                               dbThreshold,
+                              dbRef,
                               window,
                               histbreaks,
                               DCfix,
@@ -47,14 +48,15 @@ processChannel.BGN = function(channelData,
     BGNPOWdf = lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin)
 
-      spectS = 10 * log10(spectS / max(spectS))
+      spectS = dbRef * log10(spectS / max(spectS))
 
       if (!is.null(dbThreshold)) {
         spectS[spectS < dbThreshold] = dbThreshold
       }
 
-      dbMax = matrixStats::rowMaxs(spectS)
-      dbMin = matrixStats::rowMins(spectS)
+      dbDif = matrixStats::rowDiffs(spectS)
+      dbMax = dbDif[, 2]
+      dbMin = dbDif[, 1]
 
       numBins = hBreak(spectS)
       binWidth = (dbMax - dbMin) / numBins
@@ -159,7 +161,7 @@ processChannel.ACI = function(channelData,
 
     return(list(ACI = data.frame(ACIdf) |>
                   setNames(paste0(
-                    rep("ACI", frameBin) , 1:frameBin
+                    "ACI", 1:frameBin
                   ))))
 
   })
@@ -212,20 +214,19 @@ processChannel.ENT = function(channelData,
       spectS = abs(singleBin[[1]])
       amp2    = spectS ** 2
 
-      rowTot = rowSums(amp2)
+      rowTot = matrixStats::rowSums2(amp2)
       rowTot[rowTot == 0] = 1 ## Safeguard!
       pmf = amp2 / rowTot
 
       term = ifelse(pmf > 0, pmf * log2(pmf), 0)
-      H = -rowSums(term) / log2(dim(amp2)[2])
+      H = -matrixStats::rowSums2(term) / log2(dim(amp2)[2])
 
       return(1 - H)
     })
 
-
     return(list(ENT = data.frame(ENTdf) |>
                   setNames(paste0(
-                    rep("ENT", frameBin) , 1:frameBin
+                    "ENT", 1:frameBin
                   ))))
 
   })
@@ -246,6 +247,7 @@ processChannel.EVN = function(channelData,
                               wl,
                               overlap,
                               dbThreshold,
+                              dbRef,
                               window,
                               histbreaks,
                               DCfix,
@@ -285,14 +287,15 @@ processChannel.EVN = function(channelData,
     EVNdf = lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin)
 
-      spectS = 10 * log10(spectS / max(spectS))
+      spectS = dbRef * log10(spectS / max(spectS))
 
       if (!is.null(dbThreshold)) {
         spectS[spectS < dbThreshold] = dbThreshold
       }
 
-      dbMax = matrixStats::rowMaxs(spectS)
-      dbMin = matrixStats::rowMins(spectS)
+      dbDif = matrixStats::rowDiffs(spectS)
+      dbMax = dbDif[, 2]
+      dbMin = dbDif[, 1]
 
       numBins = hBreak(spectS)
       binWidth = (dbMax - dbMin) / numBins
@@ -310,7 +313,7 @@ processChannel.EVN = function(channelData,
 
     return(list(EVN = data.frame(EVNdf) |>
                   setNames(paste0(
-                    rep("EVN", frameBin) , 1:frameBin
+                    "EVN", 1:frameBin
                   ))))
 
   })
