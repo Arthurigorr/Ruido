@@ -1,5 +1,23 @@
 # Ruido 1.2.0
 
+- Added `matrixStats` dependency for efficient matrix operations
+- Removed `signal` dependency; spectrogram and window generation are now implemented natively
+- Added two new acoustic index functions:
+  - `bgn()` for Summarized Background Noise and Soundscape Power
+  - `EVNspec()` for the Spectral Acoustic Event Index
+- Added the `dbRef` argument to functions that perform decibel conversion, allowing users to specify the decibel reference. The default is 10, so existing results remain unchanged
+- Reworked `normHandler()` to eliminate user prompts and automatically select an appropriate `normality` test based on the number of files
+- Improved `bgNoise()` processing performance by:
+  - Reducing unnecessary data conversions
+  - Using the `matrixStats` package to optimize matrix calculations
+  - Making object formatting more efficient when the input is an S4 object
+  - Implementing C code for more efficient spectrogram matrix calculation
+  - Vectorizing histogram breaks calculations
+- Updated and expanded function documentation, including:
+  - Adding the decibel conversion formula to `bgNoise()`.
+  - Specifying "Spectral" in the titles of relevant spectral acoustic indices
+  - Documenting the `normality` tests accepted by the `normality` argument
+
 # Ruido 1.1.1
 
 - Updated `activity()` to output a `noise.matrix` object
