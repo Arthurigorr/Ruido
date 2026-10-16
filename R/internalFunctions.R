@@ -68,6 +68,8 @@ bgNoise. = function(soundfile,
     noiseOBJ = noiseOBJ
   )
 
+  return(BGNexp)
+
 }
 
 ## bgNoise..
@@ -125,6 +127,8 @@ bgNoise.. = function(soundfile,
     DCfix = DCfix,
     noiseOBJ = new("noise.matrix.internal")
   )
+
+  return(BGNexp)
 
 }
 

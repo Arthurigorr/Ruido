@@ -212,7 +212,7 @@ processChannel.ENT = function(channelData,
 
     ENTdf = lapply(tempHolder, function(singleBin) {
       spectS = abs(singleBin[[1]])
-      amp2    = spectS ** 2
+      amp2 = spectS ** 2
 
       rowTot = matrixStats::rowSums2(amp2)
       rowTot[rowTot == 0] = 1 ## Safeguard!
