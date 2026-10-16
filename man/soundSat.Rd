@@ -9,6 +9,7 @@ soundSat(
   channel = "stereo",
   timeBin = 60,
   dbThreshold = -90,
+  dbRef = 10,
   targetSampRate = NULL,
   wl = 512,
   window = hamming(wl),
@@ -31,6 +32,8 @@ soundSat(
 
 \item{dbThreshold}{minimum allowed value of dB for the spectrograms. Set to \code{NULL} to leave db values unrestricted Defaults to \code{-90}, as set by Towsey 2017}
 
+\item{dbRef}{reference value used to compute decibel values from the spectrogram.}
+
 \item{targetSampRate}{desired sample rate of the audios.  This argument is only used to down sample the audio. If \code{NULL}, then audio's sample rate remains the same. Defaults to \code{NULL}}
 
 \item{wl}{window length of the spectrogram. Defaults to \code{512}}
@@ -51,7 +54,7 @@ soundSat(
 \if{html}{\out{<br>}} Defaults to \code{c(0.5, 0.9, 0.05)}, which evaluates thresholds from 50\% to 90\% in increments of 5\%}
 
 \item{normality}{character string with the normality test used to determine which threshold combination has the most normal distribution of values. One of \code{"auto"}, \code{"shapiro.test"}, \code{"sf.test"}, \code{"lillie.test"}, \code{"ad.test"}, \code{"cvm.test"} or \code{"pearson.test"}. Defaults to \code{"auto"}.
-\if{html}{\out{<br>}}\code{"ks.test"} is not available. Check description for more information.}
+\if{html}{\out{<br>}}\code{"ks.test"} is not available. Check details for more information.}
 
 \item{beta}{how BGN thresholds are calculated. If \code{TRUE}, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to \code{TRUE}}
 

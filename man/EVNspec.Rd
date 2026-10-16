@@ -9,6 +9,7 @@ EVNspec(
   channel = "stereo",
   timeBin = 60,
   dbThreshold = -90,
+  dbRef = 10,
   targetSampRate = NULL,
   wl = 512,
   window = hamming(wl),
@@ -25,6 +26,8 @@ EVNspec(
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
 \item{dbThreshold}{minimum allowed value of dB for the spectrograms. Set to \code{NULL} to leave db values unrestricted Defaults to \code{-90}, as set by Towsey 2017}
+
+\item{dbRef}{reference value used to compute decibel values from the spectrogram. Defaults to \code{10}}
 
 \item{targetSampRate}{desired sample rate of the audios.  This argument is only used to down sample the audio. If \code{NULL}, then audio's sample rate remains the same. Defaults to \code{NULL}}
 
@@ -63,7 +66,7 @@ where \eqn{I} is an indicator function. Thus, consecutive spectral frames remain
 Event counts are calculated independently for each frequency bin. The resulting values represent the number of detected acoustic events per time bin and are expressed as events per minute.
 }
 \examples{
-### This is an secondary example using audio from a real soundscape
+\donttest{
 ### These audios are originated from the Escutadô Project, a project
 ### that records the soundscapes of the brazilian semiarid
 # Getting audiofile from the online Zenodo library
@@ -86,6 +89,7 @@ evn
 
 # Plot EVN values
 plot(evn)
+}
 }
 \references{
 Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/

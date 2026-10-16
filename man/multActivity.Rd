@@ -9,6 +9,7 @@ multActivity(
   channel = "stereo",
   timeBin = 60,
   dbThreshold = -90,
+  dbRef = 10,
   targetSampRate = NULL,
   wl = 512,
   window = hamming(wl),
@@ -29,6 +30,8 @@ multActivity(
 \item{timeBin}{size (in seconds) of the time bin. Set to \code{NULL} to use the entire audio as a single bin. Defaults to \code{60}}
 
 \item{dbThreshold}{minimum allowed value of dB for the spectrograms. Set to \code{NULL} to leave db values unrestricted Defaults to \code{-90}, as set by Towsey 2017}
+
+\item{dbRef}{reference value used to compute decibel values from the spectrogram.}
 
 \item{targetSampRate}{desired sample rate of the audios.  This argument is only used to down sample the audio. If \code{NULL}, then audio's sample rate remains the same. Defaults to \code{NULL}}
 
