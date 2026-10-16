@@ -54,7 +54,7 @@ processChannel.BGN = function(channelData,
         spectS[spectS < dbThreshold] = dbThreshold
       }
 
-      dbDif = matrixStats::rowDiffs(spectS)
+      dbDif = matrixStats::rowRanges(spectS)
       dbMax = dbDif[, 2]
       dbMin = dbDif[, 1]
 
@@ -293,7 +293,7 @@ processChannel.EVN = function(channelData,
         spectS[spectS < dbThreshold] = dbThreshold
       }
 
-      dbDif = matrixStats::rowDiffs(spectS)
+      dbDif = matrixStats::rowRanges(spectS)
       dbMax = dbDif[, 2]
       dbMin = dbDif[, 1]
 
