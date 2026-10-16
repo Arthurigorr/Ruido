@@ -5,7 +5,7 @@
 - Added two new acoustic index functions:
   - `bgn()` for Summarized Background Noise and Soundscape Power
   - `EVNspec()` for the Spectral Acoustic Event Index
-- Added the `dbRef` argument to functions that perform decibel conversion, allowing users to specify the decibel reference. The default is 10, so existing results remain unchanged
+- Added the `dbRef` argument to functions that perform decibel conversion, allowing users to specify the decibel reference. The default is `10`, so existing results remain unchanged
 - Reworked `normHandler()` to eliminate user prompts and automatically select an appropriate `normality` test based on the number of files
 - Improved `bgNoise()` processing performance by:
   - Reducing unnecessary data conversions
