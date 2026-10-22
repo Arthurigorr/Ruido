@@ -19,6 +19,7 @@ multActivity(
   powthr = 10,
   bgnthr = 0.8,
   beta = TRUE,
+  saveNoise = FALSE,
   backup = NULL
 )
 }
@@ -51,6 +52,8 @@ multActivity(
 \item{bgnthr}{single numeric value to calculate the activity matrix for background noise (in \%). Defaults to \code{0.8}}
 
 \item{beta}{how BGN thresholds are calculated. If \code{TRUE}, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to \code{TRUE}}
+
+\item{saveNoise}{whether the noise.matrix objects generated internally should also be included in the output. Defaults to \code{TRUE}}
 
 \item{backup}{directory to save the backup. Defaults to \code{NULL}}
 }

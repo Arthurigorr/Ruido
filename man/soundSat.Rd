@@ -20,6 +20,7 @@ soundSat(
   bgnthr = c(0.5, 0.9, 0.05),
   normality = "auto",
   beta = TRUE,
+  saveNoise = FALSE,
   backup = NULL
 )
 }
@@ -57,6 +58,8 @@ soundSat(
 \if{html}{\out{<br>}}\code{"ks.test"} is not available. Check details for more information.}
 
 \item{beta}{how BGN thresholds are calculated. If \code{TRUE}, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to \code{TRUE}}
+
+\item{saveNoise}{whether the noise.matrix objects generated internally should also be included in the output. Defaults to \code{TRUE}}
 
 \item{backup}{path to save the backup. Defaults to \code{NULL}}
 }
