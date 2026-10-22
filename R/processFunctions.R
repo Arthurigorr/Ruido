@@ -38,35 +38,35 @@ processChannel.BGN = function(channelData,
     eVec = allSamples$e
 
     tempHolder = lapply(seq_along(bVec), function(i) {
-      .spect(
+      abs(.spect(
         x = x[bVec[i]:eVec[i]],
         n = wl,
         window = window,
         overlap = overlap
-      )
+      ))
     })
 
-    BGNPOWdf = lapply(tempHolder, function(singleBin) {
-      spectS = abs(singleBin)
+    globalMax = do.call(max, tempHolder)
 
-      spectS = dbRef * log10(spectS / max(spectS))
+    BGNPOWdf = lapply(tempHolder, function(singleBin) {
+      singleBin = dbRef * log10(singleBin / globalMax)
 
       if (!is.null(dbThreshold)) {
-        spectS[spectS < dbThreshold] = dbThreshold
+        singleBin[singleBin < dbThreshold] = dbThreshold
       }
 
-      dbDif = matrixStats::rowRanges(spectS)
+      dbDif = matrixStats::rowRanges(singleBin)
       dbMax = dbDif[, 2]
       dbMin = dbDif[, 1]
 
-      numBins = hBreak(spectS)
+      numBins = hBreak(singleBin)
       binWidth = (dbMax - dbMin) / numBins
-      bins = floor((spectS - dbMin) / binWidth) + 1L
+      bins = floor((singleBin - dbMin) / binWidth) + 1L
 
       modalBin = vapply(seq_len(wl / 2), function(i) {
         which.max(tabulate(bins[i, ], nbins = numBins[i]))
       }, integer(1))
-      modalIntensity = dbMin + modalBin * binWidth
+      modalIntensity = dbMin + (modalBin - 0.5) * binWidth
       rbind(BGN = modalIntensity, POW = dbMax - modalIntensity)
 
     })
@@ -280,41 +280,44 @@ processChannel.EVN = function(channelData,
   }
 
   noiseOBJ@values = lapply(channelData, function(x) {
-    tempHolder = lapply(seq_along(allSamples$b), function(i) {
-      .spect(
-        x = x[allSamples$b[i]:allSamples$e[i]],
+    bVec = allSamples$b
+    eVec = allSamples$e
+
+    tempHolder = lapply(seq_along(bVec), function(i) {
+      abs(.spect(
+        x = x[bVec[i]:eVec[i]],
         n = wl,
         window = window,
         overlap = overlap
-      )
+      ))
     })
 
-    EVNdf = lapply(tempHolder, function(singleBin) {
-      spectS = abs(singleBin)
+    globalMax = do.call(max, tempHolder)
 
-      spectS = dbRef * log10(spectS / max(spectS))
+    EVNdf = lapply(tempHolder, function(singleBin) {
+      singleBin = dbRef * log10(singleBin / globalMax)
 
       if (!is.null(dbThreshold)) {
-        spectS[spectS < dbThreshold] = dbThreshold
+        singleBin[singleBin < dbThreshold] = dbThreshold
       }
 
-      dbDif = matrixStats::rowRanges(spectS)
+      dbDif = matrixStats::rowRanges(singleBin)
       dbMax = dbDif[, 2]
       dbMin = dbDif[, 1]
 
-      numBins = hBreak(spectS)
+      numBins = hBreak(singleBin)
       binWidth = (dbMax - dbMin) / numBins
-      bins = floor((spectS - dbMin) / binWidth) + 1L
+      bins = floor((singleBin - dbMin) / binWidth) + 1L
 
       modalBin = vapply(seq_len(wl / 2), function(i) {
         which.max(tabulate(bins[i, ], nbins = numBins[i]))
       }, integer(1))
 
-      modalIntensity = dbMin + modalBin * binWidth
-      noiseReduced = (spectS - modalIntensity) >= 3
+      modalIntensity = dbMin + (modalBin - 0.5) * binWidth
+      noiseReduced = (singleBin - modalIntensity) >= 3
 
       matrixStats::rowSums2(noiseReduced[, -1, drop = FALSE] &
-                              !noiseReduced[, -ncol(noiseReduced), drop = FALSE]) / ((ncol(spectS) - 1) * (wl - overlap) / samp.rate)
+                              !noiseReduced[, -ncol(noiseReduced), drop = FALSE]) / ((ncol(singleBin) - 1) * (wl - overlap) / samp.rate)
 
     })
 
