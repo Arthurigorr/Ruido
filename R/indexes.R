@@ -299,21 +299,30 @@ activity = function(soundfile,
 
   nBins = length(BGNPOW@timeBins)
 
-  if (BGNPOW@channel == "stereo") {
-    BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
-  } else {
-    BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
+  if (beta) {
+    if (BGNPOW@channel == "stereo") {
+      BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
+    } else {
+      BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
+    }
   }
 
   BGNPOW@values = lapply(BGNPOW@values, function(ch) {
+    chBGN = as.matrix(ch$BGN)
+    chPOW = as.matrix(ch$POW)
+
     if (beta) {
       BGNQ = quantile(unlist(BGN), bgnthr)
-      result = (ch$BGN > BGNQ | ch$POW > powthr) * 1
+      result = (chBGN > BGNQ | chPOW > powthr) * 1
     } else {
-      result = sapply(1:nBins, function(t) {
-        (ch$BGN[, t] > quantile(ch$BGN[, t], bgnthr) |
-           ch$POW[, t] > powthr) * 1
-      })
+      result = (
+        ch$BGN > matrix(
+          matrixStats::colQuantiles(chBGN, probs = bgnthr),
+          nrow = nrow(chBGN),
+          ncol = ncol(chBGN),
+          byrow = TRUE
+        ) | chPOW > powthr
+      ) * 1
     }
     colnames(result) = paste0("ACT", 1:nBins)
     list("ACT" = as.data.frame(result))
@@ -1204,7 +1213,7 @@ singleSat = function(soundfile,
     beta = beta
   )
 
-  halfWl = round(wl / 2)
+  halfWl = as.integer(wl / 2)
 
   BGNPOW = if (is(soundfile, "noise.matrix")) {
     soundfile
@@ -1220,7 +1229,7 @@ singleSat = function(soundfile,
       dbRef = dbRef,
       wl = wl,
       histbreaks = histbreaks,
-      DCfix
+      DCfix = DCfix
     )
   }
 
@@ -1229,35 +1238,38 @@ singleSat = function(soundfile,
   if (length(BGNPOW@index) == 1) {
     if (BGNPOW@channel == "stereo") {
       names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
-      singSat = c(colMeans(BGNPOW@values$left$ACT),
-                  colMeans(BGNPOW@values$right$ACT))
+      singSat = c(matrixStats::colMeans2(as.matrix(BGNPOW@values$left$ACT)),
+                  matrixStats::colMeans2(as.matrix(BGNPOW@values$left$ACT)))
     } else {
       names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
-      singSat = colMeans(BGNPOW@values[[BGNPOW@channel]]$ACT)
+      singSat = matrixStats::colMeans2(as.matrix(BGNPOW@values[[BGNPOW@channel]]$ACT))
     }
 
   } else {
     if (BGNPOW@channel == "stereo") {
-      BGN = cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN)
-      POW = cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW)
+      BGN = as.matrix(cbind(BGNPOW@values$left$BGN, BGNPOW@values$right$BGN))
+      POW = as.matrix(cbind(BGNPOW@values$left$POW, BGNPOW@values$right$POW))
       names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
     } else {
-      BGN = BGNPOW@values[[BGNPOW@channel]]$BGN
-      POW = BGNPOW@values[[BGNPOW@channel]]$POW
+      BGN = as.matrix(BGNPOW@values[[BGNPOW@channel]]$BGN)
+      POW = as.matrix(BGNPOW@values[[BGNPOW@channel]]$POW)
       names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
     }
 
     if (beta) {
       BGNQ = quantile(unlist(BGN), bgnthr)
 
-      singSat = colMeans(BGN > BGNQ | POW > powthr)
+      singSat = matrixStats::colMeans2(BGN > BGNQ | POW > powthr)
 
     } else {
-      singSat = sapply(1:ncol(BGN), function(t) {
-        sum(BGN[, t] > quantile(BGN[, t], bgnthr) |
-              POW[, t] > powthr) / halfWl
-
-      })
+      singSat = matrixStats::colSums2((
+        BGN > matrix(
+          matrixStats::colQuantiles(BGN, probs = bgnthr),
+          nrow = nrow(BGN),
+          ncol = ncol(BGN),
+          byrow = TRUE
+        )
+      ) | POW > powthr) / halfWl
 
     }
   }

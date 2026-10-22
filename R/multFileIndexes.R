@@ -21,6 +21,7 @@
 #' @param normality character string with the normality test used to determine which threshold combination has the most normal distribution of values. One of `"auto"`, `"shapiro.test"`, `"sf.test"`, `"lillie.test"`, `"ad.test"`, `"cvm.test"` or `"pearson.test"`. Defaults to `"auto"`.
 #' <br>`"ks.test"` is not available. Check details for more information.
 #' @param beta how BGN thresholds are calculated. If `TRUE`, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to `TRUE`
+#' @param saveNoise whether the noise.matrix objects generated internally should also be included in the output. Defaults to `TRUE`
 #' @param backup path to save the backup. Defaults to `NULL`
 #'
 #' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values that yielded the most normal distribution of saturation values using the normality test set by the user. The third (normality) contains the statistics values of the normality test that yielded the most normal distribution. The fourth object (values) contains a data.frame with the values of saturation for each bin of each recording and the size of the bin in seconds. The fifth contains a data.frame with errors that occurred with specific files during the function.
@@ -118,6 +119,7 @@ soundSat = function(soundpath,
                     bgnthr = c(0.5, 0.9, 0.05),
                     normality = "auto",
                     beta = TRUE,
+                    saveNoise = FALSE,
                     backup = NULL) {
   argHandler(
     FUN = "soundSat",
@@ -136,6 +138,7 @@ soundSat = function(soundpath,
     bgnthr = bgnthr,
     normality = normality,
     beta = beta,
+    saveNoise = saveNoise,
     backup = backup
   )
 
@@ -164,7 +167,7 @@ soundSat = function(soundpath,
     )
   )
 
-  halfWl = round(wl / 2)
+  halfWl = as.integer(wl / 2)
 
   SATdf = list()
 
@@ -184,6 +187,7 @@ soundSat = function(soundpath,
       bgnthr = bgnthr,
       normality = normality,
       beta = beta,
+      saveNoise = saveNoise,
       type = "soundSat",
       od = soundpath,
       nFiles = length(soundfiles),
@@ -251,21 +255,21 @@ soundSat = function(soundpath,
   ERRORS = SATdf$indexes[whichError]
   indexes = SATdf$indexes[!whichError]
 
-  BGN = do.call(cbind, sapply(indexes, function(x) {
+  BGN = as.matrix(do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$BGN, x@values$right$BGN)
     } else {
       x@values[[x@channel]]$BGN
     }
-  }))
+  })))
 
-  POW = do.call(cbind, sapply(indexes, function(x) {
+  POW = as.matrix(do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$POW, x@values$right$POW)
     } else {
       x@values[[x@channel]]$POW
     }
-  }))
+  })))
 
   INFO = lapply(indexes, function(x) {
     nBins = length(x@timeBins)
@@ -318,11 +322,8 @@ soundSat = function(soundpath,
 
     SATmat = mapply(
       function(bgnthresh, powthresh) {
-        sapply(1:ncol(BGN), function(t) {
-          sum(BGN[, t] > BGNQ[names(BGNQ) == bgnthresh] |
-                POW[, t] > powthresh) / halfWl
-
-        })
+        matrixStats::colSums2(BGN > BGNQ[as.character(bgnthresh)] |
+                                POW > powthresh) / halfWl
 
       },
       thresholdCombinations$bgnthreshold,
@@ -332,12 +333,14 @@ soundSat = function(soundpath,
   } else {
     SATmat = mapply(
       function(bgnthresh, powthresh) {
-        sapply(1:ncol(BGN), function(t) {
-          sum(BGN[, t] > quantile(BGN[, t], bgnthresh) |
-                POW[, t] > powthresh) / halfWl
-
-        })
-
+        matrixStats::colSums2((
+          BGN > matrix(
+            matrixStats::colQuantiles(BGN, probs = bgnthresh),
+            nrow = nrow(BGN),
+            ncol = ncol(BGN),
+            byrow = TRUE
+          )
+        ) | POW > powthresh) / halfWl
       },
       thresholdCombinations$bgnthreshold,
       thresholdCombinations$powthreshold
@@ -426,6 +429,10 @@ soundSat = function(soundpath,
   export[["values"]] = SATinfo
   export[["errors"]] = ERRORS
 
+  if (saveNoise) {
+    export[["noise.matrix"]] = SATdf$indexes
+  }
+
   return(export)
 
 }
@@ -451,6 +458,7 @@ soundSat = function(soundpath,
 #' @param bgnthr numeric vector of length three containing the the range of thresholds used to evaluate the Background Noise of the  Activity Matrix (in %). The values correspond to the minimum threshold, maximum threshold and step size respectively.
 #' <br> Defaults to `c(0.5, 0.9, 0.05)`, which evaluates thresholds from 50% to 90% in increments of 5%
 #' @param beta how BGN thresholds are calculated. If `TRUE`, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to `TRUE`
+#' @param saveNoise whether the noise.matrix objects generated internally should also be included in the output. Defaults to `TRUE`
 #' @param backup path to save the backup. Defaults to `NULL`
 #'
 #' @returns A list containing three objects. The first (info) contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE. The second (values) contains saturation values from all possible threshold combinations. The third (errors) contains the error messages and the paths to the files that returned an error during processing.
@@ -569,6 +577,7 @@ soundMat = function(soundpath,
                     powthr = c(5, 20, 1),
                     bgnthr = c(0.5, 0.9, 0.05),
                     beta = TRUE,
+                    saveNoise = FALSE,
                     backup = NULL) {
   argHandler(
     FUN = "soundMat",
@@ -586,6 +595,7 @@ soundMat = function(soundpath,
     powthr = powthr,
     bgnthr = bgnthr,
     beta = beta,
+    saveNoise = saveNoise,
     backup = backup
   )
 
@@ -633,6 +643,7 @@ soundMat = function(soundpath,
       powthr = powthr,
       bgnthr = bgnthr,
       beta = beta,
+      saveNoise = saveNoise,
       type = "soundMat",
       od = soundpath,
       nFiles = length(soundfiles),
@@ -701,21 +712,21 @@ soundMat = function(soundpath,
   ERRORS = SATdf$indexes[whichError]
   indexes = SATdf$indexes[!whichError]
 
-  BGN = do.call(cbind, sapply(indexes, function(x) {
+  BGN = as.matrix(do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$BGN, x@values$right$BGN)
     } else {
       x@values[[x@channel]]$BGN
     }
-  }))
+  })))
 
-  POW = do.call(cbind, sapply(indexes, function(x) {
+  POW = as.matrix(do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$POW, x@values$right$POW)
     } else {
       x@values[[x@channel]]$POW
     }
-  }))
+  })))
 
   INFO = lapply(indexes, function(x) {
     nBins = length(x@timeBins)
@@ -769,11 +780,8 @@ soundMat = function(soundpath,
 
     SATmat = mapply(
       function(bgnthresh, powthresh) {
-        sapply(1:ncol(BGN), function(t) {
-          sum(BGN[, t] > BGNQ[names(BGNQ) == bgnthresh] |
-                POW[, t] > powthresh) / halfWl
-
-        })
+        matrixStats::colSums2(BGN > BGNQ[as.character(bgnthresh)] |
+                                POW > powthresh) / halfWl
 
       },
       thresholdCombinations$bgnthreshold,
@@ -783,12 +791,14 @@ soundMat = function(soundpath,
   } else {
     SATmat = mapply(
       function(bgnthresh, powthresh) {
-        sapply(1:ncol(BGN), function(t) {
-          sum(BGN[, t] > quantile(BGN[, t], bgnthresh) |
-                POW[, t] > powthresh) / halfWl
-
-        })
-
+        matrixStats::colSums2((
+          BGN > matrix(
+            matrixStats::colQuantiles(BGN, probs = bgnthresh),
+            nrow = nrow(BGN),
+            ncol = ncol(BGN),
+            byrow = TRUE
+          )
+        ) | POW > powthresh) / halfWl
       },
       thresholdCombinations$bgnthreshold,
       thresholdCombinations$powthreshold
@@ -812,6 +822,10 @@ soundMat = function(soundpath,
   export[["info"]] = SATinfo
   export[["values"]] = SATmat
   export[["errors"]] = ERRORS
+
+  if (saveNoise) {
+    export[["noise.matrix"]] = SATdf$indexes
+  }
 
   return(export)
 
@@ -947,21 +961,21 @@ satBackup = function(backup) {
   ERRORS = SATdf$indexes[whichError]
   indexes = SATdf$indexes[!whichError]
 
-  BGN = do.call(cbind, sapply(indexes, function(x) {
+  BGN = as.matrix(do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$BGN, x@values$right$BGN)
     } else {
       x@values[[x@channel]]$BGN
     }
-  }))
+  })))
 
-  POW = do.call(cbind, sapply(indexes, function(x) {
+  POW = as.matrix(do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$POW, x@values$right$POW)
     } else {
       x@values[[x@channel]]$POW
     }
-  }))
+  })))
 
   INFO = lapply(indexes, function(x) {
     nBins = length(x@timeBins)
@@ -1016,11 +1030,8 @@ satBackup = function(backup) {
 
       SATmat = mapply(
         function(bgnthresh, powthresh) {
-          sapply(1:ncol(BGN), function(t) {
-            sum(BGN[, t] > BGNQ[names(BGNQ) == bgnthresh] |
-                  POW[, t] > powthresh) / halfWl
-
-          })
+          matrixStats::colSums2(BGN > BGNQ[as.character(bgnthresh)] |
+                                  POW > powthresh) / halfWl
 
         },
         thresholdCombinations$bgnthreshold,
@@ -1040,22 +1051,26 @@ satBackup = function(backup) {
     if (type != "multActivity") {
       SATmat = mapply(
         function(bgnthresh, powthresh) {
-          sapply(1:ncol(BGN), function(t) {
-            sum(BGN[, t] > quantile(BGN[, t], bgnthresh) |
-                  POW[, t] > powthresh) / halfWl
-
-          })
-
+          matrixStats::colSums2((
+            BGN > matrix(
+              matrixStats::colQuantiles(BGN, probs = bgnthresh),
+              nrow = nrow(BGN),
+              ncol = ncol(BGN),
+              byrow = TRUE
+            )
+          ) | POW > powthresh) / halfWl
         },
         thresholdCombinations$bgnthreshold,
         thresholdCombinations$powthreshold
       )
 
     } else {
-      SATmat = sapply(1:ncol(BGN), function(t) {
-        BGN[, t] > quantile(BGN[, t], bgnthr) |
-          POW[, t] > powthr
-      })
+      SATmat = (BGN > matrix(
+        matrixStats::colQuantiles(BGN, probs = bgnthr),
+        nrow = nrow(BGN),
+        ncol = ncol(BGN),
+        byrow = TRUE
+      )) | POW > powthr
 
     }
 
@@ -1067,6 +1082,8 @@ satBackup = function(backup) {
   }
 
   if (type == "soundSat") {
+    normality = normHandler(normality, SIZE = nrow(SATmat))
+
     normal = apply(SATmat, 2, function(Q) {
       if (length(unique(Q)) != 1) {
         do.call(normality, list(Q))$statistic
@@ -1165,8 +1182,10 @@ satBackup = function(backup) {
 
   }
 
-  if (!is.null(backup)) {
-    file.remove(backup)
+  # file.remove(backup)
+
+  if (saveNoise) {
+    export[["noise.matrix"]] = SATdf$indexes
   }
 
   return(export)
@@ -1192,6 +1211,7 @@ satBackup = function(backup) {
 #' @param powthr single numeric value to calculate the activity matrix for soundscape power (in dB). Defaults to `10`
 #' @param bgnthr single numeric value to calculate the activity matrix for background noise (in %). Defaults to `0.8`
 #' @param beta how BGN thresholds are calculated. If `TRUE`, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to `TRUE`
+#' @param saveNoise whether the noise.matrix objects generated internally should also be included in the output. Defaults to `TRUE`
 #' @param backup directory to save the backup. Defaults to `NULL`
 #'
 #' @returns A list containing five objects. The first and second objects (powthresh and bgnthresh) are the threshold values inputted as arguments into the function. The third (info) contains the following variables from every audio file: PATH, AUDIO, CHANNEL, DURATION, BIN, SAMPRATE.. The fourth object (values) contains a matrix with the the values of activity for each bin of each recording and the size of the bin in seconds. The fifth contains a list with errors that occurred with specific files during the function.
@@ -1317,6 +1337,7 @@ multActivity = function(soundpath,
                         powthr = 10,
                         bgnthr = 0.8,
                         beta = TRUE,
+                        saveNoise = FALSE,
                         backup = NULL) {
   argHandler(
     FUN = "multActivity",
@@ -1334,6 +1355,7 @@ multActivity = function(soundpath,
     powthr = powthr,
     bgnthr = bgnthr,
     beta = beta,
+    saveNoise = saveNoise,
     backup = backup
   )
 
@@ -1359,6 +1381,7 @@ multActivity = function(soundpath,
       powthr = powthr,
       bgnthr = bgnthr,
       beta = beta,
+      saveNoise = saveNoise,
       type = "multActivity",
       od = soundpath,
       nFiles = length(soundfiles),
@@ -1424,21 +1447,21 @@ multActivity = function(soundpath,
   ERRORS = SATdf$indexes[whichError]
   indexes = SATdf$indexes[!whichError]
 
-  BGN = do.call(cbind, sapply(indexes, function(x) {
+  BGN = as.matrix(do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$BGN, x@values$right$BGN)
     } else {
       x@values[[x@channel]]$BGN
     }
-  }))
+  })))
 
-  POW = do.call(cbind, sapply(indexes, function(x) {
+  POW = as.matrix(do.call(cbind, sapply(indexes, function(x) {
     if (x@channel == "stereo") {
       cbind(x@values$left$POW, x@values$right$POW)
     } else {
       x@values[[x@channel]]$POW
     }
-  }))
+  })))
 
   INFO = lapply(indexes, function(x) {
     nBins = length(x@timeBins)
@@ -1494,10 +1517,12 @@ multActivity = function(soundpath,
       POW > powthr
 
   } else {
-    SATmat = sapply(1:ncol(BGN), function(t) {
-      BGN[, t] > quantile(BGN[, t], bgnthr) |
-        POW[, t] > powthr
-    })
+    SATmat = (BGN > matrix(
+      matrixStats::colQuantiles(BGN, probs = bgnthr),
+      nrow = nrow(BGN),
+      ncol = ncol(BGN),
+      byrow = TRUE
+    )) | POW > powthr
   }
 
   if (!is.null(backup)) {
@@ -1520,6 +1545,10 @@ multActivity = function(soundpath,
   export[["info"]] = SATinfo
   export[["values"]] = SATmat * 1
   export[["errors"]] = ERRORS
+
+  if (saveNoise) {
+    export[["noise.matrix"]] = SATdf$indexes
+  }
 
   return(export)
 
