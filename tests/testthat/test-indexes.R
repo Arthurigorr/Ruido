@@ -64,6 +64,7 @@ test_that("acoustic indices functions works correctly", {
     bgnthr = c(0.5, 0.9, 0.05),
     normality = "ad.test",
     beta = TRUE,
+    saveNoise = TRUE,
     type = "soundSat",
     od = dir,
     nFiles = length(list.files(dir, pattern = ".wav")),

@@ -19,6 +19,7 @@ soundMat(
   powthr = c(5, 20, 1),
   bgnthr = c(0.5, 0.9, 0.05),
   beta = TRUE,
+  saveNoise = FALSE,
   backup = NULL
 )
 }
@@ -53,6 +54,8 @@ soundMat(
 \if{html}{\out{<br>}} Defaults to \code{c(0.5, 0.9, 0.05)}, which evaluates thresholds from 50\% to 90\% in increments of 5\%}
 
 \item{beta}{how BGN thresholds are calculated. If \code{TRUE}, BGN thresholds are calculated using all recordings combined. If FALSE, BGN thresholds are calculated separately for each recording. Defaults to \code{TRUE}}
+
+\item{saveNoise}{whether the noise.matrix objects generated internally should also be included in the output. Defaults to \code{TRUE}}
 
 \item{backup}{path to save the backup. Defaults to \code{NULL}}
 }

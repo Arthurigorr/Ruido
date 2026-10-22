@@ -28,10 +28,11 @@ processChannel.BGN = function(channelData,
     "right"  = list(right = channelData[2, ])
   )
 
+  if (DCfix) {
+    channelData = lapply(channelData, function(x) x - mean(x))
+  }
+
   noiseOBJ@values = lapply(channelData, function(x) {
-    if (DCfix) {
-      x = x - mean(x)
-    }
 
     bVec = allSamples$b
     eVec = allSamples$e
@@ -60,10 +61,10 @@ processChannel.BGN = function(channelData,
 
       numBins = hBreak(spectS)
       binWidth = (dbMax - dbMin) / numBins
+      bins = floor((spectS - dbMin) / binWidth) + 1L
 
       modalBin = vapply(seq_len(wl / 2), function(i) {
-        bins = floor((spectS[i, ] - dbMin[i]) / binWidth[i]) + 1L
-        which.max(tabulate(bins, nbins = numBins[i]))
+        which.max(tabulate(bins[i,], nbins = numBins[i]))
       }, integer(1))
       modalIntensity = dbMin + modalBin * binWidth
       rbind(BGN = modalIntensity, POW = dbMax - modalIntensity)
@@ -270,10 +271,11 @@ processChannel.EVN = function(channelData,
     "right"  = list(right = channelData[2, ])
   )
 
+  if (DCfix) {
+    channelData = lapply(channelData, function(x) x - mean(x))
+  }
+
   noiseOBJ@values = lapply(channelData, function(x) {
-    if (DCfix) {
-      x = x - mean(x)
-    }
 
     tempHolder = lapply(seq_along(allSamples$b), function(i) {
       .spect(
