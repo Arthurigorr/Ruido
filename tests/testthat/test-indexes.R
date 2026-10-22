@@ -265,5 +265,9 @@ test_that("acoustic indices functions works correctly", {
   expect_error(soundSat(dir, bgnthr = c(4, 6)))
   expect_error(soundSat(dir, beta = 5))
   expect_type(soundSat(dir, backup = dir), "list")
+  expect_type(soundSat(dir, normality = "ad.test"), "list")
+  expect_type(soundSat(dir, normality = "cvm.test"), "list")
+  expect_type(soundSat(dir, normality = "shapiro.test"), "list")
+  expect_type(soundSat(dir, saveNoise = TRUE), "list")
 
 })
