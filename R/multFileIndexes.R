@@ -11,7 +11,7 @@
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
-#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` and `100`. Defaults to `"FD"`.
 #' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
 #' @param DCfix if the DC offset should be removed before the metrics are calculated. Defaults to `TRUE`
 #' @param powthr numeric vector of length three containing the the range of thresholds used to evaluate the Soundscape Power of the  Activity Matrix (in dB). The values correspond to the minimum threshold, maximum threshold and step size respectively.
@@ -42,9 +42,9 @@
 #'
 #' After computing \eqn{S_m}, the function evaluates all tested threshold values and selects the one that yields the most normally distributed set of saturation values across time bins. Normality is assessed to identify a threshold that best stabilizes the distribution of `SAT`.
 #'
-#' If `backup` is set to a valid directory, a file named `"SATBACKUP.RData"` is automatically saved after every batch of five processed files. This file stores the current processing state and allows interrupted runs (e.g., due to manual termination, session crashes, or system shutdowns) to be resumed using [satBackup()].
+#' If `backup` is set to a valid directory, a file named `"SATBACKUP.rds"` is automatically saved after every batch of five processed files. This file stores the current processing state and allows interrupted runs (e.g., due to manual termination, session crashes, or system shutdowns) to be resumed using [satBackup()].
 #'
-#' To resume processing, pass the saved file (e.g., `"path/SATBACKUP.RData"`) to [satBackup()]. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved `.RData` object.
+#' To resume processing, pass the saved file (e.g., `"path/SATBACKUP.rds"`) to [satBackup()]. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved `.rds` object.
 #'
 #' For the `normality` argument, each test only works within a range of sample sizes (3-5000 for `"shapiro.test`", 5-5000 for `"sf.test"`, 5 or more for `"lillie.test"`, 8 or more for `"ad.test"` and `"cvm.test"`, 2 or more for `"pearson.test"`). If the chosen test does not fit the number of values, a warning is issued and `"shapiro.test"` is used (or `"ad.test"` if there are more than 5000 values). With `"auto"`, `"shapiro.test"` is used for up to 5000 values and `"ad.test"` for more.
 #'
@@ -60,6 +60,10 @@
 #'@importFrom stats setNames
 #'@importFrom stats shapiro.test
 #'@importFrom nortest ad.test
+#'@importFrom nortest sf.test
+#'@importFrom nortest lillie.test
+#'@importFrom nortest cvm.test
+#'@importFrom nortest pearson.test
 #'@importFrom utils capture.output
 #'
 #' @examples
@@ -198,7 +202,7 @@ soundSat = function(soundpath,
   nFiles = length(soundfiles)
   SATdf[["indexes"]] = vector("list", nFiles)
 
-  for (soundfile in 1:nFiles) {
+  for (soundfile in seq_len(nFiles)) {
     # gc()
     # I recently learned that R does garbage collection automatically, rendering this line unnecessary!
     # Will keep gc() commented here if I change my mind in the future!
@@ -407,9 +411,9 @@ soundSat = function(soundpath,
 
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
-    backFile = paste0(backup, "/SATBACKUP.rds")
-    if (file.exists(backFile))
-      file.remove(backFile)
+    # backFile = paste0(backup, "/SATBACKUP.rds")
+    # if (file.exists(backFile))
+    #   file.remove(backFile)
   }
 
   SATinfo$SAT = SATmat[, which(normal == normOUT)]
@@ -450,7 +454,7 @@ soundSat = function(soundpath,
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
-#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` and `100`. Defaults to `"FD"`.
 #' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
 #' @param DCfix if the DC offset should be removed before the metrics are calculated. Defaults to `TRUE`
 #' @param powthr numeric vector of length three containing the the range of thresholds used to evaluate the Soundscape Power of the  Activity Matrix (in dB). The values correspond to the minimum threshold, maximum threshold and step size respectively.
@@ -654,7 +658,7 @@ soundMat = function(soundpath,
   nFiles = length(soundfiles)
   SATdf[["indexes"]] = vector("list", nFiles)
 
-  for (soundfile in 1:nFiles) {
+  for (soundfile in seq_len(nFiles)) {
     # gc()
     # I recently learned that R does garbage collection automatically, rendering this line unnecessary!
     # Will keep gc() commented here if I change my mind in the future!
@@ -732,7 +736,7 @@ soundMat = function(soundpath,
     nBins = length(x@timeBins)
     if (x@channel == "stereo") {
       list(
-        rep(x@timeBins, each = 2),
+        rep(x@timeBins, 2),
         rep(x@sampRate, length(x@timeBins) * 2),
         rep(1:length(x@timeBins), 2),
         rep(c("left", "right"), each = nBins)
@@ -810,9 +814,9 @@ soundMat = function(soundpath,
 
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
-    backFile = paste0(backup, "/SATBACKUP.rds")
-    if (file.exists(backFile))
-      file.remove(backFile)
+    # backFile = paste0(backup, "/SATBACKUP.rds")
+    # if (file.exists(backFile))
+    #   file.remove(backFile)
   }
 
   export = list(info = data.frame(),
@@ -833,11 +837,11 @@ soundMat = function(soundpath,
 
 #' @title Backup for Ruido's functions
 #'
-#' @param backup path to the `.RData` file create by the backup of soundSat, soundMat or multActivity
+#' @param backup path to the `.rds` file create by the backup of soundSat, soundMat or multActivity
 #'
 #' @description
 #' This function offers a way to continue an unfinished process of the [soundSat()], [soundMat()] or [multActivity()] functions through a backup file.
-#' Arguments can't be inputted nor changed since the function will automatically load them from the `.RData` file. However you may manually change them by editing the file (not recommended).
+#' Arguments can't be inputted nor changed since the function will automatically load them from the `.rds` file. However you may manually change them by editing the file (not recommended).
 #'
 #' @returns
 #' This functions returns the same output of [soundSat()], [soundMat()] or [multActivity()]
@@ -981,7 +985,7 @@ satBackup = function(backup) {
     nBins = length(x@timeBins)
     if (x@channel == "stereo") {
       list(
-        rep(x@timeBins, each = 2),
+        rep(x@timeBins, 2),
         rep(x@sampRate, length(x@timeBins) * 2),
         rep(1:length(x@timeBins), 2),
         rep(c("left", "right"), each = nBins)
@@ -1205,7 +1209,7 @@ satBackup = function(backup) {
 #' @param wl window length of the spectrogram. Defaults to `512`
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
-#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges`", `"scott"` and `100`. Defaults to `"FD"`.
+#' @param histbreaks breaks used to calculate Background Noise. Available breaks are: `"FD"`, `"Sturges"`, `"scott"` and `100`. Defaults to `"FD"`.
 #' <br>Can also be set to any numerical value to limit or increase the amount of breaks.
 #' @param DCfix if the DC offset should be removed before the metrics are calculated. Defaults to `TRUE`
 #' @param powthr single numeric value to calculate the activity matrix for soundscape power (in dB). Defaults to `10`
@@ -1224,7 +1228,7 @@ satBackup = function(backup) {
 #'
 #' If `backup` is set to a valid directory, a file named `"SATBACKUP.rds"` is automatically saved after every batch of five processed files. This file stores the current processing state and allows interrupted runs (e.g., due to manual termination, session crashes, or system shutdowns) to be resumed using [satBackup()].
 #'
-#' To resume processing, pass the saved file (e.g., `"path/SATBACKUP.rds"`) to [satBackup()]. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved `.RData` object.
+#' To resume processing, pass the saved file (e.g., `"path/SATBACKUP.rds"`) to [satBackup()]. Once a backup has been created, all original arguments and file paths must remain unchanged, unless they are explicitly modified within the saved `.rds` object.
 #'
 #' @seealso [activity()] to run this on a single audio file, [soundSat()] and [soundMat()] to get saturation values instead. Also, check [satBackup()] if you are working with larger datasets and want some safety.
 #'
@@ -1392,7 +1396,7 @@ multActivity = function(soundpath,
   nFiles = length(soundfiles)
   SATdf[["indexes"]] = vector("list", nFiles)
 
-  for (soundfile in 1:nFiles) {
+  for (soundfile in seq_len(nFiles)) {
     ## gc()
 
     sPath = soundfiles[[soundfile]]
@@ -1467,7 +1471,7 @@ multActivity = function(soundpath,
     nBins = length(x@timeBins)
     if (x@channel == "stereo") {
       list(
-        rep(x@timeBins, each = 2),
+        rep(x@timeBins, 2),
         rep(x@sampRate, length(x@timeBins) * 2),
         rep(1:length(x@timeBins), 2),
         rep(c("left", "right"), each = nBins)
@@ -1527,9 +1531,9 @@ multActivity = function(soundpath,
 
   if (!is.null(backup)) {
     SATdf["ogARGS"] = NULL
-    backFile = paste0(backup, "/SATBACKUP.rds")
-    if (file.exists(backFile))
-      file.remove(backFile)
+    # backFile = paste0(backup, "/SATBACKUP.rds")
+    # if (file.exists(backFile))
+    #   file.remove(backFile)
   }
 
   export = list(
