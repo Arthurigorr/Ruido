@@ -1,6 +1,6 @@
 # Ruido 1.2.1
 
-- Added the `saveNoise` argument to batch processing functions (`soundSat()`, `soundMat()`, `multActivity()`, and `satBackup()`), allowing internally generated `noise.matrix` objects to be included in the output. Defaults to `FALSE` to preserve the output structure of previous versions
+- Added the `saveNoise` argument to batch processing functions (`soundSat()`, `soundMat()` and `multActivity()`), allowing internally generated `noise.matrix` objects to be included in the output. Defaults to `FALSE` to preserve the output structure of previous versions. This argument is also inherited by `satBackup()`
 - Updated batch processing functions to no longer automatically delete backup files after processing, leaving their management to the user
 - Improved the processing speed of `activity()` and `singleSat()` through the use of `matrixStats` functions and vectorized operations
 - Moved DC offset correction outside the time-bin processing loop, improving both performance and implementation of the algorithm
