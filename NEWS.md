@@ -1,4 +1,18 @@
-# Ruido (development version)
+# Ruido 1.2.1
+
+- Added the `saveNoise` argument to batch processing functions (`soundSat()`, `soundMat()`, `multActivity()`, and `satBackup()`), allowing internally generated `noise.matrix` objects to be included in the output. Defaults to `FALSE` to preserve the output structure of previous versions
+- Updated batch processing functions to no longer automatically delete backup files after processing, leaving their management to the user
+- Improved the processing speed of `activity()` and `singleSat()` through the use of `matrixStats` functions and vectorized operations
+- Moved DC offset correction outside the time-bin processing loop, improving both performance and implementation of the algorithm
+- Bug fixes:
+  - Fixed `EVNspec()` returning one fewer row than expected in `noise.matrix@values`
+  - Fixed histogram bin calculation to prevent BGN values from being overestimated by half a bin
+  - Fixed decibel conversion so that spectrogram frames are no longer normalized independently by their individual maximum amplitudes. A single global maximum is now used for the entire spectrogram
+- Documentation updates:
+  - Corrected the height description in `sampleBGN()` from 4'11" to 1.5 meters
+  - Fixed documentation typos
+  - Fixed function masking in `bgNoise()` examples
+  - Added the missing `@slot` documentation for `noise.matrix`
 
 # Ruido 1.2.0
 
