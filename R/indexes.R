@@ -1239,7 +1239,7 @@ singleSat = function(soundfile,
     if (BGNPOW@channel == "stereo") {
       names = paste0(rep(c("left", "right"), each = nBins), seq(nBins))
       singSat = c(matrixStats::colMeans2(as.matrix(BGNPOW@values$left$ACT)),
-                  matrixStats::colMeans2(as.matrix(BGNPOW@values$left$ACT)))
+                  matrixStats::colMeans2(as.matrix(BGNPOW@values$right$ACT)))
     } else {
       names = paste0(rep(BGNPOW@channel, nBins), seq(nBins))
       singSat = matrixStats::colMeans2(as.matrix(BGNPOW@values[[BGNPOW@channel]]$ACT))
