@@ -45,7 +45,7 @@
 #'
 #' where \eqn{q} is the total number of frequency bins. This final aggregation step is not performed in this package.
 #'
-#' @seealso [ENTspec()] to calculate Spectral Entropy and [bgNoise()] to calculate Background Noise and Soundscape Power.
+#' @seealso [ENTspec()] to calculate Spectral Entropy and [BGNspec()] to calculate Background Noise and Soundscape Power.
 #'
 #' @references
 #' Pieretti, N., Farina, A., & Morri, D. (2011). A new methodology to infer the singing activity of an avian community: The Acoustic Complexity Index (ACI). Ecological Indicators, 11(3), 868–873. https://doi.org/10.1016/j.ecolind.2010.11.005
@@ -109,49 +109,14 @@ ACIspec = function(soundfile,
       min(j, timeBin)
   }
 
-  audio = typeof(soundfile)
-
-  if (audio == "character") {
-    if (tolower(tools::file_ext(soundfile)) == "wav") {
-      soundfile = wav::read_wav(soundfile)
-    } else {
-      stop("The audio file must be in the WAV format.")
-    }
-  } else if (audio == "S4") {
-    tempSamp = soundfile@samp.rate
-    if (soundfile@stereo) {
-      soundfile = matrix(c(soundfile@left, soundfile@right),
-                         nrow = 2,
-                         byrow = TRUE)
-    } else {
-      soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
-    }
-    attr(soundfile, "sample_rate") = tempSamp
-  }
-
-  savedAttr = attributes(soundfile)
-
-  if (channel == "mono" && savedAttr$dim[1] > 1) {
-    sampRate = attr(soundfile, "sample_rate")
-    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
-    attr(soundfile, "sample_rate") = sampRate
-    savedAttr$dim = dim(soundfile)
-  }
-  if (channel == "stereo" && nrow(soundfile) == 1) {
-    message("Audio is not stereo, defaulting to left channel.")
-    channel = "mono"
-  }
-  if (!is.null(targetSampRate)) {
-    audioLen = length(soundfile[1, ])
-    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
-    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
-    attr(soundfile, "sample_rate") = targetSampRate
-  }
+  channelData = .importAudio(soundfile = soundfile,
+                             channel = channel,
+                             targetSampRate = targetSampRate)
 
   ACIexp = processChannel.ACI(
-    channelData = soundfile,
-    samp.rate = attr(soundfile, "sample_rate"),
-    channel = channel,
+    channelData = channelData,
+    samp.rate = attr(channelData, "sample_rate"),
+    channel = attr(channelData, "channel"),
     timeBin = timeBin,
     j = j,
     wl = wl,
@@ -167,6 +132,8 @@ ACIspec = function(soundfile,
     ACIexp@wl = nrow(ACIexp@values[[channel]]$ACI)
 
   }
+
+  ACIexp@path = attr(channelData, "path")
 
   return(ACIexp)
 
@@ -200,7 +167,7 @@ ACIspec = function(soundfile,
 #'
 #' where \eqn{\theta} is a user-defined threshold applied uniformly to both `BGN` and `POW`. We set 1 to active and 0 to inactive frequency windows.
 #'
-#' @seealso [multActivity()] to run this over multiple audio files and [singleSat()] to get the full saturation values this activity matrix is derived from.
+#' @seealso [soundACT()] to run this over multiple audio files and [SAT()] to get the full saturation values this activity matrix is derived from.
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
@@ -216,7 +183,7 @@ ACIspec = function(soundfile,
 #' @examples
 #' if (require("ggplot2")) {
 #' library(ggplot2)
-#' # We are going to load a sample noise.matrix object to demonstrate the basic usage of singleSat()
+#' # We are going to load a sample noise.matrix object to demonstrate the basic usage of SAT()
 #' # To understand about the origin of this noise.matrix, check: ?sampleBGN
 #' data("sampleBGN")
 #'
@@ -224,7 +191,7 @@ ACIspec = function(soundfile,
 #' sampleBGN
 #'
 #' # Run the function
-#' act = activity(sampleBGN)
+#' act = ACTspec(sampleBGN)
 #'
 #' # Now we can plot the results for the left channel
 #' actLeft = act@values$left$ACT
@@ -246,22 +213,22 @@ ACIspec = function(soundfile,
 #'   guides(fill = guide_legend(title = "Activity"))
 #'
 #' }
-activity = function(soundfile,
-                    channel = "stereo",
-                    timeBin = 60,
-                    dbThreshold = -90,
-                    dbRef = 10,
-                    targetSampRate = NULL,
-                    wl = 512,
-                    window = hamming(wl),
-                    overlap = ceiling(length(window) / 2),
-                    histbreaks = "FD",
-                    DCfix = TRUE,
-                    powthr = 10,
-                    bgnthr = 0.8,
-                    beta = TRUE) {
+ACTspec = function(soundfile,
+                   channel = "stereo",
+                   timeBin = 60,
+                   dbThreshold = -90,
+                   dbRef = 10,
+                   targetSampRate = NULL,
+                   wl = 512,
+                   window = hamming(wl),
+                   overlap = ceiling(length(window) / 2),
+                   histbreaks = "FD",
+                   DCfix = TRUE,
+                   powthr = 10,
+                   bgnthr = 0.8,
+                   beta = TRUE) {
   argHandler(
-    FUN = "activity",
+    FUN = "ACTspec",
     soundfile = soundfile,
     channel = channel,
     timeBin = timeBin,
@@ -281,7 +248,7 @@ activity = function(soundfile,
   BGNPOW = if (is(soundfile, "noise.matrix")) {
     soundfile
   } else {
-    bgNoise.(
+    .BGNspec(
       soundfile,
       timeBin = timeBin,
       targetSampRate = targetSampRate,
@@ -375,7 +342,7 @@ activity = function(soundfile,
 #'
 #' Higher `POW` values indicate a greater difference between the strongest acoustic event and the estimated background level.
 #'
-#' @seealso [bgNoise()] to calculate Spectral Background Noise and Soundscape Power.
+#' @seealso [BGNspec()] to calculate Spectral Background Noise and Soundscape Power.
 #'
 #' @references
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
@@ -416,12 +383,12 @@ activity = function(soundfile,
 #'
 #' wave
 #'
-#' # Running the bgNoise function with all the default arguments
-#' BGN = bgn(wave)
+#' # Running the BGNspec function with all the default arguments
+#' bgn = BGN(wave)
 #'
 #' # See the results
-#' BGN
-bgn = function(soundfile,
+#' bgn
+BGN = function(soundfile,
                channel = "stereo",
                timeBin = 60,
                dbThreshold = -90,
@@ -431,7 +398,7 @@ bgn = function(soundfile,
                histbreaks = "FD",
                DCfix = TRUE) {
   argHandler(
-    FUN = "bgn",
+    FUN = "BGN",
     soundfile = soundfile,
     channel = channel,
     timeBin = timeBin,
@@ -442,57 +409,24 @@ bgn = function(soundfile,
     DCfix = DCfix
   )
 
-  audio = typeof(soundfile)
-
-  if (audio == "character") {
-    if (tolower(tools::file_ext(soundfile)) == "wav") {
-      soundfile = wav::read_wav(soundfile)
-    } else {
-      stop("The audio file must be in the WAV format.")
-    }
-  } else if (audio == "S4") {
-    tempSamp = soundfile@samp.rate
-    if (soundfile@stereo) {
-      soundfile = rbind(soundfile@left, soundfile@right)
-    } else {
-      soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
-    }
-    attr(soundfile, "sample_rate") = tempSamp
-  }
-
-  savedAttr = attributes(soundfile)
-
-  if (channel == "mono" && savedAttr$dim[1] > 1) {
-    sampRate = attr(soundfile, "sample_rate")
-    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
-    attr(soundfile, "sample_rate") = sampRate
-    savedAttr$dim = dim(soundfile)
-  }
-  if (channel == "stereo" && nrow(soundfile) == 1) {
-    message("Audio is not stereo, defaulting to left channel.")
-    channel = "mono"
-  }
-  if (!is.null(targetSampRate)) {
-    audioLen = length(soundfile[1, ])
-    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
-    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
-    attr(soundfile, "sample_rate") = targetSampRate
-  }
+  channelData = .importAudio(soundfile = soundfile,
+                             channel = channel,
+                             targetSampRate = targetSampRate)
 
   allSamples = if (is.null(timeBin)) {
-    data.frame(b = 1, e = length(soundfile[1, ]))
+    data.frame(b = 1, e = length(channelData[1, ]))
   } else {
-    getSampleBins(length(soundfile[1, ]),
-                  attr(soundfile, "sample_rate"),
+    getSampleBins(length(channelData[1, ]),
+                  attr(channelData, "sample_rate"),
                   timeBin)
   }
 
   channelData = switch(
-    channel,
-    "stereo" = list(left  = soundfile[1, ], right = soundfile[2, ]),
-    "mono"   = list(mono  = soundfile[1, ]),
-    "left"   = list(left  = soundfile[1, ]),
-    "right"  = list(right = soundfile[2, ])
+    attr(channelData, "channel"),
+    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
+    "mono"   = list(mono  = channelData[1, ]),
+    "left"   = list(left  = channelData[1, ]),
+    "right"  = list(right = channelData[2, ])
   )
 
   hBreak = hBreaks(histbreaks)
@@ -505,7 +439,7 @@ bgn = function(soundfile,
     apply(allSamples, 1, function(y) {
       samples = x[y[1]:y[2]]
       mat = matrix(samples[seq_len(floor(length(samples) / wl) * wl)], nrow = wl)
-      db = 10 * log10(matrixStats::colMaxs(mat))
+      db = dbRef * log10(matrixStats::colMaxs(mat))
 
       if (!is.null(dbThreshold)) {
         db[db < dbThreshold] = dbThreshold
@@ -516,7 +450,7 @@ bgn = function(soundfile,
       numBins = hBreak(db)
       breaks = seq(dbMin, dbMax, length.out = numBins + 1)
       modalBin = which.max(tabulate(findInterval(x = db, vec = breaks)))
-      modalIntensity = dbMin + modalBin * (breaks[2] - breaks[1])
+      modalIntensity = dbMin + (modalBin - 0.5) * (breaks[2] - breaks[1])
       c(BGN = modalIntensity, POW = dbMax - modalIntensity)
     })
 
@@ -563,7 +497,7 @@ bgn = function(soundfile,
 #'
 #' where \eqn{\max(dB_{c,f})} is the maximum intensity observed. `POW` can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
 #'
-#' @seealso [bgn()] to calculate the summarized Background Noise and Soundscape Power. [ACIspec()] to calculate the Acoustic Complexity Index and [ENTspec()] to calculate Spectral Entropy from a single audio file. Also, check [activity()] and [singleSat()], which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.
+#' @seealso [BGN()] to calculate the summarized Background Noise and Soundscape Power. [ACIspec()] to calculate the Acoustic Complexity Index and [ENTspec()] to calculate Spectral Entropy from a single audio file. Also, check [ACTspec()] and [SAT()], which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.
 #'
 #' @references
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
@@ -602,8 +536,8 @@ bgn = function(soundfile,
 #'
 #' wave
 #'
-#' # Running the bgNoise function with all the default arguments
-#' BGN = bgNoise(wave)
+#' # Running the BGNspec function with all the default arguments
+#' BGN = BGNspec(wave)
 #'
 #' # See the results
 #' BGN
@@ -627,8 +561,8 @@ bgn = function(soundfile,
 #' # Downloading the file, might take some time denpending on your internet
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
-#' # Running the bgNoise function with all the default arguments
-#' BGN = bgNoise(recDir)
+#' # Running the BGNspec function with all the default arguments
+#' BGN = BGNspec(recDir)
 #'
 #' # Here's the result
 #' BGN
@@ -645,7 +579,7 @@ bgn = function(soundfile,
 #' summary(BGNPOWlm)
 #' abline(lm(BGN@values$left$BGN$BGN1~BGN@values$left$POW$POW1), col = "red")
 #'}
-bgNoise = function(soundfile,
+BGNspec = function(soundfile,
                    channel = "stereo",
                    timeBin = 60,
                    dbThreshold = -90,
@@ -657,7 +591,7 @@ bgNoise = function(soundfile,
                    histbreaks = "FD",
                    DCfix = TRUE) {
   argHandler(
-    FUN = "bgNoise",
+    FUN = "BGNspec",
     soundfile = soundfile,
     channel = channel,
     timeBin = timeBin,
@@ -671,47 +605,14 @@ bgNoise = function(soundfile,
     DCfix = DCfix
   )
 
-  audio = typeof(soundfile)
-
-  if (audio == "character") {
-    if (tolower(tools::file_ext(soundfile)) == "wav") {
-      soundfile = wav::read_wav(soundfile)
-    } else {
-      stop("The audio file must be in the WAV format.")
-    }
-  } else if (audio == "S4") {
-    tempSamp = soundfile@samp.rate
-    if (soundfile@stereo) {
-      soundfile = rbind(soundfile@left, soundfile@right)
-    } else {
-      soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
-    }
-    attr(soundfile, "sample_rate") = tempSamp
-  }
-
-  savedAttr = attributes(soundfile)
-
-  if (channel == "mono" && savedAttr$dim[1] > 1) {
-    sampRate = attr(soundfile, "sample_rate")
-    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
-    attr(soundfile, "sample_rate") = sampRate
-    savedAttr$dim = dim(soundfile)
-  }
-  if (channel == "stereo" && nrow(soundfile) == 1) {
-    message("Audio is not stereo, defaulting to left channel.")
-    channel = "mono"
-  }
-  if (!is.null(targetSampRate)) {
-    audioLen = length(soundfile[1, ])
-    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
-    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
-    attr(soundfile, "sample_rate") = targetSampRate
-  }
+  channelData = .importAudio(soundfile = soundfile,
+                             channel = channel,
+                             targetSampRate = targetSampRate)
 
   BGNexp = processChannel.BGN(
-    channelData = soundfile,
-    samp.rate = attr(soundfile, "sample_rate"),
-    channel = channel,
+    channelData,
+    samp.rate = attr(channelData, "sample_rate"),
+    channel = attr(channelData, "channel"),
     timeBin = timeBin,
     wl = wl,
     overlap = overlap,
@@ -723,11 +624,13 @@ bgNoise = function(soundfile,
     noiseOBJ = new("noise.matrix")
   )
 
-  if (BGNexp@channel == "stereo") {
-    BGNexp@wl = nrow(BGNexp@values$left$BGN)
+  BGNexp@wl = if (BGNexp@channel == "stereo") {
+    nrow(BGNexp@values$left$BGN)
   } else {
-    BGNexp@wl = nrow(BGNexp@values[[channel]]$BGN)
+    nrow(BGNexp@values[[channel]]$BGN)
   }
+
+  BGNexp@path = attr(channelData, "path")
 
   return(BGNexp)
 
@@ -765,7 +668,7 @@ bgNoise = function(soundfile,
 #'
 #' The result is a frequency-resolved representation of `ENT` for each time bin, rather than a single scalar value for the entire recording. Values close to `1` indicate energy concentrated in few time steps (e.g. transient calls or pulses), while values close to `0` indicate energy spread evenly across the time bin (e.g. steady background noise).
 #'
-#' @seealso [ACIspec()] to calculate the Acoustic Complexity Index and [bgNoise()] to calculate Background Noise and Soundscape Power.
+#' @seealso [ACIspec()] to calculate the Acoustic Complexity Index and [BGNspec()] to calculate Background Noise and Soundscape Power.
 #'
 #' @references
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
@@ -817,49 +720,14 @@ ENTspec = function(soundfile,
     overlap = overlap
   )
 
-  audio = typeof(soundfile)
-
-  if (audio == "character") {
-    if (tolower(tools::file_ext(soundfile)) == "wav") {
-      soundfile = wav::read_wav(soundfile)
-    } else {
-      stop("The audio file must be in the WAV format.")
-    }
-  } else if (audio == "S4") {
-    tempSamp = soundfile@samp.rate
-    if (soundfile@stereo) {
-      soundfile = matrix(c(soundfile@left, soundfile@right),
-                         nrow = 2,
-                         byrow = TRUE)
-    } else {
-      soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
-    }
-    attr(soundfile, "sample_rate") = tempSamp
-  }
-
-  savedAttr = attributes(soundfile)
-
-  if (channel == "mono" && savedAttr$dim[1] > 1) {
-    sampRate = attr(soundfile, "sample_rate")
-    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
-    attr(soundfile, "sample_rate") = sampRate
-    savedAttr$dim = dim(soundfile)
-  }
-  if (channel == "stereo" && nrow(soundfile) == 1) {
-    message("Audio is not stereo, defaulting to left channel.")
-    channel = "mono"
-  }
-  if (!is.null(targetSampRate)) {
-    audioLen = length(soundfile[1, ])
-    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
-    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
-    attr(soundfile, "sample_rate") = targetSampRate
-  }
+  channelData = .importAudio(soundfile = soundfile,
+                             channel = channel,
+                             targetSampRate = targetSampRate)
 
   ENTexp = processChannel.ENT(
-    channelData = soundfile,
-    samp.rate = attr(soundfile, "sample_rate"),
-    channel = channel,
+    channelData = channelData,
+    samp.rate = attr(channelData, "sample_rate"),
+    channel = attr(channelData, "channel"),
     timeBin = timeBin,
     wl = wl,
     overlap = overlap,
@@ -873,6 +741,8 @@ ENTspec = function(soundfile,
     ENTexp@wl = nrow(ENTexp@values[[channel]]$ENT)
 
   }
+
+  ENTexp@path = attr(channelData, "path")
 
   return(ENTexp)
 
@@ -914,7 +784,7 @@ ENTspec = function(soundfile,
 #'
 #' Event counts are calculated independently for each frequency bin. The resulting values represent the number of detected acoustic events per time bin and are expressed as events per second.
 #'
-#' @seealso [bgNoise()] to calculate spectral Background Noise and Soundscape Power, [bgn()] to calculate summarized Background Noise and Soundscape Power, and [ACIspec()] to calculate the Acoustic Complexity Index from a single audio file.
+#' @seealso [BGNspec()] to calculate spectral Background Noise and Soundscape Power, [BGN()] to calculate summarized Background Noise and Soundscape Power, and [ACIspec()] to calculate the Acoustic Complexity Index from a single audio file.
 #'
 #' @references
 #' Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
@@ -973,47 +843,14 @@ EVNspec = function(soundfile,
     DCfix = DCfix
   )
 
-  audio = typeof(soundfile)
-
-  if (audio == "character") {
-    if (tolower(tools::file_ext(soundfile)) == "wav") {
-      soundfile = wav::read_wav(soundfile)
-    } else {
-      stop("The audio file must be in the WAV format.")
-    }
-  } else if (audio == "S4") {
-    tempSamp = soundfile@samp.rate
-    if (soundfile@stereo) {
-      soundfile = rbind(soundfile@left, soundfile@right)
-    } else {
-      soundfile = matrix(soundfile@left, nrow = 1, byrow = TRUE)
-    }
-    attr(soundfile, "sample_rate") = tempSamp
-  }
-
-  savedAttr = attributes(soundfile)
-
-  if (channel == "mono" && savedAttr$dim[1] > 1) {
-    sampRate = attr(soundfile, "sample_rate")
-    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
-    attr(soundfile, "sample_rate") = sampRate
-    savedAttr$dim = dim(soundfile)
-  }
-  if (channel == "stereo" && nrow(soundfile) == 1) {
-    message("Audio is not stereo, defaulting to left channel.")
-    channel = "mono"
-  }
-  if (!is.null(targetSampRate)) {
-    audioLen = length(soundfile[1, ])
-    keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
-    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
-    attr(soundfile, "sample_rate") = targetSampRate
-  }
+  channelData = .importAudio(soundfile = soundfile,
+                             channel = channel,
+                             targetSampRate = targetSampRate)
 
   EVNexp = processChannel.EVN(
-    channelData = soundfile,
-    samp.rate = attr(soundfile, "sample_rate"),
-    channel = channel,
+    channelData = channelData,
+    samp.rate = attr(channelData, "sample_rate"),
+    channel = attr(channelData, "channel"),
     timeBin = timeBin,
     wl = wl,
     overlap = overlap,
@@ -1030,6 +867,8 @@ EVNspec = function(soundfile,
   } else {
     EVNexp@wl = nrow(EVNexp@values[[channel]]$EVN)
   }
+
+  EVNexp@path = attr(channelData, "path")
 
   return(EVNexp)
 
@@ -1069,13 +908,13 @@ EVNspec = function(soundfile,
 #'
 #' where \eqn{N} is the total number of frequency bins. Higher values of `SAT` indicate a greater fraction of the frequency spectrum being occupied by acoustic activity.
 #'
-#' @seealso [soundSat()] and [soundMat()] to work with multiple audio files and [activity()] to get only the activity matrix.
+#' @seealso [soundSAT()] and [soundMAT()] to work with multiple audio files and [ACTspec()] to get only the activity matrix.
 #'
 #'@references Burivalova, Z., Towsey, M., Boucher, T., Truskinger, A., Apelis, C., Roe, P., & Game, E. T. (2018). Using soundscapes to detect variable degrees of human influence on tropical forests in Papua New Guinea. Conservation Biology, 32(1), 205-215. https://doi.org/10.1111/cobi.12968
 #'
 #' @examples
 #' # First example: Using a Ruido noise.matrix object
-#' # We are going to load a sample noise.matrix object to demonstrate the basic usage of singleSat()
+#' # We are going to load a sample noise.matrix object to demonstrate the basic usage of SAT()
 #' # To understand about the origin of this noise.matrix, check: ?sampleBGN
 #' data("sampleBGN")
 #'
@@ -1083,7 +922,7 @@ EVNspec = function(soundfile,
 #' sampleBGN
 #'
 #' # Run the function
-#' SAT = singleSat(sampleBGN)
+#' SAT = SAT(sampleBGN)
 #'
 #' # View the results
 #' SAT
@@ -1102,7 +941,7 @@ EVNspec = function(soundfile,
 #' # Second example: Using a tuneR Wave-class object
 #' # Lets produce an artificial audio with the tuneR package to demonstrate that
 #' # the function can also read Wave-class objects (This is the same object used in
-#' # the example of bgNoise!)
+#' # the example of BGNspec!)
 #'
 #' library(tuneR)
 #'
@@ -1130,8 +969,8 @@ EVNspec = function(soundfile,
 #'   bit = 16
 #' )
 #'
-#' # Running singleSat() on the artificial audio
-#' sat = singleSat(wave, timeBin = 10)
+#' # Running SAT() on the artificial audio
+#' sat = SAT(wave, timeBin = 10)
 #'
 #' # Now we can plot the results
 #' # In the left we have a periodogram and in the right saturation values
@@ -1154,7 +993,7 @@ EVNspec = function(soundfile,
 #'
 #' data("sampleBGN")
 #' sampleBGN
-#' singleSat(activity(sampleBGN))
+#' SAT(ACTspec(sampleBGN))
 #'
 #' \donttest{
 #' # Fourth example: Reading a file directly
@@ -1171,7 +1010,7 @@ EVNspec = function(soundfile,
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Now we calculate soundscape saturation for both sides of the recording
-#' sat = singleSat(recDir)
+#' sat = SAT(recDir)
 #'
 #' # Printing the results
 #' print(sat)
@@ -1181,22 +1020,22 @@ EVNspec = function(soundfile,
 #'
 #' unlink(dir, recursive = TRUE)
 #' }
-singleSat = function(soundfile,
-                     channel = "stereo",
-                     timeBin = 60,
-                     dbThreshold = -90,
-                     dbRef = 10,
-                     targetSampRate = NULL,
-                     wl = 512,
-                     window = hamming(wl),
-                     overlap = ceiling(length(window) / 2),
-                     histbreaks = "FD",
-                     DCfix = TRUE,
-                     powthr = 10,
-                     bgnthr = 0.8,
-                     beta = TRUE) {
+SAT = function(soundfile,
+               channel = "stereo",
+               timeBin = 60,
+               dbThreshold = -90,
+               dbRef = 10,
+               targetSampRate = NULL,
+               wl = 512,
+               window = hamming(wl),
+               overlap = ceiling(length(window) / 2),
+               histbreaks = "FD",
+               DCfix = TRUE,
+               powthr = 10,
+               bgnthr = 0.8,
+               beta = TRUE) {
   argHandler(
-    FUN = "singleSat",
+    FUN = "SAT",
     soundfile = soundfile,
     channel = channel,
     timeBin = timeBin,
@@ -1218,7 +1057,7 @@ singleSat = function(soundfile,
   BGNPOW = if (is(soundfile, "noise.matrix")) {
     soundfile
   } else {
-    bgNoise.(
+    .BGNspec(
       soundfile,
       timeBin = timeBin,
       targetSampRate = targetSampRate,

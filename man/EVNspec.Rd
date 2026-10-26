@@ -96,5 +96,5 @@ Towsey, M. W. (2017). The calculation of acoustic indices derived from long-dura
 \if{html}{\out{<br>}}Lamel, L., Rabiner, L., Rosenberg, A., & Wilpon, J. (1981). An improved endpoint detector for isolated word recognition. \emph{IEEE Transactions on Acoustics, Speech, and Signal Processing}, 29(4), 777-785 https://doi.org/10.1109/TASSP.1981.1163642
 }
 \seealso{
-\code{\link[=bgNoise]{bgNoise()}} to calculate spectral Background Noise and Soundscape Power, \code{\link[=bgn]{bgn()}} to calculate summarized Background Noise and Soundscape Power, and \code{\link[=ACIspec]{ACIspec()}} to calculate the Acoustic Complexity Index from a single audio file.
+\code{\link[=BGNspec]{BGNspec()}} to calculate spectral Background Noise and Soundscape Power, \code{\link[=BGN]{BGN()}} to calculate summarized Background Noise and Soundscape Power, and \code{\link[=ACIspec]{ACIspec()}} to calculate the Acoustic Complexity Index from a single audio file.
 }

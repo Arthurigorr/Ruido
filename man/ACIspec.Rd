@@ -103,5 +103,5 @@ plot(aci)
 Pieretti, N., Farina, A., & Morri, D. (2011). A new methodology to infer the singing activity of an avian community: The Acoustic Complexity Index (ACI). Ecological Indicators, 11(3), 868–873. https://doi.org/10.1016/j.ecolind.2010.11.005
 }
 \seealso{
-\code{\link[=ENTspec]{ENTspec()}} to calculate Spectral Entropy and \code{\link[=bgNoise]{bgNoise()}} to calculate Background Noise and Soundscape Power.
+\code{\link[=ENTspec]{ENTspec()}} to calculate Spectral Entropy and \code{\link[=BGNspec]{BGNspec()}} to calculate Background Noise and Soundscape Power.
 }

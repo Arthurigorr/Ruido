@@ -86,5 +86,5 @@ plot(ent)
 Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
 }
 \seealso{
-\code{\link[=ACIspec]{ACIspec()}} to calculate the Acoustic Complexity Index and \code{\link[=bgNoise]{bgNoise()}} to calculate Background Noise and Soundscape Power.
+\code{\link[=ACIspec]{ACIspec()}} to calculate the Acoustic Complexity Index and \code{\link[=BGNspec]{BGNspec()}} to calculate Background Noise and Soundscape Power.
 }
