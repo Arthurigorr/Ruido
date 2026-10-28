@@ -10,7 +10,7 @@
       stop("The audio file must be in the WAV format.")
     }
   } else if (audio == "S4") {
-    path = deparse(substitute(soundfile))
+    path = "soundfile"
     tempSamp = soundfile@samp.rate
     if (soundfile@stereo) {
       soundfile = rbind(soundfile@left, soundfile@right)
@@ -19,8 +19,6 @@
     }
     attr(soundfile, "sample_rate") = tempSamp
   }
-
-  attr(soundfile, "path") = path
 
   savedAttr = attributes(soundfile)
 
@@ -42,6 +40,7 @@
   }
 
   attr(soundfile, "channel") = channel
+  attr(soundfile, "path") = path
 
   return(soundfile)
 
@@ -144,6 +143,8 @@
   } else {
     nrow(BGNexp@values[[channel]]$BGN)
   }
+
+  BGNexp@path = soundfile
 
   return(BGNexp)
 

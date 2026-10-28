@@ -129,7 +129,7 @@ ACIspec = function(soundfile,
     ACIexp@wl = nrow(ACIexp@values$left$ACI)
 
   } else {
-    ACIexp@wl = nrow(ACIexp@values[[channel]]$ACI)
+    ACIexp@wl = nrow(ACIexp@values[[attr(channelData, "channel")]]$ACI)
 
   }
 
@@ -627,7 +627,7 @@ BGNspec = function(soundfile,
   BGNexp@wl = if (BGNexp@channel == "stereo") {
     nrow(BGNexp@values$left$BGN)
   } else {
-    nrow(BGNexp@values[[channel]]$BGN)
+    nrow(BGNexp@values[[BGNexp@channel]]$BGN)
   }
 
   BGNexp@path = attr(channelData, "path")
@@ -738,7 +738,7 @@ ENTspec = function(soundfile,
   if (ENTexp@channel == "stereo") {
     ENTexp@wl = nrow(ENTexp@values$left$ENT)
   } else {
-    ENTexp@wl = nrow(ENTexp@values[[channel]]$ENT)
+    ENTexp@wl = nrow(ENTexp@values[[attr(channelData, "channel")]]$ENT)
 
   }
 
@@ -865,7 +865,7 @@ EVNspec = function(soundfile,
   if (EVNexp@channel == "stereo") {
     EVNexp@wl = nrow(EVNexp@values$left$EVN)
   } else {
-    EVNexp@wl = nrow(EVNexp@values[[channel]]$EVN)
+    EVNexp@wl = nrow(EVNexp@values[[attr(channelData, "channel")]]$EVN)
   }
 
   EVNexp@path = attr(channelData, "path")
