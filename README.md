@@ -24,7 +24,7 @@ This is the development branch of **Ruido**. Its main purpose is to test new fea
     - [x] Optimize
   - [ ] Spectral Peaks — **0%**
 - [ ] Create a function to calculate and plot false-color spectrograms — **0%**
-- [ ] Improve processing speed for `bgNoise()` — **11%**
+- [ ] Improve processing speed for `bgNoise()` — **28.5%**
 
 ### Current bottleneck and optimization targets in `bgNoise()`:
 ```text
@@ -47,11 +47,7 @@ BGN optimization status
 ├── WAV reading ....................... ~2%
 └── Other operations .................. ~5%
 ```
-```
-Overall benchmark (50 iterations each and default arguments)
-│
-├── dev branch bgNoise() ................. 3.697 s mean
-├── main branch bgNoise() ................ 4.180 s mean
-├── Mean Improvement ..................... ~11.6% faster
-└── Median Improvement ................... ~11.3% faster
-```
+
+## Current Benchmark for bgNoise()
+<img src="man/figures/speedPlot.png" align="center"/>
+Processing time of `bgNoise()` across `Ruido` versions. Each version was evaluated over 20 repeated runs using the same three-minute-long, 48-kHz, 16-bit stereo WAV recording (GAL24576_20250401_000000.wav) from the Ruido example dataset. Benchmarks were performed on an Intel® Core™ i3-1005G1 computer with 8 GB RAM, running Arch Linux x86_64 and R 4.6.1. Individual points represent individual runs; boxes represent the interquartile range, with the horizontal line indicating the median, and whiskers extend to 1.5 × the interquartile range.
