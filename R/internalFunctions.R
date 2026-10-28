@@ -99,33 +99,33 @@
                      DCfix = TRUE) {
 
   if (tolower(tools::file_ext(soundfile)) == "wav") {
-    soundfile = wav::read_wav(soundfile)
+    channelData = wav::read_wav(soundfile)
   } else {
     stop("The audio file must be in the WAV format.")
   }
 
-  savedAttr = attributes(soundfile)
+  savedAttr = attributes(channelData)
 
   if (channel == "mono" && savedAttr$dim[1] > 1) {
-    sampRate = attr(soundfile, "sample_rate")
-    soundfile = matrix((soundfile[1, ] + soundfile[2, ]) / 2, nrow = 1)
-    attr(soundfile, "sample_rate") = sampRate
-    savedAttr$dim = dim(soundfile)
+    sampRate = attr(channelData, "sample_rate")
+    channelData = matrix((channelData[1, ] + channelData[2, ]) / 2, nrow = 1)
+    attr(channelData, "sample_rate") = sampRate
+    savedAttr$dim = dim(channelData)
   }
-  if (channel == "stereo" && nrow(soundfile) == 1) {
+  if (channel == "stereo" && nrow(channelData) == 1) {
     message("Audio is not stereo, defaulting to left channel.")
     channel = "mono"
   }
   if (!is.null(targetSampRate)) {
-    audioLen = length(soundfile[1, ])
+    audioLen = length(channelData[1, ])
     keepIdx  = round(seq(1, audioLen, length = targetSampRate * audioLen / savedAttr$sample_rate))
-    soundfile = soundfile[1:savedAttr$dim[1], keepIdx, drop = FALSE]
-    attr(soundfile, "sample_rate") = targetSampRate
+    channelData = channelData[1:savedAttr$dim[1], keepIdx, drop = FALSE]
+    attr(channelData, "sample_rate") = targetSampRate
   }
 
   BGNexp = processChannel.BGN(
-    soundfile,
-    samp.rate = attr(soundfile, "sample_rate"),
+    channelData,
+    samp.rate = attr(channelData, "sample_rate"),
     channel = channel,
     timeBin = timeBin,
     wl = wl,
@@ -143,6 +143,7 @@
   } else {
     nrow(BGNexp@values[[channel]]$BGN)
   }
+
 
   BGNexp@path = soundfile
 
