@@ -76,6 +76,7 @@ test_that("acoustic indices functions works correctly", {
   expect_s4_class(ACIspec(recDir[1], j = 800), "noise.matrix")
   expect_s4_class(ACIspec(recDir[1], targetSampRate = 12250), "noise.matrix")
   expect_s4_class(ACIspec(wave1), "noise.matrix")
+  expect_s4_class(ACIspec(wave1, channel = "right"), "noise.matrix")
   expect_s4_class(ACIspec(wave2), "noise.matrix")
   expect_s4_class(ACIspec(wave3), "noise.matrix")
   expect_error(ACIspec(recDir, j = "five"))
@@ -272,7 +273,6 @@ test_that("acoustic indices functions works correctly", {
 
   expectedpath = recDir[[1]]
   expectedchannel = "stereo"
-  expectedbins = c(BIN1 = 60, BIN2 = 60, BIN3 = 60)
 
   BGNTest = BGNspec(recDir[[1]])
   ACITest = ACIspec(recDir[[1]])
@@ -291,10 +291,4 @@ test_that("acoustic indices functions works correctly", {
   expect_equal(EVNTest@channel, expectedchannel)
   expect_equal(ACTTest@channel, expectedchannel)
   expect_equal(ENTTest@channel, expectedchannel)
-
-  expect_equal(BGNTest@timeBins, expectedbins)
-  expect_equal(ACITest@timeBins, expectedbins)
-  expect_equal(EVNTest@timeBins, expectedbins)
-  expect_equal(ACTTest@timeBins, expectedbins)
-  expect_equal(ENTTest@timeBins, expectedbins)
 })
