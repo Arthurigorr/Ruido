@@ -96,7 +96,7 @@ plot(x = c(1, 3), y = c(minV, maxV), type = "n",
 lines(x = 1:3, SAT$left, col = "#1ECBE1", type = "b", pch = 16)
 axis(1, at = 1:3)
 lines(x = 1:3, SAT$right, col = "#E1341E", type = "b", pch = 16)
-legend("topright", legend = c("Left", "Right"), col = c("#1ECBE1", "#E1341E"), lty = 1, pch = 16)
+legend("topright", legend = c("Left", "Right"),col = c("#1ECBE1", "#E1341E"), lty = 1, pch = 16)
 
 # Second example: Using a tuneR Wave-class object
 # Lets produce an artificial audio with the tuneR package to demonstrate that

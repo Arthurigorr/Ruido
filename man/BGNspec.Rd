@@ -49,25 +49,25 @@ This function returns a \link[=noise.matrix-class]{noise.matrix} object
 Calculate the spectral Background Noise and Soundscape Power values of a single audio using the methodology proposed in Towsey 2017
 }
 \details{
-Background Noise (\code{BGN}) is an acoustic metric that estimates the dominant baseline level of acoustic energy within a frequency window and time bin. It was described by Towsey (2017) based on the approach of Lamel et al. (1981).
+Spectral Background Noise (\code{BGNsp}) is an acoustic metric that estimates the dominant baseline level of acoustic energy within a frequency window and time bin. It was described by Towsey (2017) based on the approach of Lamel et al. (1981).
 
 Spectrogram amplitude values are converted to decibels according to:
 
-\deqn{dB_i = dbRef . \log_{10}(A_i)}
+\deqn{dB_i = dbRef . \log_{10}(A_i/A_max)}
 
 where \eqn{A_i} is the amplitude of the \eqn{i}-th spectrogram value and \eqn{dbRef} is the coefficient used for the conversion. By default, \eqn{dbRef = 10}.
 
-For each frequency window \eqn{f} and time bin \eqn{c}, \code{BGN} is defined as the modal value of the intensity distribution (in dB), representing the most frequently occurring sound level:
+For each frequency window \eqn{f} and time bin \eqn{c}, \code{BGNsp} is defined as the modal value of the intensity distribution (in dB), representing the most frequently occurring sound level:
 
 \deqn{BGN_f = \mathrm{mode}(dB_{c,f})}
 
 This value approximates the continuous background component of the soundscape, filtering out transient acoustic events such as bird calls or other short-duration signals.
 
-Soundscape Power (\code{POW}) quantifies the contrast between this baseline level and the strongest acoustic events within the same frequency window and time bin. It is defined as:
+Soundscape Power (\code{POWsp}) quantifies the contrast between this baseline level and the strongest acoustic events within the same frequency window and time bin. It is defined as:
 
 \deqn{POW_f = \max(dB_{c,f}) - BGN_f}
 
-where \eqn{\max(dB_{c,f})} is the maximum intensity observed. \code{POW} can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
+where \eqn{\max(dB_{c,f})} is the maximum intensity observed. \code{POWsp} can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
 }
 \examples{
 ### For our main example we'll create an artificial audio with
@@ -99,13 +99,13 @@ wave = Wave(left = signal, right = signal,
 wave
 
 # Running the BGNspec function with all the default arguments
-BGN = BGNspec(wave)
+BGNsp = BGNspec(wave)
 
 # See the results
-BGN
+BGNsp
 
 # Plot background noise and soundscape power
-plot(BGN)
+plot(BGNsp)
 
 \donttest{
 ### This is a secondary example using audio from a real soundscape
@@ -124,22 +124,22 @@ url = paste0("https://zenodo.org/records/17575795/files/",
 download.file(url, destfile = recDir, mode = "wb")
 
 # Running the BGNspec function with all the default arguments
-BGN = BGNspec(recDir)
+BGNsp1 = BGNspec(recDir)
 
 # Here's the result
-BGN
+BGNsp1
 
 # Plot background noise and soundscape power values
-plot(BGN)
+plot(BGNsp1)
 
 # Plot the two indices against each other
-plot(BGN@values$left$BGN$BGN1, BGN@values$left$POW$POW1,
-     xlab = "BGN (dB)", ylab = "POW (dB)", pch = 16)
+plot(BGNsp1@values$left$BGN$BGN1, BGNsp1@values$left$POW$POW1,
+     xlab = "BGNsp (dB)", ylab = "POWsp (dB)", pch = 16)
 
 # Now lets test and plot their correlation
-BGNPOWlm = lm(BGN@values$left$BGN$BGN1~BGN@values$left$POW$POW1)
+BGNPOWlm = lm(BGNsp@values$left$BGN$BGN1~BGNsp@values$left$POW$POW1)
 summary(BGNPOWlm)
-abline(lm(BGN@values$left$BGN$BGN1~BGN@values$left$POW$POW1), col = "red")
+abline(BGNPOWlm, col = "red")
 }
 }
 \references{

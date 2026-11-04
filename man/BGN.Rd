@@ -47,7 +47,7 @@ Background Noise (\code{BGN}) is an acoustic metric that estimates the dominant 
 
 For each waveform frame \eqn{i}, the envelope amplitude \eqn{A_i} is converted to decibels as:
 
-\deqn{dB_i = dbRef . \log_{10}(A_i)}
+\deqn{dB_i = dbRef . \log_{10}(A_i/A_max)}
 
 where \eqn{A_i} is the maximum absolute amplitude within the frame. Incomplete frames at the end of a time bin are discarded.
 
@@ -64,39 +64,33 @@ Soundscape Power (\code{POW}) quantifies the difference between the maximum obse
 Higher \code{POW} values indicate a greater difference between the strongest acoustic event and the estimated background level.
 }
 \examples{
-### For our main example we'll create an artificial audio with
-### white noise to test its Background Noise
-# We'll use the package tuneR
 library(tuneR)
 
-# Define the audio sample rate, duration and number of samples
 samprate = 12050
 dur = 60
 n = samprate * dur
 
-# Then we generate white noise
 set.seed(413)
 noise = rnorm(n)
 
-# Linear fade-out envelope
 fade = seq(1, 0, length.out = n)
-
-# Apply fade
 signal = noise * fade
 
 wave = Wave(left = signal, right = signal,
             samp.rate = samprate,
             bit = 16)
 
-# Heres our artificial audio
-
 wave
 
-# Running the BGNspec function with all the default arguments
-bgn = BGN(wave)
+bgn = BGN(wave, timeBin = 10)
 
-# See the results
 bgn
+
+plot(bgn$left[1,], type = "b", col = "blue",
+xlab = "Temporal Bins (n = 10s)", ylab = "dB", pch = 16)
+lines(bgn$left[2,], type = "b", col = "red", pch = 16)
+legend(x = "bottomleft", legend = c("Background Noise", "Soundscape Power"),
+col = c("blue", "red"), lty = c(1, 1), pch = 16)
 }
 \references{
 Towsey, M. W. (2017). The calculation of acoustic indices derived from long-duration recordings of the natural environment. In eprints.qut.edu.au. https://eprints.qut.edu.au/110634/
