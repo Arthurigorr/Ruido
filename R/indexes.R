@@ -11,11 +11,11 @@
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
 #'
-#' @returns This function returns a [noise.matrix-class] object.
+#' @returns This function returns a [noise.matrix-class] object containing `ACIsp` values.
 #'
-#' @details The Acoustic Complexity Index (`ACI`) quantifies the average proportional change in spectral amplitude between adjacent time steps  across frequency bins. Because biological sounds, particularly bird vocalizations, often exhibit rapid and irregular amplitude fluctuations over time, `ACI` captures this temporal variability as a proxy for acoustic complexity.
+#' @details The Spectral Acoustic Complexity Index (`ACIsp`) quantifies the average proportional change in spectral amplitude between adjacent time steps  across frequency bins. Because biological sounds, particularly bird vocalizations, often exhibit rapid and irregular amplitude fluctuations over time, `ACIsp` captures this temporal variability as a proxy for acoustic complexity.
 #'
-#' In `Ruido`, `ACI` is computed independently within each time bin. Within a time bin, the signal is further subdivided into smaller temporal segments, here referred to as cluster intervals \eqn{j}.
+#' In `Ruido`, `ACIsp` is computed independently within each time bin. Within a time bin, the signal is further subdivided into smaller temporal segments, here referred to as cluster intervals \eqn{j}.
 #'
 #' For a given frequency bin \eqn{f_l}, acoustic intensity values \eqn{I_k} are evaluated across consecutive time steps \eqn{k} within each cluster interval \eqn{j}. The absolute differences between adjacent time steps are calculated as:
 #'
@@ -37,7 +37,7 @@
 #'
 #' where \eqn{m} is the number of cluster intervals in the time bin.
 #'
-#' The result is a frequency-resolved representation of `ACI` for each time bin, rather than a single scalar value for the entire recording.
+#' The result is a frequency-resolved representation of `ACIsp` for each time bin, rather than a single scalar value for the entire recording.
 #'
 #' In the original formulation (Pieretti et al., 2011), `ACI` is further summed across all frequency bins:
 #'
@@ -56,6 +56,30 @@
 #'@importFrom wav read_wav
 #'
 #' @examples
+#' library(tuneR)
+#'
+#' samprate = 12050
+#' dur = 60
+#' n = samprate * dur
+#'
+#' set.seed(413)
+#' noise = rnorm(n)
+#'
+#' fade = seq(1, 0, length.out = n)
+#' signal = noise * fade
+#'
+#' wave = Wave(left = signal, right = signal,
+#'             samp.rate = samprate,
+#'             bit = 16)
+#'
+#' wave
+#'
+#' ACI = ACIspec(wave)
+#'
+#' ACI
+#'
+#' plot(ACI)
+#'
 #' \donttest{
 #' ### This is an secondary example using audio from a real soundscape
 #' ### These audios are originated from the Escutadô Project, a project
@@ -73,13 +97,13 @@
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Running the ACIspec function with all the default arguments
-#' aci = ACIspec(recDir)
+#' ACIsp = ACIspec(recDir)
 #'
 #' # Here's the result
-#' aci
+#' ACIsp
 #'
 #' # Plot ACI values
-#' plot(aci)
+#' plot(ACIsp)
 #'}
 #'
 ACIspec = function(soundfile,
@@ -326,7 +350,7 @@ ACTspec = function(soundfile,
 #'
 #' For each waveform frame \eqn{i}, the envelope amplitude \eqn{A_i} is converted to decibels as:
 #'
-#' \deqn{dB_i = dbRef . \log_{10}(A_i)}
+#' \deqn{dB_i = dbRef . \log_{10}(A_i/A_max)}
 #'
 #' where \eqn{A_i} is the maximum absolute amplitude within the frame. Incomplete frames at the end of a time bin are discarded.
 #'
@@ -355,39 +379,33 @@ ACTspec = function(soundfile,
 #'@importFrom matrixStats colMaxs
 #'
 #' @examples
-#' ### For our main example we'll create an artificial audio with
-#' ### white noise to test its Background Noise
-#' # We'll use the package tuneR
 #' library(tuneR)
 #'
-#' # Define the audio sample rate, duration and number of samples
 #' samprate = 12050
 #' dur = 60
 #' n = samprate * dur
 #'
-#' # Then we generate white noise
 #' set.seed(413)
 #' noise = rnorm(n)
 #'
-#' # Linear fade-out envelope
 #' fade = seq(1, 0, length.out = n)
-#'
-#' # Apply fade
 #' signal = noise * fade
 #'
 #' wave = Wave(left = signal, right = signal,
 #'             samp.rate = samprate,
 #'             bit = 16)
 #'
-#' # Heres our artificial audio
-#'
 #' wave
 #'
-#' # Running the BGNspec function with all the default arguments
-#' bgn = BGN(wave)
+#' bgn = BGN(wave, timeBin = 10)
 #'
-#' # See the results
 #' bgn
+#'
+#' plot(bgn$left[1,], type = "b", col = "blue",
+#' xlab = "Temporal Bins (n = 10s)", ylab = "dB", pch = 16)
+#' lines(bgn$left[2,], type = "b", col = "red", pch = 16)
+#' legend(x = "bottomleft", legend = c("Background Noise", "Soundscape Power"),
+#' col = c("blue", "red"), lty = c(1, 1), pch = 16)
 BGN = function(soundfile,
                channel = "stereo",
                timeBin = 60,
@@ -436,6 +454,7 @@ BGN = function(soundfile,
       x = x - mean(x)
     }
     x = abs(x)
+
     apply(allSamples, 1, function(y) {
       samples = x[y[1]:y[2]]
       mat = matrix(samples[seq_len(floor(length(samples) / wl) * wl)], nrow = wl)
@@ -447,10 +466,13 @@ BGN = function(soundfile,
 
       dbMin = min(db)
       dbMax = max(db)
+
       numBins = hBreak(db)
-      breaks = seq(dbMin, dbMax, length.out = numBins + 1)
-      modalBin = which.max(tabulate(findInterval(x = db, vec = breaks)))
-      modalIntensity = dbMin + (modalBin - 0.5) * (breaks[2] - breaks[1])
+      binWidth = (dbMax - dbMin) / numBins
+      bins = pmin(floor((db - dbMin) / binWidth) + 1L, numBins)
+      modalBin = which.max(tabulate(bins, nbins = numBins))
+
+      modalIntensity = dbMin + (modalBin - 0.5) * binWidth
       c(BGN = modalIntensity, POW = dbMax - modalIntensity)
     })
 
@@ -477,25 +499,25 @@ BGN = function(soundfile,
 #'
 #' @returns This function returns a [noise.matrix-class] object
 #'
-#' @details Background Noise (`BGN`) is an acoustic metric that estimates the dominant baseline level of acoustic energy within a frequency window and time bin. It was described by Towsey (2017) based on the approach of Lamel et al. (1981).
+#' @details Spectral Background Noise (`BGNsp`) is an acoustic metric that estimates the dominant baseline level of acoustic energy within a frequency window and time bin. It was described by Towsey (2017) based on the approach of Lamel et al. (1981).
 #'
 #' Spectrogram amplitude values are converted to decibels according to:
 #'
-#' \deqn{dB_i = dbRef . \log_{10}(A_i)}
+#' \deqn{dB_i = dbRef . \log_{10}(A_i/A_max)}
 #'
 #' where \eqn{A_i} is the amplitude of the \eqn{i}-th spectrogram value and \eqn{dbRef} is the coefficient used for the conversion. By default, \eqn{dbRef = 10}.
 #'
-#' For each frequency window \eqn{f} and time bin \eqn{c}, `BGN` is defined as the modal value of the intensity distribution (in dB), representing the most frequently occurring sound level:
+#' For each frequency window \eqn{f} and time bin \eqn{c}, `BGNsp` is defined as the modal value of the intensity distribution (in dB), representing the most frequently occurring sound level:
 #'
 #' \deqn{BGN_f = \mathrm{mode}(dB_{c,f})}
 #'
 #' This value approximates the continuous background component of the soundscape, filtering out transient acoustic events such as bird calls or other short-duration signals.
 #'
-#' Soundscape Power (`POW`) quantifies the contrast between this baseline level and the strongest acoustic events within the same frequency window and time bin. It is defined as:
+#' Soundscape Power (`POWsp`) quantifies the contrast between this baseline level and the strongest acoustic events within the same frequency window and time bin. It is defined as:
 #'
 #' \deqn{POW_f = \max(dB_{c,f}) - BGN_f}
 #'
-#' where \eqn{\max(dB_{c,f})} is the maximum intensity observed. `POW` can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
+#' where \eqn{\max(dB_{c,f})} is the maximum intensity observed. `POWsp` can be interpreted as a proxy for signal-to-noise ratio, with higher values indicating stronger or more prominent acoustic events relative to the background level.
 #'
 #' @seealso [BGN()] to calculate the summarized Background Noise and Soundscape Power. [ACIspec()] to calculate the Acoustic Complexity Index and [ENTspec()] to calculate Spectral Entropy from a single audio file. Also, check [ACTspec()] and [SAT()], which use this same Background Noise and Soundscape Power calculation to determine acoustic activity and saturation.
 #'
@@ -537,13 +559,13 @@ BGN = function(soundfile,
 #' wave
 #'
 #' # Running the BGNspec function with all the default arguments
-#' BGN = BGNspec(wave)
+#' BGNsp = BGNspec(wave)
 #'
 #' # See the results
-#' BGN
+#' BGNsp
 #'
 #' # Plot background noise and soundscape power
-#' plot(BGN)
+#' plot(BGNsp)
 #'
 #'\donttest{
 #' ### This is a secondary example using audio from a real soundscape
@@ -562,22 +584,22 @@ BGN = function(soundfile,
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Running the BGNspec function with all the default arguments
-#' BGN = BGNspec(recDir)
+#' BGNsp1 = BGNspec(recDir)
 #'
 #' # Here's the result
-#' BGN
+#' BGNsp1
 #'
 #' # Plot background noise and soundscape power values
-#' plot(BGN)
+#' plot(BGNsp1)
 #'
 #' # Plot the two indices against each other
-#' plot(BGN@values$left$BGN$BGN1, BGN@values$left$POW$POW1,
-#'      xlab = "BGN (dB)", ylab = "POW (dB)", pch = 16)
+#' plot(BGNsp1@values$left$BGN$BGN1, BGNsp1@values$left$POW$POW1,
+#'      xlab = "BGNsp (dB)", ylab = "POWsp (dB)", pch = 16)
 #'
 #' # Now lets test and plot their correlation
-#' BGNPOWlm = lm(BGN@values$left$BGN$BGN1~BGN@values$left$POW$POW1)
+#' BGNPOWlm = lm(BGNsp@values$left$BGN$BGN1~BGNsp@values$left$POW$POW1)
 #' summary(BGNPOWlm)
-#' abline(lm(BGN@values$left$BGN$BGN1~BGN@values$left$POW$POW1), col = "red")
+#' abline(BGNPOWlm, col = "red")
 #'}
 BGNspec = function(soundfile,
                    channel = "stereo",
@@ -648,11 +670,11 @@ BGNspec = function(soundfile,
 #' @param window window used to smooth the spectrogram. Switch to `hanning(wl)` to use hanning instead. Defaults to `hamming(wl)`
 #' @param overlap overlap between the spectrogram windows. Defaults to `wl/2` (half the window length)
 #'
-#' @returns This function returns a [noise.matrix-class] object.
+#' @returns This function returns a [noise.matrix-class] object containing `ENTsp` values.
 #'
-#' @details The Temporal Entropy (`ENT`) quantifies how concentrated or dispersed acoustic energy is over time within each frequency bin. Unlike indices that track frame-to-frame change (e.g. `ACI`), `ENT` treats the distribution of energy across an entire time bin as a probability mass function and measures its Shannon entropy, capturing whether energy is spread evenly through time (high entropy, low concentration) or concentrated into brief pulses (low entropy, high concentration).
+#' @details The Temporal Entropy (`ENTsp`) quantifies how concentrated or dispersed acoustic energy is over time within each frequency bin. Unlike indices that track frame-to-frame change (e.g. `ACI`), `ENTsp` treats the distribution of energy across an entire time bin as a probability mass function and measures its Shannon entropy, capturing whether energy is spread evenly through time (high entropy, low concentration) or concentrated into brief pulses (low entropy, high concentration).
 #'
-#' In `Ruido`, `ENT` is computed independently within each time bin, using every time step of the spectrogram in that bin.
+#' In `Ruido`, `ENTsp` is computed independently within each time bin, using every time step of the spectrogram in that bin.
 #'
 #' For a given frequency bin \eqn{f}, the squared amplitude values \eqn{I_t} across all time steps \eqn{t} within the time bin are normalized to unit area, producing a probability mass function:
 #'
@@ -662,11 +684,11 @@ BGNspec = function(soundfile,
 #'
 #' \deqn{H[f] = \frac{-\sum_{t = 1}^{N} pmf_{f,t} \times \log_2(pmf_{f,t})}{\log_2 N}}
 #'
-#' To express the result as an intuitive measure of energy concentration rather than dispersion, `ENT` is calculated as the complement of \eqn{H}:
+#' To express the result as an intuitive measure of energy concentration rather than dispersion, `ENTsp` is calculated as the complement of \eqn{H}:
 #'
 #' \deqn{ENT[f] = 1 - H[f]}
 #'
-#' The result is a frequency-resolved representation of `ENT` for each time bin, rather than a single scalar value for the entire recording. Values close to `1` indicate energy concentrated in few time steps (e.g. transient calls or pulses), while values close to `0` indicate energy spread evenly across the time bin (e.g. steady background noise).
+#' The result is a frequency-resolved representation of `ENTsp` for each time bin, rather than a single scalar value for the entire recording. Values close to `1` indicate energy concentrated in few time steps (e.g. transient calls or pulses), while values close to `0` indicate energy spread evenly across the time bin (e.g. steady background noise).
 #'
 #' @seealso [ACIspec()] to calculate the Acoustic Complexity Index and [BGNspec()] to calculate Background Noise and Soundscape Power.
 #'
@@ -676,6 +698,30 @@ BGNspec = function(soundfile,
 #'@export
 #'
 #' @examples
+#' library(tuneR)
+#'
+#' samprate = 12050
+#' dur = 60
+#' n = samprate * dur
+#'
+#' set.seed(413)
+#' noise = rnorm(n)
+#'
+#' fade = seq(1, 0, length.out = n)
+#' signal = noise * fade
+#'
+#' wave = Wave(left = signal, right = signal,
+#'             samp.rate = samprate,
+#'             bit = 16)
+#'
+#' wave
+#'
+#' ENT = ENTspec(wave)
+#'
+#' ENT
+#'
+#' plot(ENT)
+#'
 #' \donttest{
 #' ### This is an example using audio from a real soundscape
 #' ### These audios are originated from the Escutadô Project, a project
@@ -693,13 +739,13 @@ BGNspec = function(soundfile,
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Running the ENTspec function with all the default arguments
-#' ent = ENTspec(recDir)
+#' ENTsp = ENTspec(recDir)
 #'
 #' # Here's the result
-#' ent
+#' ENTsp
 #'
 #' # Plot ENT values
-#' plot(ent)
+#' plot(ENTsp)
 #'}
 #'
 ENTspec = function(soundfile,
@@ -768,7 +814,7 @@ ENTspec = function(soundfile,
 #' @returns This function returns a [noise.matrix-class] object containing the number of acoustic events per second in each frequency bin.
 #'
 #' @details
-#' Spectral Acoustic Events (EVNsp) quantifies the number of acoustic events per second within each frequency bin. An acoustic event is defined as an upward crossing of a 3-dB threshold above the estimated background noise level.
+#' Spectral Acoustic Events (`EVNsp`) quantifies the number of acoustic events per second within each frequency bin. An acoustic event is defined as an upward crossing of a 3-dB threshold above the estimated background noise level.
 #'
 #' The spectrogram is first converted to decibels and the spectral Background Noise (BGN) is calculated independently for each frequency bin and time bin. The resulting background level is then subtracted from the corresponding frequency bin of the spectrogram to produce a noise-reduced spectrogram:
 #'
@@ -793,6 +839,30 @@ ENTspec = function(soundfile,
 #' @export
 #'
 #' @examples
+#' library(tuneR)
+#'
+#' samprate = 12050
+#' dur = 60
+#' n = samprate * dur
+#'
+#' set.seed(413)
+#' noise = rnorm(n)
+#'
+#' fade = seq(1, 0, length.out = n)
+#' signal = noise * fade
+#'
+#' wave = Wave(left = signal, right = signal,
+#'             samp.rate = samprate,
+#'             bit = 16)
+#'
+#' wave
+#'
+#' EVN = EVNspec(wave)
+#'
+#' EVN
+#'
+#' plot(EVN)
+#'
 #' \donttest{
 #' ### These audios are originated from the Escutadô Project, a project
 #' ### that records the soundscapes of the brazilian semiarid
@@ -809,13 +879,13 @@ ENTspec = function(soundfile,
 #' download.file(url, destfile = recDir, mode = "wb")
 #'
 #' # Running the EVNspec function with all the default arguments
-#' evn = EVNspec(recDir)
+#' EVNsp = EVNspec(recDir)
 #'
 #' # Here's the result
-#' evn
+#' EVNsp
 #'
 #' # Plot EVN values
-#' plot(evn)
+#' plot(EVNsp)
 #' }
 EVNspec = function(soundfile,
                    channel = "stereo",
@@ -936,7 +1006,7 @@ EVNspec = function(soundfile,
 #' lines(x = 1:3, SAT$left, col = "#1ECBE1", type = "b", pch = 16)
 #' axis(1, at = 1:3)
 #' lines(x = 1:3, SAT$right, col = "#E1341E", type = "b", pch = 16)
-#' legend("topright", legend = c("Left", "Right"), col = c("#1ECBE1", "#E1341E"), lty = 1, pch = 16)
+#' legend("topright", legend = c("Left", "Right"),col = c("#1ECBE1", "#E1341E"), lty = 1, pch = 16)
 #'
 #' # Second example: Using a tuneR Wave-class object
 #' # Lets produce an artificial audio with the tuneR package to demonstrate that
