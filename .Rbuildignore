@@ -5,7 +5,6 @@
 ^\.gitignore$
 ^\.Rhistory$
 ^LICENSE\.md$
-^NEWS\.md$
 ^revdep$
 ^paper$
 ^man/figures$
@@ -13,7 +12,7 @@
 ^cran-comments.md$
 ^data-raw$
 tests
-^cran-comments\.md$
 src/*.o
 src/*.so
 src/*.dll
+^README\.Rmd$
