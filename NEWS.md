@@ -1,4 +1,21 @@
-# Ruido (development version)
+# Ruido 1.2.2
+
+- Standardized function names across the package. Previous function names have been removed and replaced with the following:
+  - activity -> ACTspec()
+  - bgNoise() -> BGNspec()
+  - bgn -> BGN()
+  - singleSat() -> SAT()
+  - soundSat() -> soundSAT()
+  - soundMat() -> soundMAT()
+  - multActivity() -> soundACT()
+- Standardized the `noise.matrix` S4 class to always include `@path` and `@wl` slots
+- Reverted the global maximum normalization introduced in version 1.2.1. Spectrogram frames are once again normalized independently within each temporal bin, consistent with the original methodology
+- Bug fixes:
+  - Fixed histogram bin calculation in `BGN()` to prevent `BGN` values from being overestimated by half a bin
+  - Fixed an issue in `BGN()` that caused the lowest histogram bin to be omitted during `BGN` value tabulation
+  - Fixed an issue in `BGN()` where `dbRef` was hardcoded to `-10`, preventing the user-specified value from being properly applied
+- Updated documentation to use standardized index names (e.g., BGNsp, POWsp, etc.)
+- Expanded function examples with additional audio signals generated using the tuneR package
 
 # Ruido 1.2.1
 
