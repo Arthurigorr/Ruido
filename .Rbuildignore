@@ -13,6 +13,7 @@
 ^cran-comments.md$
 ^data-raw$
 tests
+Rsandbox
 ^cran-comments\.md$
 src/*.o
 src/*.so

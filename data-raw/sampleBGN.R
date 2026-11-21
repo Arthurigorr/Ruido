@@ -8,6 +8,6 @@ url <- paste0("https://zenodo.org/records/17243660/files/",
 
 download.file(url, destfile = recDir, mode = "wb")
 
-sampleBGN <- Ruido::bgNoise(recDir)
+sampleBGN = Ruido::BGNspec(recDir)
 
 usethis::use_data(sampleBGN, overwrite = T)
