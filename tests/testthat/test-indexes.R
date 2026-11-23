@@ -63,7 +63,6 @@ test_that("acoustic indices functions works correctly", {
     normality = "ad.test",
     beta = TRUE,
     saveNoise = TRUE,
-    type = "soundSAT",
     od = dir,
     backup = dir,
     files = recDir,
@@ -208,7 +207,7 @@ test_that("acoustic indices functions works correctly", {
 
   backupDir = file.path(dir, "SATbackup")
   dataDir = file.path(backupDir, "data")
-  dir.create(dataDir)
+  dir.create(dataDir, recursive = TRUE)
 
   saveRDS(mockupBackup, file = file.path(backupDir, "args.rds"))
 

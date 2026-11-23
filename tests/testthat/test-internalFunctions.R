@@ -6,3 +6,10 @@ test_that("getSampleBins() converts seconds to samples", {
   ))
 
 })
+
+test_that("hanning() and hamming() can't generate windows of length 1", {
+
+  expect_error(hanning(1))
+  expect_error(hamming(1))
+
+})
