@@ -410,21 +410,14 @@ BGN = function(soundfile,
                   timeBin)
   }
 
-  channelData = switch(
-    attr(channelData, "channel"),
-    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
-    "mono"   = list(mono  = channelData[1, ]),
-    "left"   = list(left  = channelData[1, ]),
-    "right"  = list(right = channelData[2, ])
-  )
-
   hBreak = hBreaks(histbreaks)
 
-  lapply(channelData, function(x) {
-    if (DCfix) {
-      x = x - mean(x)
-    }
-    x = abs(x)
+  if (DCfix) {
+    channelData = channelData - matrixStats::rowMeans2(channelData)
+  }
+
+  lapply(1:nrow(channelData), function(x) {
+    x = abs(channelData[x,])
 
     apply(allSamples, 1, function(y) {
       samples = x[y[1]:y[2]]
@@ -447,7 +440,14 @@ BGN = function(soundfile,
       c(BGN = modalIntensity, POW = dbMax - modalIntensity)
     })
 
-  })
+  }) |>
+    setNames(switch(
+      attr(channelData, "channel"),
+      "stereo" = c("left", "right"),
+      "mono"   = "mono",
+      "left"   = "left",
+      "right"  = "right"
+    ))
 
 }
 

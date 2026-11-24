@@ -20,26 +20,17 @@ processChannel.BGN = function(channelData,
 
   hBreak = hBreaks.MAT(histbreaks)
 
-  channelData = switch(
-    channel,
-    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
-    "mono"   = list(mono  = channelData[1, ]),
-    "left"   = list(left  = channelData[1, ]),
-    "right"  = list(right = channelData[2, ])
-  )
-
   if (DCfix) {
-    channelData = lapply(channelData, function(x)
-      x - mean(x))
+    channelData = channelData - matrixStats::rowMeans2(channelData)
   }
 
   bVec = allSamples$b
   eVec = allSamples$e
 
-  noiseOBJ@values = lapply(channelData, function(x) {
+  noiseOBJ@values = lapply(1:nrow(channelData), function(x) {
     BGNPOWdf = lapply(seq_along(bVec), function(i) {
       tempHolder = abs(.spect(
-        x = x[bVec[i]:eVec[i]],
+        x = channelData[x,bVec[i]:eVec[i]],
         n = wl,
         window = window,
         overlap = overlap
@@ -79,6 +70,14 @@ processChannel.BGN = function(channelData,
 
   })
 
+  names(noiseOBJ@values) = switch(
+      channel,
+      "stereo" = c("left", "right"),
+      "mono"   = "mono",
+      "left"   = "left",
+      "right"  = "right"
+    )
+
   noiseOBJ@index = c("BGN", "POW")
   noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
   noiseOBJ@sampRate = samp.rate
@@ -105,21 +104,13 @@ processChannel.ACI = function(channelData,
 
   frameBin = nrow(allSamples)
 
-  channelData = switch(
-    channel,
-    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
-    "mono"   = list(mono  = channelData[1, ]),
-    "left"   = list(left  = channelData[1, ]),
-    "right"  = list(right = channelData[2, ])
-  )
-
   bVec = allSamples$b
   eVec = allSamples$e
 
-  noiseOBJ@values = lapply(channelData, function(x) {
+  noiseOBJ@values = lapply(1:nrow(channelData), function(x) {
     ACIdf = lapply(seq_along(bVec), function(i) {
       tempHolder = abs(.spect(
-        x = x[bVec[i]:eVec[i]],
+        x = channelData[x,bVec[i]:eVec[i]],
         n = wl,
         window = window,
         overlap = overlap
@@ -153,6 +144,14 @@ processChannel.ACI = function(channelData,
 
   })
 
+  names(noiseOBJ@values) = switch(
+    channel,
+    "stereo" = c("left", "right"),
+    "mono"   = "mono",
+    "left"   = "left",
+    "right"  = "right"
+  )
+
   noiseOBJ@index = "ACI"
   noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
   noiseOBJ@sampRate = samp.rate
@@ -179,21 +178,13 @@ processChannel.ENT = function(channelData,
 
   frameBin = nrow(allSamples)
 
-  channelData = switch(
-    channel,
-    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
-    "mono"   = list(mono  = channelData[1, ]),
-    "left"   = list(left  = channelData[1, ]),
-    "right"  = list(right = channelData[2, ])
-  )
-
   bVec = allSamples$b
   eVec = allSamples$e
 
-  noiseOBJ@values = lapply(channelData, function(x) {
+  noiseOBJ@values = lapply(1:nrow(channelData), function(x) {
     ENTdf = lapply(seq_along(bVec), function(i) {
       tempHolder = .spect(
-        x = x[bVec[i]:eVec[i]],
+        x = channelData[x,bVec[i]:eVec[i]],
         n = wl,
         window = window,
         overlap = overlap
@@ -218,6 +209,14 @@ processChannel.ENT = function(channelData,
                   ))))
 
   })
+
+  names(noiseOBJ@values) = switch(
+    channel,
+    "stereo" = c("left", "right"),
+    "mono"   = "mono",
+    "left"   = "left",
+    "right"  = "right"
+  )
 
   noiseOBJ@index = "ENT"
   noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
@@ -250,26 +249,17 @@ processChannel.EVN = function(channelData,
 
   hBreak = hBreaks.MAT(histbreaks)
 
-  channelData = switch(
-    channel,
-    "stereo" = list(left  = channelData[1, ], right = channelData[2, ]),
-    "mono"   = list(mono  = channelData[1, ]),
-    "left"   = list(left  = channelData[1, ]),
-    "right"  = list(right = channelData[2, ])
-  )
-
   if (DCfix) {
-    channelData = lapply(channelData, function(x)
-      x - mean(x))
+    channelData = channelData - matrixStats::rowMeans2(channelData)
   }
 
   bVec = allSamples$b
   eVec = allSamples$e
 
-  noiseOBJ@values = lapply(channelData, function(x) {
+  noiseOBJ@values = lapply(1:nrow(channelData), function(x) {
     EVNdf = lapply(seq_along(bVec), function(i) {
       tempHolder = abs(.spect(
-        x = x[bVec[i]:eVec[i]],
+        x = channelData[x,bVec[i]:eVec[i]],
         n = wl,
         window = window,
         overlap = overlap
@@ -303,6 +293,14 @@ processChannel.EVN = function(channelData,
                   ))))
 
   })
+
+  names(noiseOBJ@values) = switch(
+    channel,
+    "stereo" = c("left", "right"),
+    "mono"   = "mono",
+    "left"   = "left",
+    "right"  = "right"
+  )
 
   noiseOBJ@index = c("EVN")
   noiseOBJ@timeBins = setNames(round((allSamples$e - allSamples$b) / samp.rate), paste0("BIN", seq(frameBin)))
