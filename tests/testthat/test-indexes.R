@@ -47,9 +47,7 @@ test_that("acoustic indices functions works correctly", {
     bit = 8
   )
 
-  mockupBackup = list()
-
-  mockupBackup[["ogARGS"]] = list(
+  mockupBackup = list(
     channel = "stereo",
     timeBin = 60,
     dbThreshold = -90,
@@ -65,10 +63,10 @@ test_that("acoustic indices functions works correctly", {
     normality = "ad.test",
     beta = TRUE,
     saveNoise = TRUE,
-    type = "soundSAT",
     od = dir,
-    nFiles = length(list.files(dir, pattern = ".wav")),
-    concluded = 1
+    backup = dir,
+    files = recDir,
+    relativeFiles = recName
   )
 
   expect_s4_class(ACIspec(recDir[1]), "noise.matrix")
@@ -204,15 +202,16 @@ test_that("acoustic indices functions works correctly", {
   expect_error(EVNspec("completely-made-up-for-example.png"))
   expect_s4_class(EVNspec(recDir[[1]], timeBin = NULL), "noise.matrix")
 
-  expect_type(soundACT(dir), "list")
-  expect_type(soundACT(dir, channel = "right"), "list")
-  expect_type(soundACT(dir, backup = dir), "list")
+  expect_type(soundSAT(dir, saveNoise = TRUE)$act, "list")
+  expect_type(soundSAT(dir, channel = "right", saveNoise = TRUE)$act, "list")
 
-  backup = paste0(dir, "/SATBACKUP.RData")
+  backupDir = file.path(dir, "SATbackup")
+  dataDir = file.path(backupDir, "data")
+  dir.create(dataDir, recursive = TRUE)
 
-  saveRDS(mockupBackup, file = backup)
+  saveRDS(mockupBackup, file = file.path(backupDir, "args.rds"))
 
-  expect_type(satBackup(backup), "list")
+  expect_type(satBackup(backupDir), "list")
 
   expect_type(SAT(sampleBGN), "list")
   expect_type(SAT(sampleBGN, channel = "mono"), "list")
@@ -247,10 +246,10 @@ test_that("acoustic indices functions works correctly", {
   expect_error(SAT(sampleBGN, beta = 5))
   expect_error(SAT("empty.wav"))
 
-  expect_type(soundMAT(dir), "list")
-  expect_type(soundMAT(dir, beta = FALSE), "list")
-  expect_type(soundMAT(dir, channel = "mono"), "list")
-  expect_type(soundMAT(dir, backup = dir), "list")
+  expect_type(soundSAT(dir, normality = NULL), "list")
+  expect_type(soundSAT(dir, beta = FALSE, normality = NULL), "list")
+  expect_type(soundSAT(dir, channel = "mono", normality = NULL), "list")
+  expect_type(soundSAT(dir, backup = dir, normality = NULL), "list")
 
   expect_type(soundSAT(dir), "list")
   expect_type(soundSAT(dir, channel = "mono"), "list")
